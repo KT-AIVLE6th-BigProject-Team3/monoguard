@@ -61,7 +61,19 @@
                 </script>
                 <!-- 상단바 끝! -->
                 <div class="container-fluid">
-                    <h1 class="h3 mb-2 text-gray-800 mb-4">QnA</h1>
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-2 text-gray-800 mb-4">QnA</h1>
+                        {% if qna_content.current_user == qna_content.user_id %}
+                        <div>
+                            <a href="#" id="edit" class="d-none d-sm-inline-block btn2 btn-sm btn-primary shadow-sm ">
+                                <span>수정</span>
+                            </a>
+                            <a href="#" id="delete" class="d-none d-sm-inline-block btn2 btn-sm btn-danger shadow-sm ">
+                                <span>삭제</span>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
                     <div class="card shadow mb-4">
                         <div class="notice-card-header py-3">
                             <p class="notice-date">{{ qna_content.created_at }}</p>
@@ -88,7 +100,19 @@
                         </div>
                         {% endif %}
                     </div>
-
+                    {% if qna_content.admin %}
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <div></div>
+                        <div>
+                            <a href="#" id="edit_reply" class="d-none d-sm-inline-block btn2 btn-sm btn-info shadow-sm ">
+                                <span>답변수정</span>
+                            </a>
+                            <a href="#" id="reply" class="d-none d-sm-inline-block btn2 btn-sm btn-info shadow-sm ">
+                                <span>답변하기</span>
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
                     <div class="card shadow mb-4">
                         {% if qna_content.reply_title %}
                         <div class="notice-card-header py-3">
@@ -106,7 +130,7 @@
                         {% else %}
                         <div class="notice-card-header py-3">
                             <div class="QnA-title d-flex">
-                                <h4 class="m-0 font-weight-bold text-black">담당자가 검토 후 답변 작성 대기 중입니다.</h4>
+                                <h4 class="m-0 font-weight-bold text-black"> 담당자가 검토 후 답변 작성 대기 중입니다. </h4>
                             </div>
                         </div>
                         <div class="card-body">
