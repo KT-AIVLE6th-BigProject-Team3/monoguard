@@ -72,7 +72,7 @@
 
         <script>
             // 메뉴를 동적으로 로드
-            fetch('/admin_sidebar')  // 경로 확인
+            fetch('/sidebar')  // 경로 확인
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok ' + response.statusText);
@@ -93,7 +93,7 @@
                 <!-- JavaScript -->
                 <script>
                     // 상단바를 동적으로 로드
-                    fetch('/admin_topbar')
+                    fetch('/topbar')
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error('Network response was not ok ' + response.statusText);
