@@ -87,17 +87,18 @@ def act_admin_main_page(current_user: dict = Depends(auth.get_current_user_from_
 
 @app.get("/admin/userlist", response_class=HTMLResponse)
 def act_userList_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
-    # return templates.TemplateResponse("notice.html", {"request": {}, "user": current_user})
-    return RedirectResponse(url="admin/userlist")
+    return templates.TemplateResponse("admin/user_management.html", {"request": {}, "user": current_user})
 
-@app.get("/equipment_management", response_class=HTMLResponse)
+@app.get("/admin/equipment_management", response_class=HTMLResponse)
 def act_equip_management_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
+    if(current_user):
+        print("유저 존재함")
     return templates.TemplateResponse("admin/equipment_management.html", {"request": {}, "user": current_user})
 
 @app.get("/notice_management", response_class=RedirectResponse)
 def act_notice_management_redirect(current_user: dict = Depends(auth.get_current_user_from_cookie)):
     return RedirectResponse("/board/notice_management/list")
 
-@app.get("/notice_management/list", response_class=HTMLResponse)
+@app.get("/notice_management/list", response_class=HTMLResponse) 
 def act_notice_management_page(request: Request, current_user: dict = Depends(auth.get_current_user_from_cookie)):
     return templates.TemplateResponse("admin/notice_management.html", {"request": request, "user": current_user['sub']})

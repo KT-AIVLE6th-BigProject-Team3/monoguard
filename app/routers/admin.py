@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc # 목록 최신순 출력을 위한 내림차순 추가
 from app.database import SessionLocal
 from app.models import User
+from app.routers import user
 
 router = APIRouter() 
 templates = Jinja2Templates(directory="templates")

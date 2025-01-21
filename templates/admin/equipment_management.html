@@ -40,7 +40,7 @@
 
         <script>
             // 메뉴를 동적으로 로드
-            fetch('/admin_sidebar')  // 경로 확인
+            fetch('/sidebar')  // 경로 확인
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok ' + response.statusText);
@@ -62,10 +62,10 @@
                                 <!-- 상단바를 삽입할 영역 -->
                                 <div id="topbar"></div>
 
-                                <!-- JavaScript -->
+                                <!-- JavaScript --> 
                                 <script>
                                     // 상단바를 동적으로 로드
-                                    fetch('/admin_topbar')
+                                    fetch('/topbar')
                                         .then(response => {
                                             if (!response.ok) {
                                                 throw new Error('Network response was not ok ' + response.statusText);
@@ -85,7 +85,7 @@
 
                     <!-- 페이지 헤딩-->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">장비관리</h1>
+                        <h1 class="h3 mb-0 text-gray-800">장비관리{{user.admin}}</h1>
                     </div>
 
 

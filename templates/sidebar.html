@@ -51,27 +51,34 @@
             </a>
         </li>
 
-        <!-- Nav Item - Administrator Dashboard -->
+        <!-------------------------------- Nav Item - Administrator Dashboard -------------------------------->
+        {% if user.admin %}
+        <li class="nav-item active">
+            <a class="nav-link">
+                <span>관리자 메뉴</span>
+            </a>
+        </li>
+    
         <li class="nav-item active">
             <a class="nav-link" href="/admin/userlist">
                 <span class="material-icons">person</span>
                 <span>사용자 관리</span>
             </a>
         </li>
-<!--임시 기능-->
+    
         <li class="nav-item active">
             <a class="nav-link" href="/notice_management">
                 <span class="material-icons">info</span>
                 <span>공지사항 관리</span>
             </a>
         </li>
-
+    
         <li class="nav-item active">
-            <a class="nav-link" href="/equipment_management">
+            <a class="nav-link" href="/admin/equipment_management">
                 <span class="material-icons">build</span>
                 <span>장비 이력 관리</span>
             </a>
         </li>
-
+    {% endif %}
     </ul>
     <!-- 슬라이드바 끝!! -->

@@ -90,7 +90,13 @@
 
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">사용자 정보</h6>
+                            <h6 class="m-0 font-weight-bold text-primary">사용자 정보 
+                                {% if user %}
+                                    (관리자 여부: {{ user.admin }})
+                                {% else %}
+                                    (사용자 정보 없음)
+                                {% endif %}
+                            </h6>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -110,17 +116,17 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for user in userList %}
+                                        {% for U in userList %}
                                         <tr>
-                                            <td>{{ user.admin }}</td>
-                                            <td>{{ user.name }}</td>
-                                            <td>{{ user.employee_id }}</td>
-                                            <td>{{ user.department }}</td>
-                                            <td>{{ user.phone }}</td>
-                                            <td>{{ user.email }}</td>
-                                            <td>{{ user.created_at }}</td>
+                                            <td>{{ U.admin }}</td>
+                                            <td>{{ U.name }}</td>
+                                            <td>{{ U.employee_id }}</td>
+                                            <td>{{ U.department }}</td>
+                                            <td>{{ U.phone }}</td>
+                                            <td>{{ U.email }}</td>
+                                            <td>{{ U.created_at }}</td>
                                             <td>
-                                                <button class="btn btn-danger btn-sm delete-btn" data-user-id="{{ user.id }}">삭제</button>
+                                                <button class="btn btn-danger btn-sm delete-btn" data-user-id="{{ U.id }}">삭제</button>
                                                 <button class="btn btn-success btn-sm edit-btn">수정</button>
                                             </td>
                                         </tr>
