@@ -32,6 +32,7 @@ def act_register_page(request: Request):
 def act_main_page(request: Request, current_user: dict = Depends(auth.get_current_user_from_cookie)):
     if current_user is None:
         return RedirectResponse(url="/?alert=expired", status_code=303)
+    print(current_user)
     return templates.TemplateResponse("index.html", {"request": request, "user": current_user})
 
 @app.get("/notice", response_class=HTMLResponse)

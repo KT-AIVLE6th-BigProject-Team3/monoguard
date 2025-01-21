@@ -102,7 +102,8 @@ def list_question(
 def read_question(
     request: Request,
     id: int,
-    db: Session = Depends(lambda: SessionLocal())
+    db: Session = Depends(lambda: SessionLocal()),
+    current_user: dict = Depends(auth.get_current_user_from_cookie)
 ):
     existing = db.query(QnA).filter(QnA.id == id).first()
     if not existing:
@@ -120,6 +121,8 @@ def read_question(
         "reply_at" : existing.reply_at,
         "filename": existing.attachment_filename,
         "content_type": existing.attachment_content_type,
+        "current_user": current_user['sub'],
+        "admin": current_user['admin']
     }
     return templates.TemplateResponse(
         "QnA_page.html",
@@ -240,7 +243,8 @@ def list_notice(
     request: Request,
     page: int = 0, # 목록 페이지 번호
     limit: int = 10, # 페이지당 출력할 게시글 수
-    db: Session = Depends(lambda: SessionLocal())
+    db: Session = Depends(lambda: SessionLocal()),
+    current_user: dict = Depends(auth.get_current_user_from_cookie)
 ):
     # 전체 게시글 수
     total_count = db.query(func.count(Notice.id)).scalar()
@@ -288,7 +292,8 @@ def list_notice(
             "current_page": page,
             "total_pages": total_pages,
             "page_range": page_range,
-            "total_count": total_count
+            "total_count": total_count,
+            "admin" : current_user['admin']
         }
     )
 
@@ -297,7 +302,8 @@ def list_notice(
 def read_notice(
     request: Request,
     id: int,
-    db: Session = Depends(lambda: SessionLocal())
+    db: Session = Depends(lambda: SessionLocal()),
+    current_user: dict = Depends(auth.get_current_user_from_cookie)
 ):
     existing = db.query(Notice).filter(Notice.id == id).first()
     if not existing:
@@ -315,6 +321,8 @@ def read_notice(
             "title" : existing.title,
             "content" : existing.content,
             "created_at" : existing.created_at,
+            "current_user": current_user['sub'],
+            "admin": current_user['admin'],
             "files" : [
                 {
                     "filename": existing.attachment_filename,

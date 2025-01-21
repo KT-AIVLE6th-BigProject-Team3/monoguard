@@ -23,7 +23,7 @@ class Notice(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(String, ForeignKey("users.employee_id"))
     created_at = Column(String)
     updated_at = Column(String)
     
@@ -39,7 +39,7 @@ class QnA(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(String, ForeignKey("users.employee_id"))
     created_at = Column(String)
     updated_at = Column(String)
     

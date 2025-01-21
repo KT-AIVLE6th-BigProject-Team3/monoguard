@@ -119,6 +119,9 @@
                                             <th>번호</th>
                                             <th>제목</th>
                                             <th>작성일</th>
+                                            {% if admin %}
+                                            <th>수정/삭제</th>
+                                            {% endif %}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -131,6 +134,12 @@
                                                 </a>
                                             </td>
                                             <td>{{ notice.created_at }}</td>
+                                            {% if admin %}
+                                            <td>
+                                                <button class="btn btn-success btn-sm reply-btn">수정</button>
+                                                <button class="btn btn-fail btn-sm reply-btn" data-notice-id="{{ notice.id }}">삭제</button>
+                                            </td>
+                                            {% endif %}
                                         </tr>
                                         {% endfor %}
                                     </tbody>
