@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <meta name="description" content="QnA" />
+        <meta name="author" content="황은비" />
+        <meta
+          http-equiv="Cache-Control"
+          content="no-cache, no-store, must-revalidate"
+        />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
+    <title>MonoGuard</title>
+
+    <!-- 외부 CSS 및 아이콘 폰트 -->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+    <link rel="stylesheet" href="/static/css/prj.css">
+    <link rel="icon" href="/static/img/fabicon.svg" />
+</head>
+
+<!-- <body id="page-top" onload="fetchHome()"> -->
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- 메뉴 영역 (사이드바) -->
+      <div id="menu"></div>
+
+      <!-- 메인 콘텐츠 영역 -->
+      <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+          <!-- 상단바 영역 -->
+          <div id="topbar"></div>
+
+          <!-- 페이지 콘텐츠 -->
+          <div class="container-fluid">
+            <!-- 페이지 제목 -->
+            <div
+              class="d-sm-flex align-items-center justify-content-between mb-3"
+            >
+              <h1 class="h3 mb-0 text-gray-800">대시보드</h1>
+            </div>
+
+            <!-- 탭 버튼 영역 -->
+            <div class="tab-buttons">
+              <div class="slider-container">
+                <button class="tab-btn active" onclick="showTab('avg')">
+                  AGV
+                </button>
+                <button class="tab-btn" onclick="showTab('oht')">OHT</button>
+                <div class="slider"></div>
+              </div>
+            </div>
+
+            <!-- AVG 탭 콘텐츠 -->
+            <div id="avg-tab" class="tab-content active">
+              <!--상단 요약카드-->
+              <div class="row">
+                <!--정상가동-->
+                <div class="col-xl-3 col-md-6 mb-4">
+                  <div class="card border-left-success shadow h-100 py-2">
+                    <div class="small-card-body">
+                      <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                          <div
+                            class="text-xs font-weight-bold text-success text-uppercase mb-1"
+                          >
+                            정상기기
+                          </div>
+                          <div class="h5 mb-0 font-weight-bold text-gray-900">
+                            12대
+                          </div>
+                        </div>
+                        <div class="col-auto"> 
+                          <i
+                            class="fa-solid fa-circle-check fa-2x text-gray-300"
+                          ></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 관심 필요 -->
+                <div class="col-xl-3 col-md-6 mb-4">
+                  <div class="card border-left-caution shadow h-100 py-2">
+                    <div class="small-card-body">
+                      <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                          <div
+                            class="text-xs font-weight-bold text-caution text-uppercase mb-1"
+                          >
+                            관심기기
+                          </div>
+                          <div class="h5 mb-0 font-weight-bold text-gray-900">
+                            3대
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <i
+                            class="fas fa-exclamation-circle fa-2x text-gray-300"
+                          ></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!--경고-->
+                <div class="col-xl-3 col-md-6 mb-4">
+                  <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="small-card-body">
+                      <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                          <div
+                            class="text-xs font-weight-bold text-warning text-uppercase mb-1"
+                          >
+                            경고기기
+                          </div>
+                          <div class="row no-gutters align-items-center">
+                            <div class="col-auto">
+                              <div
+                                class="h5 mb-0 mr-3 font-weight-bold text-gray-900"
+                              >
+                                4대
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <i
+                            class="fas fa-exclamation-triangle fa-2x text-gray-300"
+                          ></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!--위험-->
+                <div class="col-xl-3 col-md-6 mb-4">
+                  <div class="card border-left-danger shadow h-100 py-2">
+                    <div class="small-card-body">
+                      <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                          <div
+                            class="text-xs font-weight-bold text-danger text-uppercase mb-1"
+                          >
+                            위험기기
+                          </div>
+                          <div class="h5 mb-0 font-weight-bold text-gray-900">
+                            18대
+                          </div>
+                        </div>
+                        <div class="siren-icon text-gray-300">
+                          <img src="/static/img/siren.svg" alt="siren" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- AVG 콘텐츠 -->
+              <div class="row">
+                <!-- 좌측 콘텐츠 -->
+                <div class="col-lg-7 mb-3">
+                  <!-- 1. 상태분포 -->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        상태분포
+                      </h6>
+                    </div>
+                    <div class="agv-env-card-body">
+                      <iframe
+                        src="http://localhost:8501"
+                        width="100%"
+                        height="110"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                  <!-- 2. 주의 및 위험 장비-->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        시간에 따른 장비 상태
+                      </h6>
+                    </div>
+                    <div class="agv-env-card-body">
+                      <iframe
+                        src="http://localhost:8501"
+                        width="100%"
+                        height="315"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                  <!-- 주의 및 위험 장비 -->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        주의 및 위험 장비
+                      </h6>
+                    </div>
+                    <div class="agv-env-card-body">
+                      <iframe
+                        src="http://localhost:8501"
+                        width="100%"
+                        height="315"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                  <!-- 장비설비 현황 -->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        장비설비 현황
+                      </h6>
+                    </div>
+                    <div class="agv-env-card-body">
+                      <iframe
+                        src="http://localhost:8501"
+                        width="100%"
+                        height="315"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 우측 콘텐츠 -->
+                <div class="col-lg-5 mb-3">
+                  <!-- 1. 기기 현황 -->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        최근 작업 환경
+                      </h6>
+                    </div>
+                    <div class="agv-env-card-body">
+                      <iframe
+                        src="http://localhost:8501"
+                        width="100%"
+                        height="110"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                  <!--2. 작업현장 온도 변화 -->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        작업현장 온도 변화
+                      </h6>
+                    </div>
+                    <div class="agv-env-card-body">
+                      <iframe
+                        src="http://localhost:8501"
+                        width="100%"
+                        height="315"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                  <!-- 작업현장 습도 변화 -->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        작업현장 습도 변화
+                      </h6>
+                    </div>
+                    <div class="agv-env-card-body">
+                      <iframe
+                        src="http://localhost:8501"
+                        width="100%"
+                        height="315"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                  <!-- 작업현장 조도 변화 -->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        작업현장 조도 변화
+                      </h6>
+                    </div>
+                    <div class="agv-env-card-body">
+                      <iframe
+                        src="http://localhost:8501"
+                        width="100%"
+                        height="315"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- OHT 탭 콘텐츠 -->
+            <div id="oht-tab" class="tab-content">
+              <!-- OHT 콘텐츠 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 탭 전환을 위한 JavaScript -->
+    <script>
+      // 메뉴와 상단바 로드
+      fetch("/sidebar")
+        .then((response) => response.text())
+        .then((html) => (document.getElementById("menu").innerHTML = html))
+        .catch((error) => console.error("Error loading sidebar:", error));
+
+      fetch("/topbar")
+        .then((response) => response.text())
+        .then((html) => (document.getElementById("topbar").innerHTML = html))
+        .catch((error) => console.error("Error loading topbar:", error));
+
+     //=========================================임시 기능 코드=================================================
+      /* 
+      탑바 & 사이드바에 스크립트 작성이 불가하기에 임시로 이 페이지에서 버튼을 바인딩해 기능테스트를 해보았습니다.
+      추후 html 구조 변경이 필요해보입니다.
+      또한 현재 index.html의 경우 confirm이 뜬 상태로 리소스가 로드되면 자동으로 수락이 되어 다음 단계로 넘어가는 문제가
+      있습니다. 
+      */
+
+      var currentUser = {{ user | tojson | safe }};
+
+      // 이벤트 바인딩 함수
+      function attachTopbarEvents() {
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", handleLogOut);
+        }
+        const adminBtn = document.getElementById("adminBtn");
+        if(adminBtn){
+          adminBtn.addEventListener("click", handleAdminMenu);
+        }
+      }
+
+      fetch("/topbar")
+      .then((response) => response.text())
+      .then(html => {
+        document.getElementById("topbar").innerHTML = html;
+        attachTopbarEvents();
+      }).catch((error) => console.error("Error loading topbar:", error));
+
+      async function handleLogOut() {
+        const userConfirmed = confirm("로그아웃 하시겠습니까?");
+        if (!userConfirmed) return;
+    
+        try {
+            const response = await fetch("/auth/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+    
+            if (response.ok) {
+                alert("로그아웃 하였습니다.");
+                window.location.href = "/";
+            } else {
+                const data = await response.json();
+                alert(`로그아웃 실패: ${data.message || "알 수 없는 오류"}`);
+            }
+        } catch (error) {
+            console.error("Error during logout:", error);
+            alert("서버와 통신 중 오류가 발생했습니다.");
+        }
+    }
+
+    async function handleAdminMenu() {
+      /*if (!currentUser || !currentUser.admin) {
+        alert("관리자 권한이 없습니다. 올바른 경로를 사용해주세요.");
+        return;
+        관리자 버튼은 해당 사용자가 관리자일 경우에만 노출되도록 구현할 계획입니다.
+        우선은, 기능 구현 테스트를 위해 버튼 가시성은 추후 조절하겠습니다.*/
+        alert(`관리자 메뉴에 접근합니다. 사용자: ${currentUser.name}`);
+        window.location.href = '/admin/userlist';
+      }
+    //=============================================================================================================
+
+
+
+      // 탭 전환 함수
+      function showTab(tabName) {
+        // 모든 탭 콘텐츠 숨기기
+        const tabContents = document.querySelectorAll(".tab-content");
+        tabContents.forEach((content) => {
+          content.classList.remove("active");
+        });
+
+        // 모든 탭 버튼 비활성화
+        const tabButtons = document.querySelectorAll(".tab-btn");
+        tabButtons.forEach((btn) => {
+          btn.classList.remove("active");
+        });
+
+        // 선택된 탭 활성화
+        const selectedTab = document.getElementById(tabName + "-tab");
+        const selectedButton = document.querySelector(
+          `button[onclick="showTab('${tabName}')"]`
+        );
+
+        if (selectedTab && selectedButton) {
+          selectedTab.classList.add("active");
+          selectedButton.classList.add("active");
+
+          // 슬라이더 이동
+          const slider = document.querySelector(".slider");
+          if (slider) {
+            const buttonRect = selectedButton.getBoundingClientRect();
+            const containerRect = document
+              .querySelector(".slider-container")
+              .getBoundingClientRect();
+            const leftOffset = buttonRect.left - containerRect.left;
+            slider.style.width = buttonRect.width + "px";
+            slider.style.transform = `translateX(${leftOffset}px)`;
+          }
+        }
+      }
+
+      // 페이지 로드 시 초기 슬라이더 위치 설정
+      document.addEventListener("DOMContentLoaded", () => {
+        const firstButton = document.querySelector(".tab-btn");
+        if (firstButton) {
+          const slider = document.querySelector(".slider");
+          if (slider) {
+            slider.style.width = firstButton.offsetWidth + "px";
+          }
+        }
+        // 초기 탭 설정
+        showTab("avg");
+      });
+    </script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="QnA">
+    <meta name="author" content="황은비">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+
+    <title>MonoGuard</title>
+
+    <!--아이콘이랑 폰트가져오기-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+    <!--CSS 파일 명시-->
+    <link rel="stylesheet" href="/static/css/prj.css">
+
+    <!-- 일반적인 fabicon 설정 -->
+    <link rel="icon" href="/static/img/fabicon.svg" />
+
+    <style>
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            margin-bottom: 10px;
+            display: inline-block;
+            /* 내용 길이에 맞춰 조정 */
+            width: auto;
+            /* 자동 너비 조정 */
+        }
+
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            margin-bottom: 10px;
+            display: inline-block;
+            /* 내용 길이에 맞춰 조정 */
+            width: auto;
+            /* 자동 너비 조정 */
+        }
+
+        .chat-messages {
+            height: 400px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            /* Flexbox 레이아웃 사용 */
+            flex-direction: column;
+            /* 세로 방향 정렬 */
+            gap: 16px;
+            /* 메시지 간 간격 */
+        }
+
+        .user-message {
+            background: #4e73df;
+            color: white;
+            align-self: flex-end;
+            /* 오른쪽 정렬 */
+        }
+
+        .bot-message {
+            background: #f8f9fc;
+            color: #1a1a1a;
+            align-self: flex-start;
+            /* 왼쪽 정렬 */
+        }
+
+        .input-container {
+            padding-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            border: 1px solid #d1d3e2;
+        }
+
+        #user-input:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+
+        @keyframes dots {
+
+            0%,
+            20% {
+                content: '.';
+            }
+
+            40% {
+                content: '..';
+            }
+
+            60%,
+            100% {
+                content: '...';
+            }
+        }
+    </style>
+
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- 메뉴가 동적으로 로드될 영역 -->
+        <div id="menu"></div>
+
+        <script>
+            // 메뉴를 동적으로 로드
+            fetch('/sidebar')  // 경로 확인
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById('menu').innerHTML = html;
+                })
+                .catch(error => console.error('Error loading sidebar:', error));
+        </script>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- 메인 콘텐츠 -->
+            <div id="content">
+
+                <!-- 상단바를 삽입할 영역 -->
+                <div id="topbar"></div>
+
+                <!-- JavaScript -->
+                <script>
+                    // 상단바를 동적으로 로드
+                    fetch('/topbar')
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok ' + response.statusText);
+                            }
+                            return response.text();
+                        })
+                        .then(html => {
+                            document.getElementById('topbar').innerHTML = html;
+                        })
+                        .catch(error => console.error('Error loading topbar:', error));
+                </script>
+                <!-- 상단바 끝! -->
+
+
+                <!--페이지 콘텐츠 부분-->
+                <div class="container-fluid">
+
+                    <!-- 페이지 헤딩-->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">MonoGuard 챗봇</h1>
+                    </div>
+                    <div class="card2 shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">대화 내용</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chat-messages" id="chat-messages"
+                                style="height: 400px; overflow-y: auto; margin-bottom: 20px;">
+                            </div>
+                            <div class="loading" id="loading"
+                                style="display: none; text-align: center; color: #666; margin-bottom: 10px;">
+                                AI가 응답을 생성하는 중<span class="loading-dots"></span>
+                            </div>
+                            <div class="input-container d-flex">
+                                <input type="text" id="user-input" class="form-control mr-2"
+                                    placeholder="메시지를 입력하세요...">
+                                <button id="send-button" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <script>
+                const chatMessages = document.getElementById('chat-messages');
+                const userInput = document.getElementById('user-input');
+                const sendButton = document.getElementById('send-button');
+                const loadingIndicator = document.getElementById('loading');
+
+                async function sendMessage() {
+                    const message = userInput.value.trim();
+                    if (!message) return;
+
+                    // 사용자 메시지 표시
+                    appendMessage(message, 'user');
+                    userInput.value = '';
+
+                    // 로딩 표시
+                    loadingIndicator.style.display = 'block';
+
+                    try {
+                        // FastAPI 엔드포인트 호출
+                        const response = await fetch(`http://localhost:8000/chat-bot?question=${encodeURIComponent(message)}`);
+
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+
+                        const data = await response.text();
+                        appendMessage(data, 'bot');
+                    } catch (error) {
+                        console.error('Error:', error);
+                        appendMessage('죄송합니다. 오류가 발생했습니다.', 'bot');
+                    } finally {
+                        loadingIndicator.style.display = 'none';
+                    }
+                }
+
+                function appendMessage(message, sender) {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = `message ${sender}-message`;
+                    messageDiv.textContent = message;
+                    chatMessages.appendChild(messageDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+
+                sendButton.addEventListener('click', sendMessage);
+                userInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        sendMessage();
+                    }
+                });
+            </script>
+</body>
+
+</html>

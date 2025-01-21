@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MonoGuard</title>
+    <link rel="stylesheet" href="/static/css/login.css">
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+</head>
+
+<body>
+    <div class="page-container">
+        <div class="logo-container">
+            <img class="logo" src="/static/img/logo.svg" alt="MonoGuard Logo">
+        </div>
+        <div class="form-container">
+            <div class="login-container">
+                <div class="login">
+                    <span class="login-text">로그인</span>
+                    <span id="error-message" style="color: red; font-size: 14px; margin-left: 10px;"></span>
+                </div>
+            </div>
+        
+            <!-- 로그인 폼 -->
+            <div class="form-group">
+                <input class="input-box input-label" id="employee-id" name="employee_id" type="text" placeholder="ID(사번)" required>
+            </div>
+            <div class="form-group">
+                <input class="input-box input-label" id="password" name="password" type="password" placeholder="PW" required>
+            </div>
+            <div class="form-group">
+                <button class="button-box" type="button" onclick="handleLogin()">
+                    <span class="button-label">로그인</span>
+                </button>
+            </div>
+        
+            <div class="signup" onclick="handleSignUp()">
+                <span class="signup-text">회원가입하기</span>
+            </div>
+        </div>
+        
+        </div>
+    </div>
+
+    <script>
+        function handleSignUp(){
+            window.location.href = '/signup';
+        }
+    
+        async function handleLogin() {
+            const employeeId = document.getElementById("employee-id").value;
+            const password = document.getElementById("password").value;
+            const errorMessage = document.getElementById("error-message");
+        
+            try {
+                const response = await fetch("/auth/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: new URLSearchParams({
+                        employee_id: employeeId,
+                        password: password,
+                    }),
+                });
+        
+                const result = await response.json(); 
+        
+                if (!response.ok) {
+                    errorMessage.textContent = result.message || "아이디 또는 비밀번호가 잘못되었습니다.";
+                    return;
+                }
+        
+                // JWT 저장
+                localStorage.setItem("access_token", result.access_token);
+        
+                // 홈 페이지로 이동
+                window.location.href = "/home";
+            } catch (error) {
+                errorMessage.textContent = "로그인 처리 중 오류가 발생했습니다.";
+            }
+        }
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,153 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.page-container {
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.logo-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo {
+    width: 300px;
+    height: auto;
+    object-fit: contain;
+}
+
+
+
+.content {
+    width: 100%;
+    background: white;
+    box-shadow: 1px 1px 16px 12px rgba(216, 216, 216, 0.25);
+    border-radius: 20px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-container {
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.input-box {
+    width: 100%;
+    max-width: 600px;
+    height: 60px;
+    background: #F0F0F2;
+    border: 2px solid #A9ABB0;
+    display: flex;
+    align-items: center;
+    padding-left: 15px;
+    border-radius: 5px;
+    box-sizing: border-box; /* 추가 */
+}
+
+.input-label {
+    color: #4C4E52;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+.input-box:focus {
+    border-color: #293A91;
+}
+
+.button-box {
+    width: 100%;
+    max-width: 600px;
+    height: 60px;
+    background: #293A91;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    box-sizing: border-box; /* 추가 */
+
+}
+
+.button-label {
+    color: white;
+    font-size: 24px;
+    font-weight: 300;
+    text-align: center;
+}
+
+.login {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;  /* 중앙 정렬 */
+    margin-bottom: 1.5rem;
+    padding-left: 1x;  /* input-box와 같은 패딩 적용 */
+
+}
+
+.login-text{
+    color:#4C4E52;
+    font-size: 24px;
+    font-weight: 600;
+    cursor: default;  /* 기본 마우스 커서로 변경 */
+
+}
+
+.signup {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.signup-text {
+    color: #293A91;
+    font-size: 20px;
+    font-weight: 300;
+    cursor: pointer;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 600px) {
+    .title {
+        font-size: 36px;
+    }
+
+    .input-box,
+    .button-box {
+        height: 50px;
+    }
+
+    .input-label,
+    .button-label {
+        font-size: 18px;
+    }
+
+    .signup-text {
+        font-size: 16px;
+    }
+}

@@ -1,0 +1,80 @@
+<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+    <!-- Sidebar Toggle (Topbar) -->
+    <form class="form-inline">
+        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+            <i class="fa fa-bars"></i>
+        </button>
+    </form>
+
+    <!-- Topbar Navbar -->
+    <ul class="navbar-nav ml-auto">
+
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" 
+                    type="button" onclick="handleLogOut()">
+                로그아웃
+            </button>
+        </div>
+
+        <!-- Nav Item - Search -->
+        <li class="nav-item dropdown no-arrow d-sm-none">
+            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-search fa-fw"></i>
+            </a>
+        </li>
+        <!-- Nav Item - Alerts -->
+        <li class="nav-item dropdown no-arrow mx-1">
+            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-bell fa-fw"></i>
+                <span class="badge badge-danger badge-counter">9+</span>
+            </a>
+        </li>
+        <!-- Nav Item - Messages -->
+        <li class="nav-item dropdown no-arrow mx-1">
+            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-envelope fa-fw"></i>
+                <span class="badge badge-danger badge-counter">5</span>
+            </a>
+        </li>
+        <div class="topbar-divider d-none d-sm-block"></div>
+        <!-- Nav Item - User Information -->
+        <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                <span class="mr-2 d-none d-lg-inline text-gray-600 small"> {{ user.name }}님</span>
+                <span class="material-icons account-icon">account_circle</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<script>
+    async function handleLogOut() {
+        alert("test");
+        /*const userConfirmed = confirm("로그아웃 하시겠습니까?");
+        if (!userConfirmed) return;
+    
+        try {
+            const response = await fetch("/auth/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",logoutBtn
+                },
+            });
+    
+            if (response.ok) {
+                alert("로그아웃 하였습니다.");
+                window.location.href = "/";
+            } else {
+                const data = await response.json();
+                alert(`로그아웃 실패: ${data.message || "알 수 없는 오류"}`);
+            }
+        } catch (error) {
+            console.error("Error during logout:", error);
+            alert("서버와 통신 중 오류가 발생했습니다.");
+        }*/
+    }
+</script> 

@@ -1,0 +1,15 @@
+openai
+transformers
+torch
+haversine
+pandas
+fastapi
+sqlmodel
+sqlalchemy
+psycopg2-binary
+uvicorn[standard]
+passlib[bcrypt]
+PyJWT
+python-dotenv
+python-jose
+python-decouple
