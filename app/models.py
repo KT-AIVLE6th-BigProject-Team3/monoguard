@@ -49,7 +49,7 @@ class QnA(Base):
     attachment_data = Column(LargeBinary, nullable=True)
     
     # reply information
-    reply_user = Column(Integer, nullable=True)
+    reply_user = Column(String, nullable=True)
     reply_title = Column(String, nullable=True)
     reply_content = Column(String, nullable=True)
     reply_at = Column(String, nullable=True)

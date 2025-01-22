@@ -104,12 +104,15 @@
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <div></div>
                         <div>
+                            {% if qna_content.reply_title %}
                             <a href="#" id="edit_reply" class="d-none d-sm-inline-block btn2 btn-sm btn-info shadow-sm ">
                                 <span>답변수정</span>
                             </a>
+                            {% else %}
                             <a href="#" id="reply" class="d-none d-sm-inline-block btn2 btn-sm btn-info shadow-sm ">
                                 <span>답변하기</span>
                             </a>
+                            {% endif %}
                         </div>
                     </div>
                     {% endif %}

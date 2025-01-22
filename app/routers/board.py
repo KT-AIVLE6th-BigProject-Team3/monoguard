@@ -176,7 +176,7 @@ def edit_question(
 def reply_question(
     id: int,
     # reply_id: Depends = (auth.get_current_user_from_cookie),
-    reply_id: int = Form(...), # docs test only
+    reply_id: str = Form(...), # docs test only
     reply_title: str = Form(...),
     reply_content: str = Form(...),
     db: Session = Depends(lambda: SessionLocal())
@@ -234,7 +234,7 @@ async def create_notice(
     
     db.add(new_notice)
     db.commit()
-    return {"message": "New Notice created successfully"}
+    return {"message": "게시글이 성공적으로 등록되었습니다!"}
 
 # 목록 조회
 @router.get("/notice/list", response_class=HTMLResponse)
