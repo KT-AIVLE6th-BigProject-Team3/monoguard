@@ -32,8 +32,7 @@ def act_register_page(request: Request):
 @app.get("/home", response_class=HTMLResponse)
 def act_main_page(request: Request, current_user: dict = Depends(auth.get_current_user_from_cookie)):
     if current_user is None:
-        return RedirectResponse(url="/?alert=expired", status_code=303)
-    print(current_user)
+        return RedirectResponse(url="/error?code=invalid_token", status_code=303)
     return templates.TemplateResponse("index.html", {"request": request, "user": current_user})
 
 @app.get("/notice", response_class=HTMLResponse)
@@ -77,11 +76,15 @@ def get_sidebar(current_user: dict = Depends(auth.get_current_user_from_cookie))
 def get_topbar(current_user: dict = Depends(auth.get_current_user_from_cookie)):
     return templates.TemplateResponse("topbar.html", {"request": {}, "user": current_user})
 
-# for admin_page
+@app.get("/error")
+def error_page(request: Request, code: str = None):
+    return templates.TemplateResponse("error.html", {"request": request, "code": code})
 
-@app.get("/admin/userlist", response_class=HTMLResponse)
-def act_userList_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
-    return templates.TemplateResponse("admin/user_management.html", {"request": {}, "user": current_user})
+# Admin 페이지는 admin 라우터에서 관리하도록 하였습니다.
+
+@app.get("/admin_home", response_class=HTMLResponse)
+def act_admin_main_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
+    return templates.TemplateResponse("admin/admin_index.html", {"request": {}, "user": current_user})
 
 @app.get("/admin/equipment_management", response_class=HTMLResponse)
 def act_equip_management_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):

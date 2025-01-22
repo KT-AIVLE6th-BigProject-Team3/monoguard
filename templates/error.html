@@ -1,0 +1,22 @@
+<script>
+    function invalid_token() {
+        alert("로그인하지 않았거나 토큰이 만료되었습니다. 로그인 해주세요.");
+        window.location.href = "/";
+    }
+ 
+    function invalid_admin() {
+        alert("관리자가 아닙니다. 정상적인 경로로 접근해주세요.");
+        window.location.href = "/home";
+    }
+
+    window.onload = function() {
+        setTimeout(() => {
+            const params = new URLSearchParams(window.location.search);
+            const triggerFunction = params.get("code");
+
+            if (triggerFunction && typeof window[triggerFunction] === "function") {
+                window[triggerFunction]();  // 함수 실행
+            }
+        }, 200);  // 홈페이지가 완전히 로드되기 전 함수 실행 명령은 듣지 않으므로, 200 밀리초 지연 후 실행
+    }
+</script>

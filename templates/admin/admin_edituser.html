@@ -1,0 +1,30 @@
+<!-- templates/admin/edit_user.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>사용자 정보 수정</title>
+</head>
+<body>
+    <h1>사용자 정보 수정</h1>
+
+    <form action="/admin/edit_user/{{ target_user.id }}" method="post">
+        <!-- name, dept, phone, email -->
+        <p>
+            <label>이름: <input type="text" name="name" value="{{ target_user.name }}"></label>
+        </p>
+        <p>
+            <label>부서: <input type="text" name="department" value="{{ target_user.department }}"></label>
+        </p>
+        <p>
+            <label>전화번호: <input type="text" name="phone" value="{{ target_user.phone }}"></label>
+        </p>
+        <p>
+            <label>이메일: <input type="email" name="email" value="{{ target_user.email }}"></label>
+        </p>
+        
+        <button type="submit">저장</button>
+        <button type="button" onclick="window.location.href='/admin/userlist'">취소</button>
+    </form>
+</body>
+</html>

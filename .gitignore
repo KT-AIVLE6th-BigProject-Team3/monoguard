@@ -1,3 +1,7 @@
 .env
 *.db
 *.pyc
+*.csv
+*.zip
+*.bin
+MultiModal_AI_1/

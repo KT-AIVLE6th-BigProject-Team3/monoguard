@@ -91,11 +91,6 @@
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">사용자 정보 
-                                {% if user %}
-                                    (관리자 여부: {{ user.admin }})
-                                {% else %}
-                                    (사용자 정보 없음)
-                                {% endif %}
                             </h6>
                         </div>
                         <div class="card-body">
@@ -118,7 +113,13 @@
                                     <tbody>
                                         {% for U in userList %}
                                         <tr>
-                                            <td>{{ U.admin }}</td>
+                                            <td>
+                                                {% if U.admin %}
+                                                    관리자
+                                                {% else %}
+                                                    일반 사용자
+                                                {% endif %}
+                                            </td>
                                             <td>{{ U.name }}</td>
                                             <td>{{ U.employee_id }}</td>
                                             <td>{{ U.department }}</td>
@@ -126,8 +127,10 @@
                                             <td>{{ U.email }}</td>
                                             <td>{{ U.created_at }}</td>
                                             <td>
-                                                <button class="btn btn-danger btn-sm delete-btn" data-user-id="{{ U.id }}">삭제</button>
-                                                <button class="btn btn-success btn-sm edit-btn">수정</button>
+                                                {% if user.sub != U.employee_id %}
+                                                    <button class="btn btn-danger btn-sm delete-btn" data-user-id="{{ U.id }}">삭제</button>
+                                                {% endif %}
+                                                <button class="btn btn-success btn-sm edit-btn" data-user-id="{{ U.id }}">수정</button>
                                             </td>
                                         </tr>
                                         {% endfor %}
@@ -144,40 +147,49 @@
 </body>
 
 <script>
-
-    /*
-
-    유저 데이터 삭제 & 변경 기능 구현 중에 있습니다.
-
     document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll(".delete-btn").forEach(button => {
+        const deleteButtons = document.querySelectorAll(".delete-btn");
+
+        deleteButtons.forEach(button => {
             button.addEventListener("click", function () {
                 const userId = this.getAttribute("data-user-id");
 
-                if (confirm("정말 이 사용자를 삭제하시겠습니까?")) {
-                    fetch(`/delete_user/${userId}`, {
+                if (confirm("정말로 해당 사용자를 삭제하시겠습니까?")) {
+                    fetch(`/admin/delete_user/${userId}`, {
                         method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
                     })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error("삭제 실패");
+                            throw new Error("삭제 요청이 실패했습니다.");
                         }
                         return response.json();
                     })
                     .then(data => {
-                        alert("사용자가 삭제되었습니다.");
-                        location.reload(); // 페이지 새로고침하여 리스트 업데이트
+                        alert(data.message);
+                        // 테이블에서 해당 행 제거
+                        this.closest("tr").remove();
                     })
                     .catch(error => {
+                        alert("삭제 중 오류가 발생했습니다.");
                         console.error("Error:", error);
-                        alert("사용자 삭제 중 오류가 발생했습니다.");
                     });
                 }
             });
         });
     });
 
-    */
+    document.addEventListener("DOMContentLoaded", function () {
+        const editButtons = document.querySelectorAll(".edit-btn");
+        editButtons.forEach(btn => {
+            btn.addEventListener("click", function() {
+                const userId = this.getAttribute("data-user-id");
+                window.location.href = `/admin/edit_user/${userId}`;
+            });
+        });
+    });
 </script>
 
 </html>
