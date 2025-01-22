@@ -69,18 +69,14 @@ def act_chat_page(current_user: dict = Depends(auth.get_current_user_from_cookie
     return templates.TemplateResponse("chat.html", {"request": {}, "user": current_user})  
 
 @app.get("/sidebar", response_class=HTMLResponse)
-# def get_sidebar():
 def get_sidebar(current_user: dict = Depends(auth.get_current_user_from_cookie)):
     return templates.TemplateResponse("sidebar.html", {"request": {}, "user": current_user})
 
 @app.get("/topbar", response_class=HTMLResponse)
-# def get_topbar():
 def get_topbar(current_user: dict = Depends(auth.get_current_user_from_cookie)):
     return templates.TemplateResponse("topbar.html", {"request": {}, "user": current_user})
 
 # for admin_page
-
-# sidebar and topbar
 
 @app.get("/admin_home", response_class=HTMLResponse)
 def act_admin_main_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
@@ -96,10 +92,3 @@ def act_equip_management_page(current_user: dict = Depends(auth.get_current_user
         print("유저 존재함")
     return templates.TemplateResponse("admin/equipment_management.html", {"request": {}, "user": current_user})
 
-@app.get("/notice_management", response_class=RedirectResponse)
-def act_notice_management_redirect(current_user: dict = Depends(auth.get_current_user_from_cookie)):
-    return RedirectResponse("/board/notice_management/list")
-
-@app.get("/notice_management/list", response_class=HTMLResponse) 
-def act_notice_management_page(request: Request, current_user: dict = Depends(auth.get_current_user_from_cookie)):
-    return templates.TemplateResponse("admin/notice_management.html", {"request": request, "user": current_user['sub']})

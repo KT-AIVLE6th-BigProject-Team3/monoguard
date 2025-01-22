@@ -100,22 +100,54 @@
                         </div>
                         {% endif %}
                     </div>
+
                     {% if qna_content.admin %}
+
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <div></div>
                         <div>
+                            <a href="#" id="replyBtn" data-qna-id="{{ qna_content.id }}" class="d-none d-sm-inline-block btn2 btn-sm btn-info shadow-sm ">
                             {% if qna_content.reply_title %}
-                            <a href="#" id="edit_reply" class="d-none d-sm-inline-block btn2 btn-sm btn-info shadow-sm ">
                                 <span>답변수정</span>
-                            </a>
                             {% else %}
-                            <a href="#" id="reply" class="d-none d-sm-inline-block btn2 btn-sm btn-info shadow-sm ">
                                 <span>답변하기</span>
-                            </a>
                             {% endif %}
+                            </a>
                         </div>
                     </div>
+
+                    <!-- 답변하기 -->
+                    <!-- 답변 모달 -->
+                    <div class="modal" id="replyModal">
+                        <div class="qna-form-container">
+                        <div class="modal-header justify-content-between">
+                            <h2>답변하기</h2>
+                            <button class="close-btn" id="closeReplyModal">&times;</button>
+                        </div>
+                    
+                        <form id="replyForm" method="PUT" enctype="multipart/form-data">
+                            <div class="form-group">
+                            <label for="reply_title">*답변 제목</label>
+                            <input type="text" id="reply_title" name="reply_title" class="form-control"
+                                    placeholder="답변 제목을 입력하세요" value="{{ qna_content.reply_title }}" required>
+                            </div>
+                    
+                            <div class="form-group">
+                            <label for="reply_content">*답변 내용</label>
+                            <textarea id="reply_content" name="reply_content" class="form-control" rows="5"
+                                        placeholder="답변 내용을 입력하세요" required>{{ qna_content.reply_content }}</textarea>
+                            </div>
+                    
+                            <div class="d-sm-flex align-items-center justify-content-between">
+                            <p></p>
+                            <button type="submit" class="btn btn-primary">답변 등록</button>
+                            </div>
+                        </form>
+                        </div>
+                    </div>
+                    
                     {% endif %}
+
                     <div class="card shadow mb-4">
                         {% if qna_content.reply_title %}
                         <div class="notice-card-header py-3">
@@ -133,7 +165,7 @@
                         {% else %}
                         <div class="notice-card-header py-3">
                             <div class="QnA-title d-flex">
-                                <h4 class="m-0 font-weight-bold text-black"> 담당자가 검토 후 답변 작성 대기 중입니다. </h4>
+                                <h4 class="m-0 font-weight-bold text-black"> 관리자의 검토 및 답변 작성 대기 중입니다. </h4>
                             </div>
                         </div>
                         <div class="card-body">
@@ -146,9 +178,69 @@
                 </div>
             </div>
             <script>
-                function moveTopage() {
-                    window.location.href = 'notice_page.html'; // 이동할 URL
-                }
+                document.addEventListener('DOMContentLoaded', function() {
+                    // 모달 관련 요소
+                    const replyBtn = document.getElementById('replyBtn');        // "답변하기" 버튼
+                    const replyModal = document.getElementById('replyModal');    // 모달
+                    const closeReplyModal = document.getElementById('closeReplyModal'); // 모달 닫기 버튼
+                    const replyForm = document.getElementById('replyForm');      // 답변 폼
+                
+                    // 열기 버튼
+                    if (replyBtn) {
+                        replyBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            replyModal.classList.add('active');
+                        });
+                    }
+                
+                    // 닫기 버튼
+                    closeReplyModal.addEventListener('click', () => {
+                        replyModal.classList.remove('active');
+                        replyForm.reset();
+                    });
+                
+                    // 폼 제출
+                    replyForm.addEventListener('submit', function(event) {
+                        event.preventDefault();
+                
+                        // GET qna-id from data attribute
+                        const qnaId = replyBtn.getAttribute('data-qna-id');
+                        if (!qnaId) {
+                            alert("게시글 ID를 찾을 수 없습니다.");
+                            return;
+                        }
+                
+                        // 폼 데이터를 가져옴
+                        const formData = new FormData(replyForm);
+                
+                        // AJAX PUT 요청
+                        const xhr = new XMLHttpRequest();
+                        xhr.open('PUT', `/board/qna/content/${qnaId}/reply`, true);
+                
+                        xhr.onload = function() {
+                            if (xhr.status === 200) {
+                                try {
+                                    const result = JSON.parse(xhr.responseText);
+                                    alert("답변 등록이 완료되었습니다.");
+                                    // 페이지 리로드 or 특정 이동
+                                    window.location.reload();
+                                } catch (err) {
+                                    console.error("JSON parse error:", err);
+                                    alert("답변이 등록되었습니다.");
+                                    window.location.reload();
+                                }
+                            } else {
+                                alert("답변 등록에 실패했습니다.");
+                            }
+                        };
+                
+                        xhr.onerror = function() {
+                            alert("네트워크 오류가 발생했습니다.");
+                        };
+                
+                        xhr.send(formData);
+                    });
+                });
             </script>
         </div>
     </div>

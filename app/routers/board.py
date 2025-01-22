@@ -175,16 +175,16 @@ def edit_question(
 @router.put("/qna/content/{id}/reply")
 def reply_question(
     id: int,
-    # reply_id: Depends = (auth.get_current_user_from_cookie),
-    reply_id: str = Form(...), # docs test only
+    # reply_id: str = Form(...), # docs test only
     reply_title: str = Form(...),
     reply_content: str = Form(...),
-    db: Session = Depends(lambda: SessionLocal())
+    db: Session = Depends(lambda: SessionLocal()),
+    reply_id: dict = Depends(auth.get_current_user_from_cookie)
 ):
     existing = db.query(QnA).filter(QnA.id == id).first() # 기존 content 이름을 existing으로 하여 입력받는 게시글 내용(content)와 이름 중복 방지
     if not existing:
         raise HTTPException(status_code=404, detail="QnA content not found")
-    existing.reply_user = reply_id
+    existing.reply_user = reply_id['sub']
     existing.reply_title = reply_title
     existing.reply_content = reply_content
     existing.reply_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -193,6 +193,7 @@ def reply_question(
     db.refresh(existing)
     
     return {
+        "message": "답변이 성공적으로 등록되었습니다.",
         "id": existing.id,
         "reply_user": existing.reply_title,
         "reply_content": existing.reply_content,
@@ -238,7 +239,7 @@ async def create_notice(
 
 # 목록 조회
 @router.get("/notice/list", response_class=HTMLResponse)
-@router.get("/notice_management/list", response_class=HTMLResponse)
+# @router.get("/notice_management/list", response_class=HTMLResponse)
 def list_notice(
     request: Request,
     page: int = 0, # 목록 페이지 번호
@@ -267,13 +268,13 @@ def list_notice(
     ]
     
     # 요청 URL에 따라 템플릿 파일 동적 선택
-    if request.url.path == "/board/notice/list":
-        template_name = "notice.html"
-    elif request.url.path == "/board/notice_management/list":
-        template_name = "/admin/notice_management.html"
-    else:
-        raise HTTPException(status_code=404, detail="Page not found")
-    
+    # if request.url.path == "/board/notice/list":
+    #     template_name = "notice.html"
+    # elif request.url.path == "/board/notice_management/list":
+    #     template_name = "/admin/notice_management.html"
+    # else:
+    #     raise HTTPException(status_code=404, detail="Page not found")
+    template_name = "notice.html"
     start_page = max(1, page - 4)
     end_page = start_page + 9
     if end_page > total_pages:
