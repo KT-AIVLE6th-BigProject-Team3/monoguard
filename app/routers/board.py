@@ -160,16 +160,20 @@ def edit_question(
     existing = db.query(QnA).filter(QnA.id == id).first() # 기존 content 이름을 existing으로 하여 입력받는 게시글 내용(content)와 이름 중복 방지
     if not existing:
         raise HTTPException(status_code=404, detail="QnA content not found")
-    if title:
-        existing.title = title
-    if content:
-        existing.content = content
+
+    existing.title = title
+    existing.content = content
     existing.updated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
     db.commit()
     db.refresh(existing)
     
-    return existing
+    return {
+        "id": existing.id,
+        "title": existing.title,
+        "content": existing.content,
+        "created_at": existing.created_at
+    }
 
 # 게시글 답변
 @router.put("/qna/content/{id}/reply")
@@ -184,6 +188,7 @@ def reply_question(
     existing = db.query(QnA).filter(QnA.id == id).first() # 기존 content 이름을 existing으로 하여 입력받는 게시글 내용(content)와 이름 중복 방지
     if not existing:
         raise HTTPException(status_code=404, detail="QnA content not found")
+    
     existing.reply_user = reply_id['sub']
     existing.reply_title = reply_title
     existing.reply_content = reply_content
@@ -196,6 +201,7 @@ def reply_question(
         "message": "답변이 성공적으로 등록되었습니다.",
         "id": existing.id,
         "reply_user": existing.reply_title,
+        "reply_title": existing.reply_title,
         "reply_content": existing.reply_content,
         "reply_at": existing.reply_at
     }
@@ -211,8 +217,7 @@ def delete_qna(
         raise HTTPException(status_code=404, detail="QnA not found")
     db.delete(existing)
     db.commit()
-    return existing
-    
+    return {"message": "QnA 게시글이 삭제되었습니다."}
 
 
 ##################### 공지사항(Notice)
@@ -267,13 +272,6 @@ def list_notice(
         for notice in notices
     ]
     
-    # 요청 URL에 따라 템플릿 파일 동적 선택
-    # if request.url.path == "/board/notice/list":
-    #     template_name = "notice.html"
-    # elif request.url.path == "/board/notice_management/list":
-    #     template_name = "/admin/notice_management.html"
-    # else:
-    #     raise HTTPException(status_code=404, detail="Page not found")
     template_name = "notice.html"
     start_page = max(1, page - 4)
     end_page = start_page + 9
@@ -381,12 +379,17 @@ def edit_notice(
         existing.title = title
     if content:
         existing.content = content
-    existing.created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    existing.updated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
     db.commit()
     db.refresh(existing)
     
-    return existing
+    return {
+        "id": existing.id,
+        "title": existing.title,
+        "content": existing.content,
+        "created_at": existing.created_at
+    }
 
 # 게시글 삭제
 @router.delete("/notice/content/{id}/delete")
@@ -399,4 +402,4 @@ def delete_notice(
         raise HTTPException(status_code=404, detail="Notice not found")
     db.delete(existing)
     db.commit()
-    return existing
+    return {"message": "공지사항 게시글이 삭제되었습니다."}
