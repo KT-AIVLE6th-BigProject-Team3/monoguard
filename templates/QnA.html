@@ -205,8 +205,6 @@
                                          <!-- 업로드 상태 메세지 -->
                                           <div id="uploadStatus" class="mt-2"></div>
                                     </div>
-                                    <!-- user_id hidden으로 불러오기-->
-                                    <input type="hidden" id="user_id" name="user_id" value="{{ current_user }}">
                                     <div class="d-sm-flex align-items-center justify-content-between">
                                         <p></p>
                                         <button type="submit" class="btn btn-primary">완료</button>
@@ -228,7 +226,13 @@
                         const progressBarInner = progressBar.querySelector('.progress-bar');
                         const uploadStatus = document.getElementById('uploadStatus');
                         const submitButton = form.querySelector('button[type="submit"]');
-                    
+
+                        const allowedExtensions = [
+                            '.jpg', '.jpeg', '.png', '.gif', // image
+                            '.csv', '.json',                 // text/csv , json
+                            '.ipynb', '.pkl', '.bin', '.zip'
+                        ];
+
                         // 모달 열기
                         openModal.addEventListener('click', (e) => {
                             e.preventDefault();
@@ -300,22 +304,44 @@
                             }
                         });
                     
-                        // 파일 크기 체크
-                        const fileInput = document.getElementById('files');
+                        // 업로드 파일 검증
+                        const fileInput = document.getElementById('attachment');
                         if (fileInput) {
                             fileInput.addEventListener('change', function(e) {
+                                
+
+                                // 파일 크기 체크
                                 const files = e.target.files;
                                 const maxSize = 50 * 1024 * 1024; // 50MB 제한
                                 let totalSize = 0;
                                 
                                 Array.from(files).forEach(file => {
                                     totalSize += file.size;
+
+                                    // 파일 형식 검증
+                                    const fileName = file.name.toLowerCase();
+                                    let extValid = false;
+                                    for (let ext of allowedExtensions){
+                                        if (fileName.endsWith(ext)){
+                                            extValid = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!extValid){
+                                        alert(`허용되지 않은 파일 형식입니다: ${file.name}`);
+                                        // cancel upload
+                                        e.target.value = '';
+                                        return;
+                                    }
                                 });
                                 
                                 if (totalSize > maxSize) {
                                     alert('총 파일 크기가 50MB를 초과할 수 없습니다.');
                                     e.target.value = '';
+                                    return;
                                 }
+
+                                
                             });
                         }
                     });
