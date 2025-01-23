@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from app.database import engine
 from app.models import Base
-from app.routers import auth, board, user, admin
+from app.routers import auth, board, user, admin, predict
  
 Base.metadata.create_all(bind=engine)
 templates = Jinja2Templates(directory="templates")
@@ -17,6 +17,7 @@ app.include_router(user.router, prefix="/users", tags=["Users"])
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(board.router, prefix="/board", tags=["Board"])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"])
+app.include_router(predict.router, prefix="/predict", tags=["Predict"])
 
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request, current_user: dict = Depends(auth.get_current_user_from_cookie)):
@@ -78,10 +79,6 @@ def get_topbar(current_user: dict = Depends(auth.get_current_user_from_cookie)):
 
 # for admin_page
 
-@app.get("/admin_home", response_class=HTMLResponse)
-def act_admin_main_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
-    return templates.TemplateResponse("admin/admin_index.html", {"request": {}, "user": current_user})
-
 @app.get("/admin/userlist", response_class=HTMLResponse)
 def act_userList_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
     return templates.TemplateResponse("admin/user_management.html", {"request": {}, "user": current_user})
@@ -92,3 +89,7 @@ def act_equip_management_page(current_user: dict = Depends(auth.get_current_user
         print("유저 존재함")
     return templates.TemplateResponse("admin/equipment_management.html", {"request": {}, "user": current_user})
 
+# # for predict.html page
+# @app.get("/predict", response_class=HTMLResponse)
+# def act_predict_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
+#     return templates.TemplateResponse("predict.html", {"request": {}, "user": current_user})

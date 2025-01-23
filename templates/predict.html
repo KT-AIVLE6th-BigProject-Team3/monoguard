@@ -105,26 +105,51 @@
                     <h6 class="m-0 font-weight-bold text-primary">장비 목록</h6>
                   </div>
                   <div class="equipment-card-body">
-                    <div class="equipment-item active">
-                      <span class="equipment-name">AGV-01</span>
+                    {% for device in deviceList %}
+                    <div class="equipment-item">
+                      <span class="equipment-name">{{ device.device_id }}</span>
+                      {% if device.recent_state == 0 %}
                       <span class="equipment-status text-success">정상</span>
-                    </div>
-                    <div class="equipment-item">
-                      <span class="equipment-name">AGV-02</span>
+                      {% elif device.recent_state == 1 %}
                       <span class="equipment-status text-caution">관심</span>
-                    </div>
-                    <div class="equipment-item">
-                      <span class="equipment-name">AGV-03</span>
+                      {% elif device.recent_state == 2 %}
                       <span class="equipment-status text-warning">경고</span>
-                    </div>
-                    <div class="equipment-item">
-                      <span class="equipment-name">AGV-04</span>
+                      {% elif device.recent_state == 3 %}
                       <span class="equipment-status text-danger">위험</span>
+                      {% endif %}
                     </div>
+                    {% endfor %}
                   </div>
                 </div>
-              </div>
+                
+                <!-- 페이지네이션 추가 -->
+                <!--<div class="pagination-container">-->
+                  <!--<div class="pagination">-->
+                    <!--{# {% if current_page > 1 %} #}-->
+                      <!--{#<a href="?page={{ current_page - 1 }}">#}-->
+                        <!--<button>&lt;</button>-->
+                      <!--</a>-->
+                    <!--{#{% endif %}#}-->
+                    
+                    <!--{#{% for p in page_range %}-->
+                      <!--{#{% if p == current_page %}#}-->
+                        <!--{#<button class="active">{{ p }}</button>#}-->
+                      <!--{#{% else %}#}-->
+                        <!--{#a href="?page={{ p }}">#}-->
+                          <!--{#<button>{{ p }}</button>#}-->
+                        <!--</a>-->
+                      <!--{#{% endif %}#}-->
+                    <!--{#{% endfor %}#}-->
 
+                    <!--{#{% if current_page < total_pages %}#}-->
+                      <!--{#<a href="?page={{ current_page + 1 }}">#}-->
+                        <!--<button>&gt;</button>-->
+                      <!--</a>-->
+                    <!--{#{% endif %}#}-->
+                  <!--</div>-->
+                <!--</div>-->
+              </div>
+              {# {% if record_data %} #}
               <!-- 오른쪽 영역 - 상세 정보 -->
               <div class="col-lg-9">
                 <!-- 첫 번째 행: 기본 정보 + 장비 상태 이력 -->
@@ -151,18 +176,6 @@
                               <td>oht01</td>
                             </tr>
                             <tr>
-                              <td>제조사</td>
-                              <td>A</td>
-                            </tr>
-                            <tr>
-                              <td>모델명</td>
-                              <td>A1</td>
-                            </tr>
-                            <tr>
-                              <td>설치환경</td>
-                              <td>테스트베드</td>
-                            </tr>
-                            <tr>
                               <td>수집일시</td>
                               <td>08-26 20:29:01</td>
                             </tr>
@@ -170,10 +183,10 @@
                               <td>누적가동일</td>
                               <td>18일</td>
                             </tr>
-                            <tr>
-                              <td>장비이력</td>
-                              <td>13회</td>
-                            </tr>
+                            <!--<tr>-->
+                              <!--<td>장비이력</td>-->
+                              <!--<td>13회</td>-->
+                            <!--</tr>-->
                           </tbody>
                         </table>
                       </div>
@@ -211,7 +224,54 @@
                           센서 데이터
                         </h6>
                       </div>
-                      <div class="card-body"></div>
+                      <div class="card-body">
+                        <table class="info-table">
+                          <thead>
+                            <tr>
+                              <th>항목</th>
+                              <th>측정값</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>미세먼지(PM1.0)</td>
+                              {#<td>{{ record_data.PM1_0 }}µg/m3</td>#}
+                            </tr>
+                            <tr>
+                              <td>미세먼지(PM2.5)</td>
+                              {#<td>{{ record_data.PM2_5 }}µg/m3</td>#}
+                            </tr>
+                            <tr>
+                              <td>미세먼지(PM10)</td>
+                              {#<td>{{ record_data.PM10 }}µg/m3</td>#}
+                            </tr>
+                            <tr>
+                              <td>온도 측정값(NTC)</td>
+                              {#<td>{{ record_data.NTC }}℃</td>#}
+                            </tr>
+                            <tr>
+                              <td>전류 측정값(CT1)</td>
+                              {#<td>{{ record_data.CT1 }}A</td>#}
+                            </tr>
+                            <tr>
+                              <td>전류 측정값(CT2)</td>
+                              {#<td>{{ record_data.CT2 }}A</td>#}
+                            </tr>
+                            <tr>
+                              <td>전류 측정값(CT3)</td>
+                              {#<td>{{ record_data.CT3 }}A</td>#}
+                            </tr>
+                            <tr>
+                              <td>전류 측정값(CT4)</td>
+                              {#<td>{{ record_data.CT4 }}A</td>#}
+                            </tr>
+                            <!--<tr>-->
+                              <!--<td>장비이력</td>-->
+                              <!--<td>13회</td>-->
+                            <!--</tr>-->
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
 
@@ -249,6 +309,7 @@
                   </div>
                 </div>
               </div>
+              {# {% endif %} #}
             </div>
           </div>
         </div>
@@ -286,14 +347,31 @@
 
           // 장비 ID 가져오기 (AGV-001 형식을 agv01 형식으로 변환)
           const displayId = this.querySelector(".equipment-name").textContent;
-          const deviceId = displayId.toLowerCase().replace("agv-", "agv");
+          //const deviceId = displayId.toLowerCase().replace("agv-", "agv");
+          const deviceId = displayId
+          fetch(`/predict/${deviceId}`)  // 예: /predict/AGV-001
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("장비 정보를 불러오지 못했습니다.");
+              }
+              return response.text();
+            })
+            .then((html) => {
+              // info-table-container에 HTML 삽입
+              document.getElementById("info-table-container").innerHTML = html;
+            })
+            .catch((error) => {
+              console.error(error);
+              document.getElementById("info-table-container").innerHTML =
+                "<p>장비 상세 정보를 가져오는 중 오류가 발생했습니다.</p>";
+            });
 
           // Streamlit 앱 URL 설정 (실제 URL로 변경 필요)
-          const streamlitUrl = `http://localhost:8502/?device_id=${deviceId}`;
+          //const streamlitUrl = `http://localhost:8502/?device_id=${deviceId}`;
 
           // iframe 업데이트
-          const iframe = document.getElementById("statusChart");
-          iframe.src = streamlitUrl;
+          //const iframe = document.getElementById("statusChart");
+          //iframe.src = streamlitUrl;
         });
       });
     </script>

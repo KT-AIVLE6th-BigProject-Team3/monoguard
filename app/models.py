@@ -56,22 +56,29 @@ class QnA(Base):
 
     author = relationship("User")
     
-class EquipmentData(Base):
-    __tablename__ = "equipment_data"
+class DeviceList(Base):
+    __tablename__ = "device_list"
     
-    device_id = Column(String, primary_key=True, index=True)
-    device_manufacturer = Column(String, nullable=False)
-    device_name = Column(String, nullable=False)
-    installation_environment = Column(String)
+    index = Column(Integer, primary_key=True, index=True)
+    device_id = Column(String, primary_key=True)            # device_name
+    device_type = Column(String)                            # OHT / AGV --> Enum? or not?
+    manufacturer = Column(String)
+    recent_state = Column(Integer)
+    
+class OperationLog(Base):
+    __tablename__ = "operation_log"
+    
+    index = Column(Integer, primary_key=True, index=True)    
+    device_id = Column(String)
     collection_time = Column(String) # collection date and time
-    cumulative_operationd_day = Column(Integer)
+    cumulative_operating_day = Column(Integer)
     equipment_history = Column(Integer)
     
     # Sensor data
-    PM10 = Column(Integer, nullable=False)
-    PM2_5 = Column('PM2_5', Integer, nullable=False) # 소수점의 점 자 안되서 python 환경에서 돌릴 땐 2_5, 1_0 
-    PM1_0 = Column('PM1_0', Integer, nullable=False)
     NTC = Column(Integer, nullable=False)
+    PM1_0 = Column('PM1_0', Integer, nullable=False)
+    PM2_5 = Column('PM2_5', Integer, nullable=False) # 소수점의 점 자 안되서 python 환경에서 돌릴 땐 2_5, 1_0 
+    PM10 = Column(Integer, nullable=False)
     CT1 = Column(Integer, nullable=False)
     CT2 = Column(Integer, nullable=False)
     CT3 = Column(Integer, nullable=False)
