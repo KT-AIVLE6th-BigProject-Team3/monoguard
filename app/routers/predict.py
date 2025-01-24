@@ -57,12 +57,35 @@ def list_device(
         
     # page_range = range(start_page, end_page + 1)
     
+    # default, first device
+    if devices:
+        first_device_id = devices[0].device_id
+        latest_record = db.query(OperationLog).filter(OperationLog.device_id == first_device_id).order_by(OperationLog.index.desc()).first()
+        if latest_record:
+            record_data = {
+                "device_id" : latest_record.device_id,
+                "PM1_0" : latest_record.PM1_0,
+                "PM2_5" : latest_record.PM2_5,
+                "PM10" : latest_record.PM10,
+                "NTC" : latest_record.NTC,
+                "CT1" : latest_record.CT1,
+                "CT2" : latest_record.CT2,
+                "CT3" : latest_record.CT3,
+                "CT4" : latest_record.CT4,
+                "collection_time": latest_record.collection_time,
+                "cumulative_operating_day": latest_record.cumulative_operating_day,
+                "ex_temperature": latest_record.ex_temperature,
+                "ex_humidity": latest_record.ex_humidity,
+                "ex_illuminance": latest_record.ex_illuminance
+            }
+    print(record_data)
     return templates.TemplateResponse(
         "predict.html",
         {
             "request" : request,
             "deviceList" : device_list,
             "current_user" : current_user['sub'],
+            "record_data" : record_data
             # "current_page": page,
             # "total_pages": total_pages,
             # "page_range": page_range,
@@ -96,6 +119,7 @@ def get_device_info(
         "CT3" : latest_record.CT3,
         "CT4" : latest_record.CT4,
         "collection_time": latest_record.collection_time,
+        "cumulative_operating_day": latest_record.cumulative_operating_day,
         "ex_temperature": latest_record.ex_temperature,
         "ex_humidity": latest_record.ex_humidity,
         "ex_illuminance": latest_record.ex_illuminance
