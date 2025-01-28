@@ -83,7 +83,7 @@ def find_user_id(email: str = Form(...), db: Session = Depends(lambda: SessionLo
     
     return {"message": "사번 찾기 성공", "employee_id": user.employee_id}
 
-# PW 찾기(변경)
+# PW 찾기(변경) 
 @router.post("/reset_password")
 def reset_password(
     email: str = Form(...),             # 이메일 확인
