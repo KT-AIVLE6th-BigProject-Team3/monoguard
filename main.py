@@ -82,14 +82,8 @@ def error_page(request: Request, code: str = None):
 
 # Admin 페이지는 admin 라우터에서 관리하도록 하였습니다.
 
-@app.get("/admin_home", response_class=HTMLResponse)
-def act_admin_main_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
-    return templates.TemplateResponse("admin/admin_index.html", {"request": {}, "user": current_user})
-
 @app.get("/admin/equipment_management", response_class=HTMLResponse)
 def act_equip_management_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
-    if(current_user):
-        print("유저 존재함")
     return templates.TemplateResponse("admin/equipment_management.html", {"request": {}, "user": current_user})
 
 # # for predict.html page

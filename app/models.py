@@ -12,9 +12,9 @@ class User(Base):
     name = Column(String, nullable=False)                                   # 사용자 이름
     email = Column(String, unique=True, index=True, nullable=False)         # 사용자 이메일
     department = Column(String, nullable=False)                             # 부서
-    phone = Column(String, nullable=True)                                    # 전화번호
-    alert = Column(Integer, nullable=False, default=0)                      # 유저 알림 목록(Ex> 장비 예지보전 알림 등)
-    #message = Column(Integer, nullable=False, default=0)                    # 유저 메시지 목록(Ex> 관리자 메시지)
+    phone = Column(String, nullable=True)                                   # 전화번호
+    alert = Column(Integer, nullable=False, default=0)                      # 유저 알림 목록(Ex> 장비 예지보전 알림)
+    message = Column(Integer, nullable=False, default=0)                    # 유저 메시지 목록(Ex> qna 관리자 답변 알림)
     created_at = Column(DateTime(timezone=True), server_default=func.now()) # 계정 생성일(자동 기록)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())       # 계정 정보 수정일(자동 기록)
 

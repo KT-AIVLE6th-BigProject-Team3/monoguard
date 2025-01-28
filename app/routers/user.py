@@ -38,7 +38,8 @@ def register_user(
         employee_id=employee_id,
         phone=phone,
         admin=False,
-        alert=0
+        alert=0,
+        message=0
     )
     db.add(new_user)
     db.commit()

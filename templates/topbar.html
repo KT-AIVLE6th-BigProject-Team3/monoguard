@@ -8,14 +8,6 @@
 
     <!-- Topbar Navbar -->
     <ul class="navbar-nav ml-auto">
-
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" 
-                    type="button" onclick="handleLogOut()">
-                로그아웃
-            </button>
-        </div>
-
         <!-- Nav Item - Search -->
         <li class="nav-item dropdown no-arrow d-sm-none">
             <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
@@ -28,7 +20,13 @@
             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
                 <i class="fas fa-bell fa-fw"></i>
-                <span class="badge badge-danger badge-counter">9+</span>
+                {% if user.alert == 0 %}
+                {% elif user.alert > 0 and user.alert < 10 %}
+                    <span class="badge badge-danger badge-counter">{{ user.alert }}</span>
+                {% else %}
+                    <span class="badge badge-danger badge-counter">9+</span>
+                {% endif %}
+                <!--유저의 알림이 9개 이상일 경우와 1 ~ 9개 사이일 때, 그리고 0개일 때의 경우를 상정했습니다-->
             </a>
         </li>
         <!-- Nav Item - Messages -->
@@ -36,7 +34,12 @@
             <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
                 <i class="fas fa-envelope fa-fw"></i>
-                <span class="badge badge-danger badge-counter">5</span>
+                {% if user.message == 0 %}
+                {% elif user.alert > 0 and user.message < 10 %}
+                    <span class="badge badge-danger badge-counter">{{ user.message }}</span>
+                {% else %}
+                    <span class="badge badge-danger badge-counter">9+</span>
+                {% endif %}
             </a>
         </li>
         <div class="topbar-divider d-none d-sm-block"></div>
@@ -48,6 +51,12 @@
                 <span class="material-icons account-icon">account_circle</span>
             </a>
         </li>
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" 
+                    type="button" onclick="handleLogOut()">
+                로그아웃
+            </button>
+        </div>
     </ul>
 </nav>
 

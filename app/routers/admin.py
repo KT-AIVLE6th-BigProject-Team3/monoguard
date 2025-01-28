@@ -107,7 +107,7 @@ def update_user(
     if not target_user:
         raise HTTPException(status_code=404, detail="해당 유저를 찾을 수 없습니다.")
 
-    # 3. 수정 가능한 필드 업데이트
+    # 3. 수정 가능한 정보 업데이트
     target_user.name = name
     target_user.department = department
     target_user.phone = phone
@@ -116,6 +116,5 @@ def update_user(
     db.commit()
     db.refresh(target_user)
 
-    # 4. 수정 완료 후 리다이렉트 or 메시지
-    # 여기서는 유저 리스트 페이지로 돌려보낸다고 가정
+    # 4. 수정 완료 후 다시 유저 관리 페이지로 이동
     return RedirectResponse(url="/admin/userlist", status_code=303)
