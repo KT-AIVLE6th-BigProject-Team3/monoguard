@@ -136,41 +136,6 @@ def read_question(
         }
     )
     
-# # 특정 게시글 조회
-# @router.get("/qna/content/{id}", response_class=HTMLResponse)
-# def read_question(
-#     request: Request,
-#     id: int,
-#     db: Session = Depends(lambda: SessionLocal()),
-#     current_user: dict = Depends(auth.get_current_user_from_cookie)
-# ):
-#     existing = db.query(QnA).filter(QnA.id == id).first()
-#     if not existing:
-#         raise HTTPException(status_code=404, detail="존재하지 않는 QnA 게시글입니다.")
-   
-#     qna_content = {
-#         "id" : existing.id,
-#         "user_id" : existing.user_id,
-#         "title" : existing.title,
-#         "content" : existing.content,
-#         "created_at" : existing.created_at,
-#         "reply_user" : existing.reply_user,
-#         "reply_title" : existing.reply_title,
-#         "reply_content" : existing.reply_content,
-#         "reply_at" : existing.reply_at,
-#         "filename": existing.attachment_filename,
-#         "content_type": existing.attachment_content_type,
-#         "current_user": current_user['sub'],
-#         "admin": current_user['admin']
-#     }
-#     return templates.TemplateResponse(
-#         "QnA_page.html",
-#         {
-#             "request" : request,
-#             "qna_content" : qna_content
-#         }
-#     )
-
 
 # QnA 첨부파일 다운로드    
 @router.get("/qna/download/{file_id}")
