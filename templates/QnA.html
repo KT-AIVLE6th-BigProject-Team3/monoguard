@@ -217,6 +217,22 @@
                 </div>
 
                 <script>
+                    // get parameter from url (not exist or no permission)
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const errorCode = urlParams.get("error");
+
+                    const errorMessages = {
+                        "notexist": "존재하지 않는 게시글입니다.",
+                        "no_permission": "열람 권한이 없습니다.",
+                        "server_error": "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+                    };
+
+                    if (errorCode && errorMessages[errorCode]){
+                        alert(errorMessages[errorCode]);
+                        // remove error parameter from URL (Not Alert when F5)
+                        history.replaceState({}, document.title, window.location.pathname);
+                    }
+
                     document.addEventListener('DOMContentLoaded', function() {
                         const openModal = document.getElementById('openModal');
                         const closeModal = document.getElementById('closeModal');
