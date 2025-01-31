@@ -22,22 +22,10 @@ templates = Jinja2Templates(directory="templates")
 @router.get("", response_class=HTMLResponse) # address/predict (뒤에 슬래시 없음) 로 받으려면 "" 
 def list_device(
     request: Request,
-    # page: int = 1, # 장비 목록 페이지 번호
-    # limit: int = 10, # 페이지당 출력할 장비 수
     db: Session = Depends(lambda: SessionLocal()),
     current_user: dict = Depends(auth.get_current_user_from_cookie)
 ):
     
-    # 전체 장비 수
-    # total_count = db.query(func.count(DeviceList.index)).scalar()
-    # total_pages = ceil(total_count / limit) if total_count else 1
-    # if page < 1:
-    #     page = 1
-    # elif page > total_pages:
-    #     page = total_pages
-        
-    # offset_val = (page - 1) * limit
-    # devices = (db.query(DeviceList).order_by(DeviceList.index).offset(offset_val).limit(limit).all())
     devices = db.query(DeviceList).order_by(DeviceList.index).all()
     device_list = [
         {
@@ -47,15 +35,6 @@ def list_device(
         for device in devices
     ]
     
-    # start_page = max(1, page - 4)
-    # end_page = start_page + 9
-    # if end_page > total_pages:
-    #     end_page = total_pages
-        
-    # if (end_page - start_page) < 9:
-    #     start_page = max(1, end_page - 9)
-        
-    # page_range = range(start_page, end_page + 1)
     
     # default, first device
     if devices:
@@ -86,10 +65,6 @@ def list_device(
             "deviceList" : device_list,
             "current_user" : current_user['sub'],
             "record_data" : record_data
-            # "current_page": page,
-            # "total_pages": total_pages,
-            # "page_range": page_range,
-            # "total_count": total_count
         }
     )
 
@@ -134,9 +109,5 @@ def get_device_info(
             "request": request,
             "record_data": record_data,
             
-            # "current_page": page,
-            # "total_pages": total_pages,
-            
-            # "deviceList": device_list
         }
     )

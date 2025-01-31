@@ -41,6 +41,14 @@
         border-bottom: 1px solid #e3e6f0;
       }
 
+      /* 장비 목록에 대한 크기 고정 및 스크롤 바 */
+
+      .equipment-card-body{
+        max-height: 500px; /* 한 화면에 장비 8개 */
+        overflow-y: auto;
+        padding-right: 10px;
+      }
+
       /* 오른쪽 상세 정보 */
       .detail-container {
         flex: 1;
@@ -122,32 +130,6 @@
                   </div>
                 </div>
                 
-                <!-- 페이지네이션 추가 -->
-                <!--<div class="pagination-container">-->
-                  <!--<div class="pagination">-->
-                    <!--{# {% if current_page > 1 %} #}-->
-                      <!--{#<a href="?page={{ current_page - 1 }}">#}-->
-                        <!--<button>&lt;</button>-->
-                      <!--</a>-->
-                    <!--{#{% endif %}#}-->
-                    
-                    <!--{#{% for p in page_range %}-->
-                      <!--{#{% if p == current_page %}#}-->
-                        <!--{#<button class="active">{{ p }}</button>#}-->
-                      <!--{#{% else %}#}-->
-                        <!--{#a href="?page={{ p }}">#}-->
-                          <!--{#<button>{{ p }}</button>#}-->
-                        <!--</a>-->
-                      <!--{#{% endif %}#}-->
-                    <!--{#{% endfor %}#}-->
-
-                    <!--{#{% if current_page < total_pages %}#}-->
-                      <!--{#<a href="?page={{ current_page + 1 }}">#}-->
-                        <!--<button>&gt;</button>-->
-                      <!--</a>-->
-                    <!--{#{% endif %}#}-->
-                  <!--</div>-->
-                <!--</div>-->
               </div>
               {% if record_data %}
               <!-- 오른쪽 영역 - 상세 정보 -->

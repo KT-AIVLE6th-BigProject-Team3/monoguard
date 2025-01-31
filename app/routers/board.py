@@ -107,7 +107,7 @@ def read_question(
 ):
     existing = db.query(QnA).filter(QnA.id == id).first()
     if not existing:
-        raise HTTPException(status_code=404, detail="QnA content not found")
+        raise HTTPException(status_code=404, detail="존재하지 않는 QnA 게시글입니다.")
    
     qna_content = {
         "id" : existing.id,
@@ -138,7 +138,7 @@ def read_question(
 def download_qna_file(file_id: int, db: Session = Depends(lambda: SessionLocal())):
     qna = db.query(QnA).filter(QnA.id == file_id).first()
     if not qna or not qna.attachment_data:
-        raise HTTPException(status_code=404, detail="File not found")
+        raise HTTPException(status_code=404, detail="파일을 찾을 수 없습니다.")
 
     filename = quote(qna.attachment_filename)
     content_type = qna.attachment_content_type
@@ -159,7 +159,7 @@ def edit_question(
 ):
     existing = db.query(QnA).filter(QnA.id == id).first() # 기존 content 이름을 existing으로 하여 입력받는 게시글 내용(content)와 이름 중복 방지
     if not existing:
-        raise HTTPException(status_code=404, detail="QnA content not found")
+        raise HTTPException(status_code=404, detail="존재하지 않는 QnA 게시글입니다.")
 
     existing.title = title
     existing.content = content
@@ -187,7 +187,7 @@ def reply_question(
 ):
     existing = db.query(QnA).filter(QnA.id == id).first() # 기존 content 이름을 existing으로 하여 입력받는 게시글 내용(content)와 이름 중복 방지
     if not existing:
-        raise HTTPException(status_code=404, detail="QnA content not found")
+        raise HTTPException(status_code=404, detail="존재하지 않는 QnA 게시글입니다.")
     
     existing.reply_user = reply_id['sub']
     existing.reply_title = reply_title
@@ -214,7 +214,7 @@ def delete_qna(
 ):
     existing = db.query(QnA).filter(QnA.id == id).first()
     if not existing:
-        raise HTTPException(status_code=404, detail="QnA not found")
+        raise HTTPException(status_code=404, detail="존재하지 않는 QnA 게시글입니다.")
     db.delete(existing)
     db.commit()
     return {"message": "QnA 게시글이 삭제되었습니다."}
@@ -244,7 +244,6 @@ async def create_notice(
 
 # 목록 조회
 @router.get("/notice/list", response_class=HTMLResponse)
-# @router.get("/notice_management/list", response_class=HTMLResponse)
 def list_notice(
     request: Request,
     page: int = 0, # 목록 페이지 번호
@@ -260,7 +259,6 @@ def list_notice(
     elif page > total_pages:
         page = total_pages
     
-    # notices = db.query(Notice).order_by(desc(Notice.created_at)).offset(page * limit).limit(limit).all() # page 1
     offset_val = (page - 1) * limit
     notices = (db.query(Notice).order_by(desc(Notice.created_at)).offset(offset_val).limit(limit).all())
     notice_list = [
@@ -306,7 +304,7 @@ def read_notice(
 ):
     existing = db.query(Notice).filter(Notice.id == id).first()
     if not existing:
-        raise HTTPException(status_code=404, detail="Notice content not found")
+        raise HTTPException(status_code=404, detail="존재하지 않는 공지글입니다.")
     
     # 이전글 정보 조회
     prev_notice = (db.query(Notice).filter(Notice.id < existing.id).order_by(Notice.id.desc()).first())
@@ -352,7 +350,7 @@ def read_notice(
 def download_notice_file(file_id: int, db: Session = Depends(lambda: SessionLocal())):
     notice = db.query(Notice).filter(Notice.id == file_id).first()
     if not notice or not notice.attachment_data:
-        raise HTTPException(status_code=404, detail="File not found")
+        raise HTTPException(status_code=404, detail="파일을 찾을 수 없습니다.")
 
     filename = notice.attachment_filename
     content_type = notice.attachment_content_type
@@ -374,7 +372,7 @@ def edit_notice(
 ):
     existing = db.query(Notice).filter(Notice.id == id).first() # 기존 content 이름을 existing으로 하여 입력받는 게시글 내용(content)와 이름 중복 방지
     if not existing:
-        raise HTTPException(status_code=404, detail="Notice content not found")
+        raise HTTPException(status_code=404, detail="존재하지 않는 공지글입니다.")
     if title:
         existing.title = title
     if content:
@@ -399,7 +397,7 @@ def delete_notice(
 ):
     existing = db.query(Notice).filter(Notice.id == id).first()
     if not existing:
-        raise HTTPException(status_code=404, detail="Notice not found")
+        raise HTTPException(status_code=404, detail="존재하지 않는 공지글입니다.")
     db.delete(existing)
     db.commit()
     return {"message": "공지사항 게시글이 삭제되었습니다."}
