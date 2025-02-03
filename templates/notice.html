@@ -128,6 +128,7 @@
                                             <th>제목</th>
                                             <th>작성일</th>
                                             {% if admin %}
+                                            <th>공개여부</th>
                                             <th>삭제</th>
                                             {% endif %}
                                         </tr>
@@ -143,6 +144,13 @@
                                             </td>
                                             <td>{{ notice.created_at }}</td>
                                             {% if admin %}
+                                            <td>
+                                                {% if notice.public %}
+                                                공개
+                                                {% else %}
+                                                비공개
+                                                {% endif %}
+                                            </td>
                                             <td>
                                                 <!-- <button class="btn btn-success btn-sm reply-btn">수정</button> -->
                                                 <button class="btn btn-fail btn-sm reply-btn" data-notice-id="{{ notice.id }}">삭제</button>

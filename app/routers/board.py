@@ -258,8 +258,16 @@ def list_notice(
     db: Session = Depends(lambda: SessionLocal()),
     current_user: dict = Depends(auth.get_current_user_from_cookie)
 ):
-    # 전체 게시글 수
-    total_count = db.query(func.count(Notice.id)).scalar()
+    
+    # admin일 경우
+    if current_user['admin']:
+        # 전체 게시글 수
+        total_count = db.query(func.count(Notice.id)).scalar()
+        query = db.query(Notice)
+    else: # admin이 아닐 경우, 공개된 공지사항만만
+        total_count = db.query(func.count(Notice.id)).filter(Notice.public == True).scalar()
+        query = db.query(Notice).filter(Notice.public == True)
+        
     total_pages = ceil(total_count / limit) if total_count else 1
     if page < 1:
         page = 1
@@ -267,11 +275,12 @@ def list_notice(
         page = total_pages
     
     offset_val = (page - 1) * limit
-    notices = (db.query(Notice).order_by(desc(Notice.created_at)).offset(offset_val).limit(limit).all())
+    notices = (query.order_by(desc(Notice.created_at)).offset(offset_val).limit(limit).all())
     notice_list = [
         {
             "id" : notice.id,
             "title" : notice.title,
+            "public" : notice.public,
             "created_at" : notice.created_at
         }
         for notice in notices
