@@ -93,6 +93,13 @@
                                         <textarea id="content" name="content" class="form-control" rows="5" required>{{ notice_content.content }}</textarea>
                                     </div>
 
+                                    <div class="form-group">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" id="public" name="public" value="true" {% if notice_content.public %}checked{% endif %}>
+                                            <label class="form-check-label" for="public">  공개 여부</label>
+                                        </div>
+                                    </div>
+
                                     <div class="d-sm-flex align-items-center justify-content-between">
                                         <p></p>
                                         <button type="submit" class="btn btn-primary">수정하기</button>

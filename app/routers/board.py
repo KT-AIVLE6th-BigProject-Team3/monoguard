@@ -122,6 +122,7 @@ def read_question(
         "title" : existing.title,
         "content" : existing.content,
         "created_at" : existing.created_at,
+        "public" : existing.public,
         "reply_user" : existing.reply_user,
         "reply_title" : existing.reply_title,
         "reply_content" : existing.reply_content,
@@ -162,6 +163,7 @@ def edit_question(
     id: int,
     title: str = Form(...),
     content: str = Form(...),
+    public: bool = Form(False),
     db: Session = Depends(lambda: SessionLocal())
 ):
     existing = db.query(QnA).filter(QnA.id == id).first() # 기존 content 이름을 existing으로 하여 입력받는 게시글 내용(content)와 이름 중복 방지
@@ -170,6 +172,7 @@ def edit_question(
 
     existing.title = title
     existing.content = content
+    existing.public = public
     existing.updated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
     db.commit()
@@ -264,7 +267,7 @@ def list_notice(
         # 전체 게시글 수
         total_count = db.query(func.count(Notice.id)).scalar()
         query = db.query(Notice)
-    else: # admin이 아닐 경우, 공개된 공지사항만만
+    else: # admin이 아닐 경우, 공개된 공지사항만
         total_count = db.query(func.count(Notice.id)).filter(Notice.public == True).scalar()
         query = db.query(Notice).filter(Notice.public == True)
         
@@ -280,6 +283,7 @@ def list_notice(
         {
             "id" : notice.id,
             "title" : notice.title,
+            "writer" : notice.user_id, # user_id가 아닌 writer를 사용함에 유의
             "public" : notice.public,
             "created_at" : notice.created_at
         }
@@ -334,6 +338,7 @@ def read_notice(
             "title" : existing.title,
             "content" : existing.content,
             "created_at" : existing.created_at,
+            "public" : existing.public,
             "current_user": current_user['sub'],
             "admin": current_user['admin'],
             "files" : [
@@ -384,6 +389,7 @@ def edit_notice(
     id: int,
     title: str = Form(...),
     content: str = Form(...),
+    public: bool = Form(False),
     db: Session = Depends(lambda: SessionLocal())
 ):
     existing = db.query(Notice).filter(Notice.id == id).first() # 기존 content 이름을 existing으로 하여 입력받는 게시글 내용(content)와 이름 중복 방지
@@ -393,6 +399,7 @@ def edit_notice(
         existing.title = title
     if content:
         existing.content = content
+    existing.public = public
     existing.updated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
     db.commit()
