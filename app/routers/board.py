@@ -20,7 +20,6 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 # existing = 조회 / 수정 / 삭제 함수에서 해당 id 게시글(이 존재하는지) 저장
-## QnA 부분 (기존 =  post(create)만 있었음)
 ################ 게시글 작성
 @router.post("/qna/create")
 async def create_question(
@@ -61,7 +60,6 @@ def list_question(
     elif page > total_pages:
         page = total_pages
         
-    # qnas = db.query(QnA).order_by(desc(QnA.created_at)).offset(page * limit).limit(limit).all()
     offset_val = (page - 1) * limit
     qnas = (db.query(QnA).order_by(desc(QnA.created_at)).offset(offset_val).limit(limit).all())
     qna_list = [
@@ -111,11 +109,9 @@ def read_question(
     existing = db.query(QnA).filter(QnA.id == id).first()
     if not existing:
         return RedirectResponse(url=f"/board/qna/list?error=notexist", status_code=303)
-        # raise HTTPException(status_code=404, detail="존재하지 않는 QnA 게시글입니다.")
     if not current_user['admin'] and (current_user['sub'] != existing.user_id and existing.public is False):
         print(current_user['admin'])
         return RedirectResponse(url=f"/board/qna/list?error=no_permission", status_code=303)
-        # raise HTTPException(status_code=403, detail="열람 권한이 없습니다.")
     qna_content = {
         "id" : existing.id,
         "user_id" : existing.user_id,
