@@ -26,6 +26,7 @@ class Notice(Base):
     user_id = Column(String, ForeignKey("users.employee_id"))
     created_at = Column(String)
     updated_at = Column(String)
+    private = Column(Boolean, default=True)
     
     # attachment file
     attachment_filename = Column(String, nullable=True)
@@ -42,6 +43,7 @@ class QnA(Base):
     user_id = Column(String, ForeignKey("users.employee_id"))
     created_at = Column(String)
     updated_at = Column(String)
+    private = Column(Boolean, default=True)
     
     # attachment file
     attachment_filename = Column(String, nullable=True)
