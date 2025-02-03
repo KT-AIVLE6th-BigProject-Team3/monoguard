@@ -28,9 +28,10 @@ async def create_question(
     content: str = Form(...),
     user_id: dict = Depends(auth.get_current_user_from_cookie),
     attachment: UploadFile = File(None),
+    public: bool = Form(False),
     db: Session = Depends(lambda: SessionLocal())
 ):
-    new_question = QnA(title=title, content=content, user_id=user_id['sub'], created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    new_question = QnA(title=title, content=content, user_id=user_id['sub'], created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), public=public)
     
     if attachment:
         file_content = await attachment.read()
@@ -66,7 +67,9 @@ def list_question(
     qna_list = [
         {
             "id" : qna.id,
+            "public" : qna.public,
             "title" : qna.title,
+            "user_id" : qna.user_id,
             "created_at" : qna.created_at,
             "reply_title" : qna.reply_title # replied or not
         }
@@ -109,7 +112,7 @@ def read_question(
     if not existing:
         return RedirectResponse(url=f"/board/qna/list?error=notexist", status_code=303)
         # raise HTTPException(status_code=404, detail="존재하지 않는 QnA 게시글입니다.")
-    if not current_user['admin'] and current_user['sub'] != existing.user_id:
+    if not current_user['admin'] and (current_user['sub'] != existing.user_id and existing.public is False):
         print(current_user['admin'])
         return RedirectResponse(url=f"/board/qna/list?error=no_permission", status_code=303)
         # raise HTTPException(status_code=403, detail="열람 권한이 없습니다.")
