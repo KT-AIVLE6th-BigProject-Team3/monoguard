@@ -13,3 +13,5 @@ PyJWT
 python-dotenv
 python-jose
 python-decouple
+langchain
+langchain-community
