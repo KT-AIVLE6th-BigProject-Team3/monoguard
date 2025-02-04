@@ -10,7 +10,7 @@ class User(Base):
     employee_id = Column(String, unique=True, nullable=False)               # 사번(으로 로그인을 함)
     password = Column(String, nullable=False)                               # 해싱된 패스워드
     name = Column(String, nullable=False)                                   # 사용자 이름
-    email = Column(String, unique=True, index=True, nullable=False)         # 사용자 이메일
+    email = Column(String, unique=True, nullable=False)                     # 사용자 이메일
     department = Column(String, nullable=False)                             # 부서
     phone = Column(String, nullable=True)                                   # 전화번호
     alert = Column(Integer, nullable=False, default=0)                      # 유저 알림 목록(Ex> 장비 예지보전 알림)
