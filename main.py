@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends
-from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse # FileResponse 추가가
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
@@ -82,11 +82,13 @@ def error_page(request: Request, code: str = None):
 
 # Admin 페이지는 admin 라우터에서 관리하도록 하였습니다.
 
+@app.get("/auth/current_user", response_class=JSONResponse)
+def get_current_user_api(current_user: dict = Depends(auth.get_current_user_from_cookie)):
+    if current_user is None:
+        return JSONResponse(content={"error": "User not authenticated"}, status_code=401)
+    return JSONResponse(content=current_user)
+
+
 @app.get("/admin/equipment_management", response_class=HTMLResponse)
 def act_equip_management_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
     return templates.TemplateResponse("admin/equipment_management.html", {"request": {}, "user": current_user})
-
-# # for predict.html page
-# @app.get("/predict", response_class=HTMLResponse)
-# def act_predict_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
-#     return templates.TemplateResponse("predict.html", {"request": {}, "user": current_user})

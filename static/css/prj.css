@@ -5103,6 +5103,19 @@ input[type="button"].btn-block {
     /* 위아래 0rem, 좌우 1rem */
 }
 
+.card-body2 {
+    flex: 1 1 auto;
+    min-height: 1px;
+    padding: 1rem 1.5rem 1rem;
+    /* 위아래 0rem, 좌우 1rem */
+}
+
+.streamlit-card-body {
+    flex: 1 1 auto;
+    min-height: 1px;
+    padding: 0rem 1.5rem 1rem;
+}
+
 .small-card-body {
     flex: 1 1 auto;
     min-height: 1px;
@@ -5123,7 +5136,7 @@ input[type="button"].btn-block {
 }
 
 .equipment-item.active {
-    background-color: #c5d3fc;
+    background-color: #e7edff99;
     color: #293A91;
 }
 
@@ -12849,6 +12862,14 @@ body.sidebar-toggled footer.sticky-footer {
     border-radius: 4px;
 }
 
+.form-control2 {
+    width: 95%;    
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
 .form-control:focus {
     border-color: #007bff;
     outline: none;
@@ -12908,56 +12929,71 @@ body.sidebar-toggled footer.sticky-footer {
 .nav-title:hover {
     text-decoration: underline;
 }
-
-tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
-
+/* 슬라이더 컨테이너 */
 .slider-container {
     position: relative;
-    background-color: #fff;
-    border-radius: 10px;
-    padding: 4px;
     display: inline-flex;
+    background-color: #fff;
+    border: 1px solid #2B3C8C;
+    border-radius: 15px;
+    padding: 0;
     margin-bottom: 20px;
-
+    width: 128px;
+    height: 40px;
+    overflow: hidden;
 }
 
+/* 탭 버튼 */
 .tab-btn {
     position: relative;
-    padding: 8px 24px;
+    width: 64px;
+    height: 40px;
     border: none;
     background: none;
     cursor: pointer;
-    font-weight: 500;
-    color: #4e73df;
+    font-size: 16px;
+    font-weight: 400;
+    color: #2B3C8C;
     z-index: 1;
-    transition: color 0.3s ease;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .tab-btn.active {
     color: #ffffff;
 }
 
+/* 슬라이더 */
 .slider {
     position: absolute;
-    left: 4px;
-    top: 4px;
-    bottom: 4px;
-    width: calc(50% - 4px);
-    background-color: #4e73df;
-    border-radius: 10px;
+    left: -1px;  /* 여기를 수정 */
+    top: 0;
+    width: 64px;
+    height: 40px;
+    background-color: #293A91;
+    border-radius: 1px;
     transition: transform 0.3s ease;
 }
 
-.tab-btn:nth-child(2).active~.slider {
-    transform: translateX(100%);
+.tab-btn:nth-child(2).active ~ .slider {
+    transform: translateX(64px);
 }
 
+/* 탭 콘텐츠 */
+.tab-content {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+    opacity: 1;
+}
+
+/* 상태 카드 아이콘 */
 .status-card-icon {
     width: 3rem;
     height: 3rem;
@@ -12970,46 +13006,6 @@ tab-content {
 .siren-icon img {
     width: 2rem;
     height: 2rem;
-}
-
-/* 탭 버튼 영역 */
-.tab-buttons {
-    margin-bottom: 0px;
-}
-
-.slider-container {
-    position: relative;
-    display: inline-flex;
-    background: #f8f9fc;
-    border-radius: 25px;
-    padding: 5px;
-}
-
-/* 탭 버튼 */
-.tab-btn {
-    position: relative;
-    padding: 8px 20px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    color: #858796;
-    z-index: 1;
-    transition: color 0.3s ease;
-}
-
-
-/* 탭 콘텐츠 */
-.tab-content {
-    display: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.tab-content.active {
-    display: block;
-    opacity: 1;
 }
 
 /* 기본 디테일 스타일 */
@@ -13124,3 +13120,303 @@ tab-content {
     color: white;
     border-color: #6c757d;
 }
+
+/* 기존 스타일 유지 */
+.equipment-list {
+    width: 300px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.list-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4e73df;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+/* 장비 상태 표시를 위한 추가 스타일 */
+.status-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.status-normal {
+    background-color: #4CAF50;
+}
+
+.status-caution {
+    background-color: #FF9800;
+}
+
+.status-caution-second {
+    background-color: #FFF3E0;
+}
+
+.status-warning {
+    background-color: #FF5722;
+}
+
+.status-danger {
+    background-color: #F44336;
+}
+
+.status-danger-second {
+    background-color: #feb2b2;
+}
+
+.status-details {
+    margin-top: 15px;
+    background-color: #f8f9fc;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.status-details p {
+    margin: 8px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.status-details .label {
+    color: #6c757d;
+    font-weight: bold;
+}
+
+/* 기존 정보 테이블 스타일 */
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.info-table th,
+.info-table td {
+    padding: 12px;
+    border: 1px solid #e3e6f0;
+}
+
+.info-table th {
+    background-color: #f8f9fc;
+    color: #4e73df;
+    font-weight: bold;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .status-item {
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .status-item-title {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .status-item-count {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+
+  .status-item-value {
+    font-size: 16px;
+    opacity: 0.9;
+  }
+
+  .timestamp {
+    margin-top: 15px;
+    color: #718096;
+    font-size: 14px;
+  }
+
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .info-table th,
+  .info-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e3e6f0;
+  }
+
+  .info-table th {
+    background-color: #f8f9fc;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  .status-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    padding: 4px 0;
+  }
+
+  .selectedDeviceID {
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: #2e3548;
+  }
+
+  .currentStatus {
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 2px 10px;
+    border-radius: 6px;
+    color: white;
+  }
+
+  /* 상태별 스타일 */
+  .currentStatus.status-success {
+    background-color: #1cc88a;
+  }
+
+  .currentStatus.status-caution {
+    background-color: #d9a730;
+  }
+
+  .currentStatus.status-warning {
+    background-color: #e67e00;
+  }
+
+  .currentStatus.status-danger {
+    background-color: #d13930;
+  }
+
+  .status-item.normal {
+    background-color: rgba(28, 200, 138, 0.1); /* #1cc88a의 밝은 버전 */
+    border: 1px solid rgba(28, 200, 138, 0.2);
+  }
+
+  .status-item.status-caution-second {
+    background-color: rgba(246, 194, 62, 0.1); /* #f6c23e의 밝은 버전 */
+    border: 1px solid rgba(246, 194, 62, 0.2);
+  }
+
+  .status-item.warning {
+    background-color: rgba(255, 165, 0, 0.1); /* #FFA500의 밝은 버전 */
+    border: 1px solid rgba(255, 165, 0, 0.2);
+  }
+
+  .status-item.danger {
+    background-color: rgba(235, 72, 63, 0.1); /* #EB483F의 밝은 버전 */
+    border: 1px solid rgba(235, 72, 63, 0.2);
+  }
+
+  .text-success-dark {
+    color: #169c6b !important;
+  }
+
+  .text-danger-dark {
+    color: #d13930 !important;
+  }
+
+  .text-warning-dark {
+    color: #dc7900 !important;
+  }
+
+  .text-caution-dark {
+    color: #d9a730 !important;
+  }
+
+  /* 기존 스타일 뒤에 추가 */
+  .status-history {
+    padding: 0.5rem;
+    max-height: 400px;
+    overflow-y: auto;
+    min-height: 22rem; /* 최소 높이 설정 */
+    max-height: 22rem; /* 최소 높이 설정 */
+  }
+
+  .history-item {
+    position: relative;
+    padding: 0.75rem 0.75rem 0.75rem 1.25rem;
+    border-left: 2px solid #e3e6f0;
+  }
+
+  .history-item::before {
+    content: "";
+    position: absolute;
+    left: -5px;
+    top: 24px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #e3e6f0;
+  }
+
+  .history-item.normal {
+    border-left-color: #1cc88a;
+  }
+
+  .history-item.caution {
+    border-left-color: #d9a730;
+  }
+
+  .history-item.warning {
+    border-left-color: #e67e00;
+  }
+
+  .history-item.danger {
+    border-left-color: #d13930;
+  }
+
+  .history-item.normal::before {
+    background-color: #1cc88a;
+  }
+
+  .history-item.caution::before {
+    background-color: #d9a730;
+  }
+
+  .history-item.warning::before {
+    background-color: #e67e00;
+  }
+
+  .history-item.danger::before {
+    background-color: #d13930;
+  }
+  .status-history .empty-message {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #858796;
+  }
+
+  .history-time {
+    font-size: 0.8rem;
+    color: #858796;
+    margin-bottom: 0.25rem;
+  }
+
+  .history-status {
+    display: inline-block;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+
+  .history-details {
+    font-size: 0.875rem;
+    color: #5a5c69;
+  }

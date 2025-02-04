@@ -26,8 +26,8 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/static/css/prj.css">
-    <link rel="icon" href="/static/img/fabicon.svg" />
+    <link rel="stylesheet" href="../css/prj.css" />
+    <link rel="icon" href="../img/fabicon.svg" />
  
     <style>
       .message {
@@ -160,9 +160,25 @@
   <body id="page-top">
     <div id="wrapper">
       <div id="menu"></div>
+      <script>
+        fetch("./sidebar.html")
+          .then((response) => response.text())
+          .then((html) => (document.getElementById("menu").innerHTML = html))
+          .catch((error) => console.error("Error loading sidebar:", error));
+      </script>
+ 
       <div id="content-wrapper" class="d-flex flex-column">
         <div id="content">
           <div id="topbar"></div>
+          <script>
+            fetch("./topbar.html")
+              .then((response) => response.text())
+              .then(
+                (html) => (document.getElementById("topbar").innerHTML = html)
+              )
+              .catch((error) => console.error("Error loading topbar:", error));
+          </script>
+ 
           <div class="container-fluid">
             <h1 class="h3 mb-0 text-gray-800">MonoGuard 챗봇</h1>
  
@@ -233,9 +249,6 @@
       </div>
     </div>
  
-
-    <script src="/static/js/mainfunc.js"></script>
-
     <script>
       // HTML의 script 태그 안에 아래 코드를 추가해주세요
       document.addEventListener("DOMContentLoaded", function () {

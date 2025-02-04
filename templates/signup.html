@@ -54,7 +54,6 @@
                     
                 </div>
                 
-
                 <div class="form-row">
                     <div class="info-label">전화번호*</div>
                     <input class="input-field" id="tel" type="tel" placeholder="예) 010-1234-5678" required>
@@ -73,18 +72,59 @@
 
                 </div>
 
-                <div class="form-row">
-                    <div class="submit-container" onclick="handleSignUp()">
-                        <span class="submit-text">회원가입</span>
+                <div class="form-row agreement-container">
+                    <div class="agreement-row all-agreement">
+                      <input type="checkbox" id="agree-all" />
+                      <label for="agree-all">전체 동의</label>
                     </div>
+                    <div class="agreement-row">
+                      <input type="checkbox" id="agree-terms" required />
+                      <label for="agree-terms">
+                        서비스 이용약관 동의 (필수)
+                        <a href="use.html" class="agreement-link" target="_blank">보기</a>
+                    </label>
+                    </div>
+                    <div class="agreement-row">
+                      <input type="checkbox" id="agree-privacy" required />
+                      <label for="agree-privacy">
+                        개인정보 수집 및 이용 동의 (필수)
+                        <a href="privacy.html" class="agreement-link" target="_blank">보기</a>
+                    </label>
+                    </div>
+                  </div>
+        
+                  <div class="form-row">
+                    <div class="submit-container" onclick="handleSignUp()">
+                      <span class="submit-text">회원가입</span>
+                    </div>
+                  </div>
                 </div>
+              </div>
             </div>
-        </div>
-    </div>
 </body>
 
 <script>
     let isEmployeeIdValid = false;
+    
+    // 전체 동의 체크박스와 개별 체크박스들을 가져옵니다
+    const agreeAllCheckbox = document.getElementById('agree-all');
+    const termsCheckbox = document.getElementById('agree-terms');
+    const privacyCheckbox = document.getElementById('agree-privacy');
+
+    // 전체 동의 체크박스의 이벤트 리스너
+    agreeAllCheckbox.addEventListener('change', function() {
+        termsCheckbox.checked = this.checked;
+        privacyCheckbox.checked = this.checked;
+    });
+
+    // 개별 체크박스들의 이벤트 리스너
+    termsCheckbox.addEventListener('change', updateAllCheckbox);
+    privacyCheckbox.addEventListener('change', updateAllCheckbox);
+
+    // 개별 체크박스들의 상태에 따라 전체 동의 체크박스 상태를 업데이트
+    function updateAllCheckbox() {
+        agreeAllCheckbox.checked = termsCheckbox.checked && privacyCheckbox.checked;
+    }
 
     async function checkEmployeeId() {
         const employeeId = document.getElementById('employee-id')?.value;
@@ -163,6 +203,12 @@
         if (password !== confirmPassword) {
             alert("비밀번호가 일치하지 않습니다. 다시 확인해주세요.");
             return false;
+        }
+
+        // 8. 필수 약관 동의 확인
+        if (!termsCheckbox.checked || !privacyCheckbox.checked) {
+            alert('필수 약관에 모두 동의해주세요.');
+            return;
         }
     
         return true;

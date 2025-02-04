@@ -53,6 +53,8 @@ class QnA(Base):
     reply_title = Column(String, nullable=True)
     reply_content = Column(String, nullable=True)
     reply_at = Column(String, nullable=True)
+    
+    alert = Column(Boolean, nullable=False, default=False)                  # 게시물 답변 알림
 
     author = relationship("User")
     
