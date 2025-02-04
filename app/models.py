@@ -26,6 +26,7 @@ class Notice(Base):
     user_id = Column(String, ForeignKey("users.employee_id"))
     created_at = Column(String)
     updated_at = Column(String)
+    public = Column(Boolean, default=True) # 초기 게시엔 True / 이후 비공개 설정시 False
     
     # attachment file
     attachment_filename = Column(String, nullable=True)
@@ -42,6 +43,7 @@ class QnA(Base):
     user_id = Column(String, ForeignKey("users.employee_id"))
     created_at = Column(String)
     updated_at = Column(String)
+    public = Column(Boolean, default=False) # 공개 여부 / False = 작성자(user_id), 관리자만 열람 가능
     
     # attachment file
     attachment_filename = Column(String, nullable=True)
@@ -91,41 +93,3 @@ class OperationLog(Base):
     ex_humidity = Column(Integer, nullable=False)
     ex_illuminance = Column(Integer, nullable=False)
     
-    
-#     CREATE DATABASE IF NOT EXISTS sensor_data;
-# CREATE TABLE agv_data (
-#     device_id VARCHAR(10),
-#     collection_date DATE,
-#     collection_time TIME,
-#     cumulative_operating_day TINYINT,
-#     filenames TEXT,
-#     NTC FLOAT,
-#     PM1_0 FLOAT,
-#     PM2_5 FLOAT,
-#     PM10 FLOAT,
-#     CT1 FLOAT,
-#     CT2 FLOAT,
-#     CT3 FLOAT,
-#     CT4 FLOAT,
-#     ex_temperature FLOAT,
-#     ex_humidity FLOAT,
-#     ex_illuminance FLOAT
-# );
-# CREATE TABLE oht_data (
-#     device_id VARCHAR(10),
-#     collection_date DATE,
-#     collection_time TIME,
-#     cumulative_operating_day TINYINT,
-#     filenames TEXT,
-#     NTC FLOAT,
-#     PM1_0 FLOAT,
-#     PM2_5 FLOAT,
-#     PM10 FLOAT,
-#     CT1 FLOAT,
-#     CT2 FLOAT,
-#     CT3 FLOAT,
-#     CT4 FLOAT,
-#     ex_temperature FLOAT,
-#     ex_humidity FLOAT,
-#     ex_illuminance FLOAT
-# );

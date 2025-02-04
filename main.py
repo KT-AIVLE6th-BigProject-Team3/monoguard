@@ -37,7 +37,6 @@ def act_main_page(request: Request, current_user: dict = Depends(auth.get_curren
 
 @app.get("/notice", response_class=HTMLResponse)
 def act_notice_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
-    # return templates.TemplateResponse("notice.html", {"request": {}, "user": current_user})
     return RedirectResponse(url="/board/notice/list")
 
 @app.get("/board/notice", response_class=HTMLResponse) # 일단 이렇게 접속할 경우가 있을까 싶지만
@@ -92,3 +91,8 @@ def get_current_user_api(current_user: dict = Depends(auth.get_current_user_from
 @app.get("/admin/equipment_management", response_class=HTMLResponse)
 def act_equip_management_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
     return templates.TemplateResponse("admin/equipment_management.html", {"request": {}, "user": current_user})
+
+# # for predict.html page
+# @app.get("/predict", response_class=HTMLResponse)
+# def act_predict_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
+#     return templates.TemplateResponse("predict.html", {"request": {}, "user": current_user})

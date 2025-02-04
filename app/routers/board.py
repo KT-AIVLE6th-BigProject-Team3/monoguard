@@ -17,7 +17,6 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 # existing = 조회 / 수정 / 삭제 함수에서 해당 id 게시글(이 존재하는지) 저장
-## QnA 부분 (기존 =  post(create)만 있었음)
 ################ 게시글 작성
 @router.post("/qna/create")
 async def create_question(
@@ -25,9 +24,10 @@ async def create_question(
     content: str = Form(...),
     user_id: dict = Depends(auth.get_current_user_from_cookie),
     attachment: UploadFile = File(None),
+    public: bool = Form(False),
     db: Session = Depends(get_db)
 ):
-    new_question = QnA(title=title, content=content, user_id=user_id['sub'], created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    new_question = QnA(title=title, content=content, user_id=user_id['sub'], created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), public=public)
     
     if attachment:
         file_content = await attachment.read()
@@ -56,7 +56,7 @@ def list_question(
     elif page > total_pages:
         page = total_pages
         
-    # 페이지네이션 적용하여 QnA 목록 가져오기
+    # qnas = db.query(QnA).order_by(desc(QnA.created_at)).offset(page * limit).limit(limit).all()
     offset_val = (page - 1) * limit
     qnas = (db.query(QnA)
             .order_by(desc(QnA.created_at))
@@ -68,7 +68,9 @@ def list_question(
     qna_list = [
         {
             "id": qna.id,
+            "public" : qna.public,
             "title": qna.title,
+            "user_id" : qna.user_id,
             "created_at": qna.created_at,
             "reply_title": qna.reply_title,  # 답변 여부 확인
             "alert": qna.alert
@@ -109,8 +111,10 @@ def read_question(
 ):
     existing = db.query(QnA).filter(QnA.id == id).first()
     if not existing:
-        raise HTTPException(status_code=404, detail="QnA content not found")
-   
+        return RedirectResponse(url=f"/board/qna/list?error=notexist", status_code=303)
+    if not current_user['admin'] and (current_user['sub'] != existing.user_id and existing.public is False):
+        print(current_user['admin'])
+        return RedirectResponse(url=f"/board/qna/list?error=no_permission", status_code=303)
     # 작성자가 본인 게시글을 조회하면 alert 해제
     if existing.user_id == current_user['sub']:
         existing.alert = False
@@ -122,6 +126,7 @@ def read_question(
         "title" : existing.title,
         "content" : existing.content,
         "created_at" : existing.created_at,
+        "public" : existing.public,
         "reply_user" : existing.reply_user,
         "reply_title" : existing.reply_title,
         "reply_content" : existing.reply_content,
@@ -138,14 +143,14 @@ def read_question(
             "qna_content" : qna_content
         }
     )
-
+    
 
 # QnA 첨부파일 다운로드    
 @router.get("/qna/download/{file_id}")
 def download_qna_file(file_id: int,     db: Session = Depends(get_db)):
     qna = db.query(QnA).filter(QnA.id == file_id).first()
     if not qna or not qna.attachment_data:
-        raise HTTPException(status_code=404, detail="File not found")
+        raise HTTPException(status_code=404, detail="파일을 찾을 수 없습니다.")
 
     filename = quote(qna.attachment_filename)
     content_type = qna.attachment_content_type
@@ -162,14 +167,16 @@ def edit_question(
     id: int,
     title: str = Form(...),
     content: str = Form(...),
+    public: bool = Form(False),
     db: Session = Depends(get_db)
 ):
     existing = db.query(QnA).filter(QnA.id == id).first() # 기존 content 이름을 existing으로 하여 입력받는 게시글 내용(content)와 이름 중복 방지
     if not existing:
-        raise HTTPException(status_code=404, detail="QnA content not found")
+        raise HTTPException(status_code=404, detail="존재하지 않는 QnA 게시글입니다.")
 
     existing.title = title
     existing.content = content
+    existing.public = public
     existing.updated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
     db.commit()
@@ -193,7 +200,7 @@ def reply_question(
 ):
     existing = db.query(QnA).filter(QnA.id == id).first()
     if not existing:
-        raise HTTPException(status_code=404, detail="QnA content not found")
+        raise HTTPException(status_code=404, detail="존재하지 않는 QnA 게시글입니다.")
     
     existing.reply_user = reply_id['sub']
     existing.reply_title = reply_title
@@ -223,7 +230,7 @@ def delete_qna(
 ):
     existing = db.query(QnA).filter(QnA.id == id).first()
     if not existing:
-        raise HTTPException(status_code=404, detail="QnA not found")
+        raise HTTPException(status_code=404, detail="존재하지 않는 QnA 게시글입니다.")
     db.delete(existing)
     db.commit()
     return {"message": "QnA 게시글이 삭제되었습니다."}
@@ -253,7 +260,6 @@ async def create_notice(
 
 # 목록 조회
 @router.get("/notice/list", response_class=HTMLResponse)
-# @router.get("/notice_management/list", response_class=HTMLResponse)
 def list_notice(
     request: Request,
     page: int = 0, # 목록 페이지 번호
@@ -261,21 +267,30 @@ def list_notice(
     db: Session = Depends(get_db),
     current_user: dict = Depends(auth.get_current_user_from_cookie)
 ):
-    # 전체 게시글 수
-    total_count = db.query(func.count(Notice.id)).scalar()
+    
+    # admin일 경우
+    if current_user['admin']:
+        # 전체 게시글 수
+        total_count = db.query(func.count(Notice.id)).scalar()
+        query = db.query(Notice)
+    else: # admin이 아닐 경우, 공개된 공지사항만
+        total_count = db.query(func.count(Notice.id)).filter(Notice.public == True).scalar()
+        query = db.query(Notice).filter(Notice.public == True)
+        
     total_pages = ceil(total_count / limit) if total_count else 1
     if page < 1:
         page = 1
     elif page > total_pages:
         page = total_pages
     
-    # notices = db.query(Notice).order_by(desc(Notice.created_at)).offset(page * limit).limit(limit).all() # page 1
     offset_val = (page - 1) * limit
-    notices = (db.query(Notice).order_by(desc(Notice.created_at)).offset(offset_val).limit(limit).all())
+    notices = (query.order_by(desc(Notice.created_at)).offset(offset_val).limit(limit).all())
     notice_list = [
         {
             "id" : notice.id,
             "title" : notice.title,
+            "writer" : notice.user_id, # user_id가 아닌 writer를 사용함에 유의
+            "public" : notice.public,
             "created_at" : notice.created_at
         }
         for notice in notices
@@ -315,7 +330,7 @@ def read_notice(
 ):
     existing = db.query(Notice).filter(Notice.id == id).first()
     if not existing:
-        raise HTTPException(status_code=404, detail="Notice content not found")
+        raise HTTPException(status_code=404, detail="존재하지 않는 공지글입니다.")
     
     # 이전글 정보 조회
     prev_notice = (db.query(Notice).filter(Notice.id < existing.id).order_by(Notice.id.desc()).first())
@@ -329,6 +344,7 @@ def read_notice(
             "title" : existing.title,
             "content" : existing.content,
             "created_at" : existing.created_at,
+            "public" : existing.public,
             "current_user": current_user['sub'],
             "admin": current_user['admin'],
             "files" : [
@@ -361,7 +377,7 @@ def read_notice(
 def download_notice_file(file_id: int,     db: Session = Depends(get_db)):
     notice = db.query(Notice).filter(Notice.id == file_id).first()
     if not notice or not notice.attachment_data:
-        raise HTTPException(status_code=404, detail="File not found")
+        raise HTTPException(status_code=404, detail="파일을 찾을 수 없습니다.")
 
     filename = notice.attachment_filename
     content_type = notice.attachment_content_type
@@ -379,15 +395,17 @@ def edit_notice(
     id: int,
     title: str = Form(...),
     content: str = Form(...),
+    public: bool = Form(False),
     db: Session = Depends(get_db)
 ):
     existing = db.query(Notice).filter(Notice.id == id).first() # 기존 content 이름을 existing으로 하여 입력받는 게시글 내용(content)와 이름 중복 방지
     if not existing:
-        raise HTTPException(status_code=404, detail="Notice content not found")
+        raise HTTPException(status_code=404, detail="존재하지 않는 공지글입니다.")
     if title:
         existing.title = title
     if content:
         existing.content = content
+    existing.public = public
     existing.updated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
     db.commit()
@@ -408,7 +426,7 @@ db: Session = Depends(get_db)
 ):
     existing = db.query(Notice).filter(Notice.id == id).first()
     if not existing:
-        raise HTTPException(status_code=404, detail="Notice not found")
+        raise HTTPException(status_code=404, detail="존재하지 않는 공지글입니다.")
     db.delete(existing)
     db.commit()
     return {"message": "공지사항 게시글이 삭제되었습니다."}
