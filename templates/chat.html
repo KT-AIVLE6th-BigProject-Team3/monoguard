@@ -237,56 +237,55 @@
     <script src="/static/js/mainfunc.js"></script>
 
     <script>
-      // HTML의 script 태그 안에 아래 코드를 추가해주세요
       document.addEventListener("DOMContentLoaded", function () {
         const chatMessages = document.getElementById("chat-messages");
         const userInput = document.getElementById("user-input");
         const sendButton = document.getElementById("send-button");
         const loadingIndicator = document.getElementById("loading");
- 
+      
         function addMessage(content, isUser = false) {
           const messageDiv = document.createElement("div");
-          messageDiv.className = `message ${
-            isUser ? "user-message" : "bot-message"
-          }`;
+          messageDiv.className = `message ${isUser ? "user-message" : "bot-message"}`;
           messageDiv.textContent = content;
           chatMessages.appendChild(messageDiv);
           chatMessages.scrollTop = chatMessages.scrollHeight;
         }
- 
+      
         async function sendMessage() {
           const message = userInput.value.trim();
           if (!message) return;
- 
+      
           // 사용자 메시지 표시
           addMessage(message, true);
           userInput.value = "";
- 
+      
           // 로딩 표시
           loadingIndicator.style.display = "block";
- 
+      
           try {
             // 챗봇 API 호출
             const response = await fetch(
-              `http://localhost:8000/chat-bot?question=${encodeURIComponent(
+              `http://localhost:8000/chatbot/api?question=${encodeURIComponent(
                 message
               )}`
             );
-            const botResponse = await response.text();
- 
+      
             if (!response.ok) {
               throw new Error("API 응답이 실패했습니다.");
             }
- 
-            // 봇 응답 표시
-            addMessage(botResponse);
+      
+            // JSON 응답 파싱
+            const botResponse = await response.json();
+      
+            // `answer` 키 값만 출력
+            addMessage(botResponse.answer);
           } catch (error) {
-            addMessage(`오류가 발생했습니다: ${error.message}`, false);
+            addMessage(`❌ 오류: ${error.message}`, false);
           } finally {
             loadingIndicator.style.display = "none";
           }
         }
- 
+      
         // 이벤트 리스너 등록
         sendButton.addEventListener("click", sendMessage);
         userInput.addEventListener("keypress", function (event) {
@@ -295,6 +294,7 @@
           }
         });
       });
+      
       document
         .getElementById("report-button")
         .addEventListener("click", async function () {

@@ -15,3 +15,10 @@ python-jose
 python-decouple
 langchain
 langchain-community
+langchain-core
+faiss-cpu
+python-dotenv
+matplotlib
+tiktoken
+Transformers
+pdfkit
