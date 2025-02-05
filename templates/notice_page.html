@@ -80,7 +80,11 @@
                     </div>
                     <div class="card shadow mb-4">
                         <div class="notice-card-header py-3">
-                            <p class="notice-date">{{ notice_content.created_at }}</p>
+                            <p class="notice-date">작성자 : {{ notice_content.user_id}} | {{ notice_content.created_at }} 작성
+                                {% if notice_content.updated_at %}
+                                    ({{ notice_content.updated_at }} 수정)
+                                {% endif %}
+                            </p>
                             <h4 class="m-0 font-weight-bold text-primary">{{ notice_content.title }}</h4>
                         </div>
                         <div class="card-body">
