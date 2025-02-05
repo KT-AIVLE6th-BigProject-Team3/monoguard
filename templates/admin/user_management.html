@@ -37,22 +37,6 @@
 
         <!-- 메뉴가 동적으로 로드될 영역 -->
         <div id="menu"></div>
-
-        <script>
-            // 메뉴를 동적으로 로드
-            fetch('/sidebar')  // 경로 확인
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    return response.text();
-                })
-                .then(html => {
-                    document.getElementById('menu').innerHTML = html;
-                })
-                .catch(error => console.error('Error loading sidebar:', error));
-        </script>
-
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
 
@@ -61,23 +45,6 @@
 
                 <!-- 상단바를 삽입할 영역 -->
                 <div id="topbar"></div>
-
-                <!-- JavaScript -->
-                <script>
-                    // 상단바를 동적으로 로드
-                    fetch('/topbar')
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok ' + response.statusText);
-                            }
-                            return response.text();
-                        })
-                        .then(html => {
-                            document.getElementById('topbar').innerHTML = html;
-                        })
-                        .catch(error => console.error('Error loading topbar:', error));
-                </script>
-                <!-- 상단바 끝! -->
 
                 <!--페이지 콘텐츠 부분-->
                 <div class="container-fluid">
@@ -145,6 +112,8 @@
                     </div>
                 </div>
 </body>
+
+<script src="/static/js/mainfunc.js"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {

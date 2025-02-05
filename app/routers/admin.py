@@ -6,6 +6,7 @@ from sqlalchemy import desc # 목록 최신순 출력을 위한 내림차순 추
 from app.database import SessionLocal
 from app.models import User
 from app.routers import user, auth
+from app.utils import get_db
 
 router = APIRouter() 
 templates = Jinja2Templates(directory="templates")
@@ -16,7 +17,7 @@ def list_user(
     current_user: dict = Depends(auth.get_current_user_from_cookie),
     page: int = 0,
     limit: int = 10,
-    db: Session = Depends(lambda: SessionLocal())
+    db: Session = Depends(get_db)
 ):
     users = db.query(User).order_by(desc(User.created_at)).offset(page * limit).limit(limit).all()
     user_list = []
@@ -53,7 +54,7 @@ def list_user(
 def delete_user(
     user_id: int,
     current_user: dict = Depends(auth.get_current_user_from_cookie),
-    db: Session = Depends(lambda: SessionLocal())
+    db: Session = Depends(get_db)
 ):
     if current_user is None or not current_user.get("admin", False):
         return RedirectResponse(url="/error?code=invalid_admin", status_code=303)
@@ -73,7 +74,7 @@ def edit_user_form(
     request: Request,
     user_id: int,
     current_user: dict = Depends(auth.get_current_user_from_cookie),
-    db: Session = Depends(lambda: SessionLocal())
+    db: Session = Depends(get_db)
 ):
     if current_user is None or not current_user.get("admin", False):
         return RedirectResponse(url="/error?code=invalid_admin", status_code=303)
@@ -96,7 +97,7 @@ def update_user(
     phone: str = Form(None),
     email: str = Form(...),
     current_user: dict = Depends(auth.get_current_user_from_cookie),
-    db: Session = Depends(lambda: SessionLocal())
+    db: Session = Depends(get_db)
 ):
     # 1. 관리자 권한 체크
     if current_user is None or not current_user.get("admin", False):

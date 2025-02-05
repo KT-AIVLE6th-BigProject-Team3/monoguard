@@ -1,19 +1,16 @@
 from fastapi import APIRouter, Form, Depends, HTTPException, Request, File, Response, UploadFile # HTTPException, Request, File, Response, UploadFile 추가
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, func # 목록 최신순 출력을 위한 내림차순 추가
-from app.database import SessionLocal
 from app.models import QnA, Notice
-
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.requests import Request
 from fastapi.templating import Jinja2Templates
-
 from datetime import datetime # 현재 시간 형태 제대로 바꾸기 위해, ex) 2025-01-16T05:14:04 -> 2025-01-16 05:14:04
 from typing import List, Optional
 from urllib.parse import quote # 한글 파일명 인코딩 목적
 from math import ceil # pagination 계산 목적
-
 from app.routers import auth # 사용자 토큰
+from app.utils import get_db
 
 router = APIRouter()
 
@@ -28,7 +25,7 @@ async def create_question(
     user_id: dict = Depends(auth.get_current_user_from_cookie),
     attachment: UploadFile = File(None),
     public: bool = Form(False),
-    db: Session = Depends(lambda: SessionLocal())
+    db: Session = Depends(get_db)
 ):
     new_question = QnA(title=title, content=content, user_id=user_id['sub'], created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), public=public)
     
@@ -46,12 +43,11 @@ async def create_question(
 @router.get("/qna/list", response_class=HTMLResponse)
 def list_question(
     request: Request,
-    page: int = 0, # 목록 페이지 번호
-    limit: int = 10, # 페이지당 출력할 게시글 수
-    db: Session = Depends(lambda: SessionLocal()),
+    page: int = 1,  # 페이지 번호 기본값 1
+    limit: int = 10,  # 페이지당 출력할 게시글 수
+    db: Session = Depends(get_db),
     current_user: dict = Depends(auth.get_current_user_from_cookie)
 ):
-    
     # 전체 게시글 수
     total_count = db.query(func.count(QnA.id)).scalar()
     total_pages = ceil(total_count / limit) if total_count else 1
@@ -60,21 +56,28 @@ def list_question(
     elif page > total_pages:
         page = total_pages
         
+    # qnas = db.query(QnA).order_by(desc(QnA.created_at)).offset(page * limit).limit(limit).all()
     offset_val = (page - 1) * limit
-    qnas = (db.query(QnA).order_by(desc(QnA.created_at)).offset(offset_val).limit(limit).all())
+    qnas = (db.query(QnA)
+            .order_by(desc(QnA.created_at))
+            .offset(offset_val)
+            .limit(limit)
+            .all())
+
+    # 목록 데이터 변환 (alert 필드 추가)
     qna_list = [
         {
-            "id" : qna.id,
+            "id": qna.id,
             "public" : qna.public,
-            "title" : qna.title,
+            "title": qna.title,
             "user_id" : qna.user_id,
-            "created_at" : qna.created_at,
-            "reply_title" : qna.reply_title # replied or not
+            "created_at": qna.created_at,
+            "reply_title": qna.reply_title,  # 답변 여부 확인
+            "alert": qna.alert
         }
         for qna in qnas
     ]
-    # print(current_user['sub'])
-    
+
     start_page = max(1, page - 4)
     end_page = start_page + 9
     if end_page > total_pages:
@@ -82,15 +85,15 @@ def list_question(
         
     if (end_page - start_page) < 9:
         start_page = max(1, end_page - 9)
-        
+
     page_range = range(start_page, end_page + 1)
-    
+
     return templates.TemplateResponse(
         "QnA.html",
         {
-            "request" : request,
-            "qnaList" : qna_list,
-            "current_user" : current_user['sub'],
+            "request": request,
+            "qnaList": qna_list,
+            "current_user": current_user['sub'],
             "current_page": page,
             "total_pages": total_pages,
             "page_range": page_range,
@@ -103,7 +106,7 @@ def list_question(
 def read_question(
     request: Request,
     id: int,
-    db: Session = Depends(lambda: SessionLocal()),
+    db: Session = Depends(get_db),
     current_user: dict = Depends(auth.get_current_user_from_cookie)
 ):
     existing = db.query(QnA).filter(QnA.id == id).first()
@@ -112,6 +115,11 @@ def read_question(
     if not current_user['admin'] and (current_user['sub'] != existing.user_id and existing.public is False):
         print(current_user['admin'])
         return RedirectResponse(url=f"/board/qna/list?error=no_permission", status_code=303)
+    # 작성자가 본인 게시글을 조회하면 alert 해제
+    if existing.user_id == current_user['sub']:
+        existing.alert = False
+        db.commit()
+   
     qna_content = {
         "id" : existing.id,
         "user_id" : existing.user_id,
@@ -139,7 +147,7 @@ def read_question(
 
 # QnA 첨부파일 다운로드    
 @router.get("/qna/download/{file_id}")
-def download_qna_file(file_id: int, db: Session = Depends(lambda: SessionLocal())):
+def download_qna_file(file_id: int,     db: Session = Depends(get_db)):
     qna = db.query(QnA).filter(QnA.id == file_id).first()
     if not qna or not qna.attachment_data:
         raise HTTPException(status_code=404, detail="파일을 찾을 수 없습니다.")
@@ -160,7 +168,7 @@ def edit_question(
     title: str = Form(...),
     content: str = Form(...),
     public: bool = Form(False),
-    db: Session = Depends(lambda: SessionLocal())
+    db: Session = Depends(get_db)
 ):
     existing = db.query(QnA).filter(QnA.id == id).first() # 기존 content 이름을 existing으로 하여 입력받는 게시글 내용(content)와 이름 중복 방지
     if not existing:
@@ -185,38 +193,40 @@ def edit_question(
 @router.put("/qna/content/{id}/reply")
 def reply_question(
     id: int,
-    # reply_id: str = Form(...), # docs test only
     reply_title: str = Form(...),
     reply_content: str = Form(...),
-    db: Session = Depends(lambda: SessionLocal()),
+    db: Session = Depends(get_db),
     reply_id: dict = Depends(auth.get_current_user_from_cookie)
 ):
-    existing = db.query(QnA).filter(QnA.id == id).first() # 기존 content 이름을 existing으로 하여 입력받는 게시글 내용(content)와 이름 중복 방지
+    existing = db.query(QnA).filter(QnA.id == id).first()
     if not existing:
         raise HTTPException(status_code=404, detail="존재하지 않는 QnA 게시글입니다.")
     
     existing.reply_user = reply_id['sub']
     existing.reply_title = reply_title
     existing.reply_content = reply_content
-    existing.reply_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
+    existing.reply_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    existing.alert = True  # 답변을 달면 alert 상태 활성화
+
     db.commit()
     db.refresh(existing)
     
     return {
         "message": "답변이 성공적으로 등록되었습니다.",
         "id": existing.id,
-        "reply_user": existing.reply_title,
+        "reply_user": existing.reply_user,
         "reply_title": existing.reply_title,
         "reply_content": existing.reply_content,
-        "reply_at": existing.reply_at
+        "reply_at": existing.reply_at,
+        "alert": existing.alert
     }
+
 
 # 게시글 삭제
 @router.delete("/qna/content/{id}/delete")
 def delete_qna(
     id: int,
-    db: Session = Depends(lambda: SessionLocal())
+    db: Session = Depends(get_db)
 ):
     existing = db.query(QnA).filter(QnA.id == id).first()
     if not existing:
@@ -233,7 +243,7 @@ async def create_notice(
     content: str = Form(...),
     user_id: dict = Depends(auth.get_current_user_from_cookie),
     attachment: UploadFile = File(None),
-    db: Session = Depends(lambda: SessionLocal())
+    db: Session = Depends(get_db)
 ):
     print("user_id", user_id)
     new_notice = Notice(title=title, content=content, user_id=user_id['sub'], created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -254,7 +264,7 @@ def list_notice(
     request: Request,
     page: int = 0, # 목록 페이지 번호
     limit: int = 10, # 페이지당 출력할 게시글 수
-    db: Session = Depends(lambda: SessionLocal()),
+    db: Session = Depends(get_db),
     current_user: dict = Depends(auth.get_current_user_from_cookie)
 ):
     
@@ -315,7 +325,7 @@ def list_notice(
 def read_notice(
     request: Request,
     id: int,
-    db: Session = Depends(lambda: SessionLocal()),
+    db: Session = Depends(get_db),
     current_user: dict = Depends(auth.get_current_user_from_cookie)
 ):
     existing = db.query(Notice).filter(Notice.id == id).first()
@@ -364,7 +374,7 @@ def read_notice(
     
 # 공지사항 첨부파일 다운로드    
 @router.get("/notice/download/{file_id}")
-def download_notice_file(file_id: int, db: Session = Depends(lambda: SessionLocal())):
+def download_notice_file(file_id: int,     db: Session = Depends(get_db)):
     notice = db.query(Notice).filter(Notice.id == file_id).first()
     if not notice or not notice.attachment_data:
         raise HTTPException(status_code=404, detail="파일을 찾을 수 없습니다.")
@@ -386,7 +396,7 @@ def edit_notice(
     title: str = Form(...),
     content: str = Form(...),
     public: bool = Form(False),
-    db: Session = Depends(lambda: SessionLocal())
+    db: Session = Depends(get_db)
 ):
     existing = db.query(Notice).filter(Notice.id == id).first() # 기존 content 이름을 existing으로 하여 입력받는 게시글 내용(content)와 이름 중복 방지
     if not existing:
@@ -412,7 +422,7 @@ def edit_notice(
 @router.delete("/notice/content/{id}/delete")
 def delete_notice(
     id: int,
-    db: Session = Depends(lambda: SessionLocal())
+db: Session = Depends(get_db)
 ):
     existing = db.query(Notice).filter(Notice.id == id).first()
     if not existing:

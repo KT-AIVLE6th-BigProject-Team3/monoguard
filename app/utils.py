@@ -3,6 +3,9 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from typing import Optional
 from decouple import config
+from sqlalchemy.orm import Session
+from fastapi import Depends
+from app.database import SessionLocal
  
 SECRET_KEY = config("SECRET_KEY")
 ALGORITHM = "HS256"
@@ -29,4 +32,10 @@ def verify_access_token(token: str):
         return payload
     except JWTError:
         return None
-        
+    
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

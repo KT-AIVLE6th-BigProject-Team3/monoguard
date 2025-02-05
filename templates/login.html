@@ -35,14 +35,51 @@
                     <span class="button-label">로그인</span>
                 </button>
             </div>
-        
-            <div class="signup" onclick="handleSignUp()">
-                <span class="signup-text">회원가입하기</span>
-            </div>
         </div>
         
+        <div class="find-credentials">
+            <span onclick="openFindModal('id')">사번 찾기</span>
+            <span class="divider">|</span>
+            <span onclick="openFindModal('password')">비밀번호 찾기</span>
+        </div>
+        <div class="signup" onclick="handleSignUp()">
+            <span class="signup-text">회원가입하기</span>
         </div>
     </div>
+</div>
+</div>
+
+<!-- 모달 -->
+<div id="findModal" class="modal">
+<div class="modal-content">
+    <span class="close-button" onclick="closeModal()">&times;</span>
+    <div class="tab-container">
+        <div class="tab active" onclick="switchTab('id')">사번 찾기</div>
+        <div class="tab" onclick="switchTab('password')">비밀번호 찾기</div>
+    </div>
+
+    <!-- 사번 찾기 폼 -->
+    <div id="findIdForm" style="display: block;">
+        <input class="input-box input-label" type="email" id="emailForId" placeholder="등록된 이메일">
+        <div class="button-box" onclick="findId()">
+            <div class="button-label">사번 찾기</div>
+        </div>
+    </div>
+
+    <!-- 비밀번호 찾기 폼 -->
+    <div id="findPasswordForm" style="display: none;">
+        <input class="input-box input-label" type="email" id="emailForPw" placeholder="등록된 이메일">
+        <input class="input-box input-label" type="text" id="employeeId" placeholder="사번">
+        <input class="input-box input-label" type="password" id="newPassword" placeholder="새 비밀번호">
+        <input class="input-box input-label" type="password" id="confirmPassword" placeholder="새 비밀번호 확인">
+        <div class="button-box" onclick="resetPassword()">
+            <div class="button-label">비밀번호 재설정</div>
+        </div>
+    </div>
+
+    <div id="resultMessage" class="result-message"></div>
+</div>
+</div>
 
     <script>
         function handleSignUp(){
@@ -82,7 +119,129 @@
                 errorMessage.textContent = "로그인 처리 중 오류가 발생했습니다.";
             }
         }
-        
+
+        function openFindModal(type) {
+            const modal = document.getElementById('findModal');
+            modal.style.display = 'block';
+            switchTab(type);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('findModal');
+            modal.style.display = 'none';
+            clearForms();
+            hideResultMessage();
+        }
+
+        function switchTab(type) {
+            const tabs = document.querySelectorAll('.tab');
+            const idForm = document.getElementById('findIdForm');
+            const pwForm = document.getElementById('findPasswordForm');
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            if (type === 'id') {
+                tabs[0].classList.add('active');
+                idForm.style.display = 'block';
+                pwForm.style.display = 'none';
+            } else {
+                tabs[1].classList.add('active');
+                idForm.style.display = 'none';
+                pwForm.style.display = 'block';
+            }
+            hideResultMessage();
+        }
+
+        function showResultMessage(message, isSuccess = true) {
+            const resultDiv = document.getElementById('resultMessage');
+            resultDiv.textContent = message;
+            resultDiv.className = `result-message ${isSuccess ? 'success' : 'error'}`;
+            resultDiv.style.display = 'block';
+        }
+
+        function hideResultMessage() {
+            const resultDiv = document.getElementById('resultMessage');
+            resultDiv.style.display = 'none';
+        }
+
+        function clearForms() {
+            document.getElementById('emailForId').value = '';
+            document.getElementById('emailForPw').value = '';
+            document.getElementById('employeeId').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        async function findId() {
+            const email = document.getElementById('emailForId').value;
+            
+            try {
+                const response = await fetch('/auth/find_id', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${encodeURIComponent(email)}`
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResultMessage(`귀하의 사번은 ${data.employee_id} 입니다.`);
+                } else {
+                    showResultMessage(data.detail || '사번 찾기에 실패했습니다.', false);
+                }
+            } catch (error) {
+                showResultMessage('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', false);
+            }
+        }
+
+        async function resetPassword() {
+            const email = document.getElementById('emailForPw').value;
+            const employeeId = document.getElementById('employeeId').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                showResultMessage('새 비밀번호가 일치하지 않습니다.', false);
+                return;
+            }
+            if (password.length < 8) {
+                showResultMessage('비밀번호는 최소 8자 이상이어야 합니다.', false);
+                return;
+            }
+
+            try {
+                const response = await fetch('/auth/reset_password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${encodeURIComponent(email)}&employee_id=${encodeURIComponent(employeeId)}` +
+                          `&new_password=${encodeURIComponent(newPassword)}&confirm_password=${encodeURIComponent(confirmPassword)}`
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResultMessage('비밀번호가 성공적으로 변경되었습니다.');
+                    setTimeout(() => {
+                        closeModal();
+                    }, 2000);
+                } else {
+                    showResultMessage(data.detail || '비밀번호 재설정에 실패했습니다.', false);
+                }
+            } catch (error) {
+                showResultMessage('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', false);
+            }
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('findModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
     </script>
 </body>
 
