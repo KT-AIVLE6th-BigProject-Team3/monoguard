@@ -205,7 +205,7 @@
                 showResultMessage('새 비밀번호가 일치하지 않습니다.', false);
                 return;
             }
-            if (password.length < 8) {
+            else if (newPassword.length < 8) {
                 showResultMessage('비밀번호는 최소 8자 이상이어야 합니다.', false);
                 return;
             }
