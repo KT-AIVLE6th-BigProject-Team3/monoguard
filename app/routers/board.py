@@ -126,6 +126,7 @@ def read_question(
         "title" : existing.title,
         "content" : existing.content,
         "created_at" : existing.created_at,
+        "updated_at" : existing.updated_at,
         "public" : existing.public,
         "reply_user" : existing.reply_user,
         "reply_title" : existing.reply_title,
