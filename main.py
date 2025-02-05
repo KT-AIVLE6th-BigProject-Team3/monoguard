@@ -3,9 +3,10 @@ from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, JSON
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
+from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine
 from app.models import Base
-from app.routers import auth, board, user, admin, predict
+from app.routers import auth, board, user, admin, predict, chatbot
  
 Base.metadata.create_all(bind=engine)
 templates = Jinja2Templates(directory="templates")
@@ -18,6 +19,15 @@ app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(board.router, prefix="/board", tags=["Board"])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"])
 app.include_router(predict.router, prefix="/predict", tags=["Predict"])
+app.include_router(chatbot.router, prefix="/chatbot", tags=["ChatBot"])
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request, current_user: dict = Depends(auth.get_current_user_from_cookie)):
@@ -96,3 +106,5 @@ def act_equip_management_page(current_user: dict = Depends(auth.get_current_user
 # @app.get("/predict", response_class=HTMLResponse)
 # def act_predict_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
 #     return templates.TemplateResponse("predict.html", {"request": {}, "user": current_user})
+
+
