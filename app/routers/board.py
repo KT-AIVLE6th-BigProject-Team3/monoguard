@@ -45,11 +45,19 @@ def list_question(
     request: Request,
     page: int = 1,  # 페이지 번호 기본값 1
     limit: int = 10,  # 페이지당 출력할 게시글 수
+    my_question: bool = False, # 작성자가 본인인 게시글을 조회하는지?
     db: Session = Depends(get_db),
     current_user: dict = Depends(auth.get_current_user_from_cookie)
 ):
+    
+    query = db.query(QnA).order_by(desc(QnA.created_at))
+    # my_question이 True가 되어 접속중인 사용자가 작성한 글 목록만 조회하고 싶다면
+    if my_question:
+        query = query.filter(QnA.user_id == current_user['sub'])
+    
     # 전체 게시글 수
-    total_count = db.query(func.count(QnA.id)).scalar()
+    # total_count = db.query(func.count(QnA.id)).scalar()
+    total_count = query.count()
     total_pages = ceil(total_count / limit) if total_count else 1
     if page < 1:
         page = 1
@@ -58,11 +66,7 @@ def list_question(
         
     # qnas = db.query(QnA).order_by(desc(QnA.created_at)).offset(page * limit).limit(limit).all()
     offset_val = (page - 1) * limit
-    qnas = (db.query(QnA)
-            .order_by(desc(QnA.created_at))
-            .offset(offset_val)
-            .limit(limit)
-            .all())
+    qnas = (query.offset(offset_val).limit(limit).all())
 
     # 목록 데이터 변환 (alert 필드 추가)
     qna_list = [
@@ -97,7 +101,8 @@ def list_question(
             "current_page": page,
             "total_pages": total_pages,
             "page_range": page_range,
-            "total_count": total_count
+            "total_count": total_count,
+            "my_question": my_question
         }
     )
     
@@ -345,6 +350,7 @@ def read_notice(
             "title" : existing.title,
             "content" : existing.content,
             "created_at" : existing.created_at,
+            "updated_at" : existing.updated_at,
             "public" : existing.public,
             "current_user": current_user['sub'],
             "admin": current_user['admin'],
