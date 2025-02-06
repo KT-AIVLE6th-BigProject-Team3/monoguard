@@ -3,10 +3,10 @@ from torch.utils.data import DataLoader
 from datetime import datetime, timedelta
 import threading
 import time
-from app.dashboard.dbfunc import Database
-from app.dashboard.MultiModal.dataset import MultimodalTestDataset
-from app.dashboard.MultiModal.model import ConditionClassifier
-from app.dashboard.analyzer import ImprovedSensorAnalyzer
+from app.predict.dbfunc import Database
+from app.predict.MultiModal.dataset import MultimodalTestDataset
+from app.predict.MultiModal.model import ConditionClassifier
+from app.predict.analyzer import ImprovedSensorAnalyzer
 
 class DeviceMonitor:
     def __init__(self):
@@ -38,7 +38,7 @@ class DeviceMonitor:
         """모델 로드"""
         if device_type not in self.models:
             model = ConditionClassifier(**self.model_config)
-            path = f'app/dashboard/Parameters/{device_type}_Best_State_Model.pth'
+            path = f'app/predict/Parameters/{device_type}_Best_State_Model.pth'
             model.load_state_dict(torch.load(path, map_location='cpu'))
             self.models[device_type] = model.eval()
             if(model):

@@ -40,10 +40,10 @@
     />
 
     <!--CSS 파일 명시-->
-    <link rel="stylesheet" href="../css/prj.css" />
+    <link rel="stylesheet" href="static/css/prj.css" />
 
     <!-- 일반적인 fabicon 설정 -->
-    <link rel="icon" href="../img/fabicon.svg" />
+    <link rel="icon" href="static/img/fabicon.svg" />
 
     <style>
       /* styles.css */
@@ -217,23 +217,6 @@
       <!-- 메뉴가 동적으로 로드될 영역 -->
       <div id="menu"></div>
 
-      <script>
-        // 메뉴를 동적으로 로드
-        fetch("./sidebar.html")
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(
-                "Network response was not ok " + response.statusText
-              );
-            }
-            return response.text();
-          })
-          .then((html) => {
-            document.getElementById("menu").innerHTML = html;
-          })
-          .catch((error) => console.error("Error loading sidebar:", error));
-      </script>
-
       <!-- Content Wrapper -->
       <div id="content-wrapper" class="d-flex flex-column">
         <!-- 메인 콘텐츠 -->
@@ -241,22 +224,6 @@
           <!-- 상단바를 삽입할 영역 -->
           <div id="topbar"></div>
 
-          <script>
-            // 상단바를 동적으로 로드
-            fetch("./topbar.html")
-              .then((response) => {
-                if (!response.ok) {
-                  throw new Error(
-                    "Network response was not ok " + response.statusText
-                  );
-                }
-                return response.text();
-              })
-              .then((html) => {
-                document.getElementById("topbar").innerHTML = html;
-              })
-              .catch((error) => console.error("Error loading topbar:", error));
-          </script>
           <div class="container-fluid">
             <h1 class="h3 mb-0 text-gray-800">보고서 만들기</h1>
             <p class="mb-4">장비와 기간을 선택하여 보고서를 생성하세요</p>
@@ -336,6 +303,7 @@
     <!-- Flatpickr 스크립트 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/ko.js"></script>
+    <script src="/static/js/mainfunc.js"></script>
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
@@ -394,7 +362,7 @@
             const startDate = selectedStartDate.toISOString().split("T")[0];
             const endDate = selectedEndDate.toISOString().split("T")[0];
             const response = await fetch(
-              `http://localhost:8000/device_report_pdf/${deviceSelect.value}?start_date=${startDate}&end_date=${endDate}`
+              `http://localhost:8000/pred/device_report_pdf/${deviceSelect.value}?start_date=${startDate}&end_date=${endDate}`
             );
 
             if (!response.ok) throw new Error("보고서 생성에 실패했습니다.");

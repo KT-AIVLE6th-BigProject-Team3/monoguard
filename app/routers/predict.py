@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.dashboard.monitor import DeviceMonitor
-from app.dashboard.analyzer import ImprovedSensorAnalyzer
-from app.dashboard.MultiModal.dataset import MultimodalTestDataset
-from app.dashboard.dbfunc import Database
+from app.predict.monitor import DeviceMonitor
+from app.predict.analyzer import ImprovedSensorAnalyzer
+from app.predict.MultiModal.dataset import MultimodalTestDataset
+from app.predict.dbfunc import Database
 from typing import Dict
 
 from fastapi.responses import FileResponse
@@ -252,12 +252,14 @@ def generate_conclusion(device_id: str, analysis_result):
     3. 권장되는 조치사항
     """
     
-    response = openai.ChatCompletion.create(
+    client = openai.OpenAI()
+
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": prompt}]
     )
-    
-    conclusion = response["choices"][0]["message"]["content"]
+
+    conclusion = response.choices[0].message.content
     return conclusion
 
 @router.get("/device_report_pdf/{device_id}")
@@ -289,6 +291,7 @@ async def generate_pdf_report(device_id: str):
         analysis_result = cursor.fetchone()
 
         if not status_result or not analysis_result:
+            print("Device Data not found!")
             raise HTTPException(status_code=404, detail="Device data not found")
 
         # 센서 상태 분류
@@ -438,6 +441,7 @@ async def generate_pdf_report(device_id: str):
             )
             
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         conn.close()

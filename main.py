@@ -7,7 +7,7 @@ from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine
 from app.models import Base
-from app.routers import auth, board, user, admin, predict, chatbot
+from app.routers import auth, board, user, admin, predict, chatbot, report
  
 Base.metadata.create_all(bind=engine)
 templates = Jinja2Templates(directory="templates")
@@ -20,6 +20,7 @@ app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(board.router, prefix="/board", tags=["Board"])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"])
 app.include_router(predict.router, prefix="/pred", tags=["Predict"])
+app.include_router(report.router, prefix="/rep", tags=["Report"])
 app.include_router(chatbot.router, prefix="/chatbot", tags=["ChatBot"])
 
 app.add_middleware(
@@ -40,6 +41,14 @@ def read_root(request: Request, current_user: dict = Depends(auth.get_current_us
 def act_register_page(request: Request):
     return templates.TemplateResponse("signup.html", {"request": request})
 
+@app.get("/privacy", response_class=HTMLResponse)
+def act_register_page(request: Request):
+    return templates.TemplateResponse("privacy.html", {"request": request})
+
+@app.get("/use", response_class=HTMLResponse)
+def act_register_page(request: Request):
+    return templates.TemplateResponse("use.html", {"request": request})
+
 @app.get("/home", response_class=HTMLResponse)
 def act_main_page(request: Request, current_user: dict = Depends(auth.get_current_user_from_cookie)):
     if current_user is None:
@@ -48,35 +57,57 @@ def act_main_page(request: Request, current_user: dict = Depends(auth.get_curren
 
 @app.get("/notice", response_class=HTMLResponse)
 def act_notice_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
+    if current_user is None:
+        return RedirectResponse(url="/error?code=invalid_token", status_code=303)
     return RedirectResponse(url="/board/notice/list")
 
 @app.get("/board/notice", response_class=HTMLResponse)
 def redirect_notice_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
+    if current_user is None:
+        return RedirectResponse(url="/error?code=invalid_token", status_code=303)
     return RedirectResponse(url="/board/notice/list")
 
 @app.get("/notice_detail", response_class=HTMLResponse)
 def act_notice_detail_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
+    if current_user is None:
+        return RedirectResponse(url="/error?code=invalid_token", status_code=303)
     return templates.TemplateResponse("notice_page.html", {"request": {}, "user": current_user})
 
 @app.get("/qna", response_class=HTMLResponse)
 def act_qna_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
+    if current_user is None:
+        return RedirectResponse(url="/error?code=invalid_token", status_code=303)
     return RedirectResponse(url="/board/qna/list")
 
 @app.get("/board/qna", response_class=HTMLResponse)
 def redirect_qna_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):  
+    if current_user is None:
+        return RedirectResponse(url="/error?code=invalid_token", status_code=303)
     return RedirectResponse(url="/board/qna/list")
 
 @app.get("/qna_detail", response_class=HTMLResponse)
 def act_qna_detail_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
+    if current_user is None:
+        return RedirectResponse(url="/error?code=invalid_token", status_code=303)
     return templates.TemplateResponse("QnA_page.html", {"request": {}, "user": current_user}) 
 
 @app.get("/predict", response_class=HTMLResponse)
 def act_predict_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
+    if current_user is None:
+        return RedirectResponse(url="/error?code=invalid_token", status_code=303)
     return templates.TemplateResponse("predict.html", {"request": {}, "user": current_user}) 
 
 @app.get("/chat", response_class=HTMLResponse)
 def act_chat_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
+    if current_user is None:
+        return RedirectResponse(url="/error?code=invalid_token", status_code=303)
     return templates.TemplateResponse("chat.html", {"request": {}, "user": current_user})  
+
+@app.get("/report", response_class=HTMLResponse)
+def act_chat_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
+    if current_user is None:
+        return RedirectResponse(url="/error?code=invalid_token", status_code=303)
+    return templates.TemplateResponse("report.html", {"request": {}, "user": current_user})  
 
 @app.get("/sidebar", response_class=HTMLResponse)
 def get_sidebar(current_user: dict = Depends(auth.get_current_user_from_cookie)):

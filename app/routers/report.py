@@ -8,8 +8,7 @@ import xml.etree.ElementTree as ET
 # 외부 라이브러리
 import pandas as pd
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from weasyprint import HTML  # ✅ WeasyPrint 추가
  
@@ -31,19 +30,8 @@ from langchain.chains import LLMChain
 from fastapi.responses import FileResponse
 from pydantic import BaseModel  # ✅ Pydantic 가져오기
  
- 
-# FastAPI 앱 생성
-app = FastAPI()
- 
-# CORS 미들웨어 설정 (프론트엔드와 통신을 위해 필요)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
- 
+router = APIRouter()
+
 # 전역 변수
 qa_chain = None
 openai_api_key = None
@@ -126,17 +114,17 @@ def setup_qa_chain(vectorstore):
  
  
 # ✅ 앱 시작 시 초기화
-@app.on_event("startup")
+@router.on_event("startup")
 async def startup_event():
     global qa_chain, openai_api_key
     
     try:
         # API 키 로드 및 환경변수 설정
-        openai_api_key = load_file("api_key.txt")
+        openai_api_key = load_file("./chatbot/api_key.txt")
         os.environ["OPENAI_API_KEY"] = openai_api_key
  
         # CSV 로드 및 텍스트 추출
-        file_path = "example.csv"
+        file_path = "./report/example.csv"
         df = load_csv(file_path)
         text_data = extract_text_data(df)
  
@@ -152,17 +140,17 @@ async def startup_event():
         vectorstore = load_vectorstore("faiss_index", embeddings_model)
         qa_chain = setup_qa_chain(vectorstore)
  
-        print("Application successfully initialized!")
+        print("routerlication successfully initialized!")
     except Exception as e:
         print(f"Error during initialization: {e}")
         sys.exit(1)
  
 # ✅ 챗봇 API 엔드포인트
-@app.get("/")
+@router.get("/")
 def read_root():
     return {"message": "Welcome to QA Chatbot API!"}
  
-@app.get("/chat-bot")
+@router.get("/chat-bot")
 async def chat_endpoint(question: str):
     global qa_chain
     try:
@@ -185,7 +173,7 @@ class EquipmentReportRequest(BaseModel):
     시작_날짜: str  # MM-DD 형식
     종료_날짜: str  # MM-DD 형식
     
-@app.post("/generate-equipment-report")
+@router.post("/generate-equipment-report")
 async def generate_equipment_report(request: EquipmentReportRequest):
     try:
         # ✅ HTML 보고서 생성
@@ -215,10 +203,10 @@ async def generate_equipment_report(request: EquipmentReportRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
  
-@app.get("/download-report/{filename}")
+@router.get("/download-report/{filename}")
 async def download_report(filename: str):
     file_path = os.path.join(REPORTS_DIR, filename)
     if not os.path.exists(file_path):
         return {"error": "파일을 찾을 수 없습니다."}
-    return FileResponse(file_path, filename=filename, media_type="application/pdf")
+    return FileResponse(file_path, filename=filename, media_type="routerlication/pdf")
  
