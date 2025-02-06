@@ -1,22 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="QnA" />
+    <meta name="author" content="황은비" />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
 
-<head>
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        <meta name="description" content="QnA" />
-        <meta name="author" content="황은비" />
-        <meta
-          http-equiv="Cache-Control"
-          content="no-cache, no-store, must-revalidate"
-        />
-        <meta http-equiv="Pragma" content="no-cache" />
-        <meta http-equiv="Expires" content="0" />
     <title>MonoGuard</title>
 
     <!-- 외부 CSS 및 아이콘 폰트 -->
@@ -32,15 +31,63 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
     />
-    <link rel="stylesheet" href="/static/css/prj.css">
-    <link rel="icon" href="/static/img/fabicon.svg" />
-</head>
+    <link rel="stylesheet" href="static/css/prj.css" />
+    <link rel="icon" href="static/img/fabicon.svg" />
 
-<!-- <body id="page-top" onload="fetchHome()"> -->
-<body id="page-top">
-    <!-- Page Wrapper -->
+    <style>
+      .device-status-list {
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .device-item {
+        padding: 10px;
+        margin-bottom: 8px;
+        border-radius: 6px;
+        background-color: #f8f9fc;
+        border: 1px solid #e3e6f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .device-name {
+        font-weight: 600;
+        color: #4e73df;
+      }
+
+      .device-status {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      .status-normal {
+        background-color: #e8f5e9;
+        color: #1cc88a;
+      }
+
+      .status-caution {
+        background-color: #fff3e0;
+        color: #f6c23e;
+      }
+
+      .status-warning {
+        background-color: #fff3e6;
+        color: #fd7e14;
+      }
+
+      .status-danger {
+        background-color: #fde7e7;
+        color: #e74a3b;
+      }
+    </style>
+  </head>
+
+  <body id="page-top">
     <div id="wrapper">
-        <!-- 메뉴 영역 (사이드바) -->
+      <!-- 메뉴 영역 (사이드바) -->
       <div id="menu"></div>
 
       <!-- 메인 콘텐츠 영역 -->
@@ -55,7 +102,7 @@
             <div
               class="d-sm-flex align-items-center justify-content-between mb-3"
             >
-              <h1 class="h3 mb-0 text-gray-800">대시보드</h1>
+              <h1 class="h3 mb-0 text-gray-800">가동현황</h1>
             </div>
 
             <!-- 탭 버튼 영역 -->
@@ -76,7 +123,7 @@
                 <!--정상가동-->
                 <div class="col-xl-3 col-md-6 mb-4">
                   <div class="card border-left-success shadow h-100 py-2">
-                    <div class="small-card-body">
+                    <div class="small-card-body2">
                       <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                           <div
@@ -88,7 +135,7 @@
                             12대
                           </div>
                         </div>
-                        <div class="col-auto"> 
+                        <div class="col-auto">
                           <i
                             class="fa-solid fa-circle-check fa-2x text-gray-300"
                           ></i>
@@ -101,7 +148,7 @@
                 <!-- 관심 필요 -->
                 <div class="col-xl-3 col-md-6 mb-4">
                   <div class="card border-left-caution shadow h-100 py-2">
-                    <div class="small-card-body">
+                    <div class="small-card-body2">
                       <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                           <div
@@ -126,7 +173,7 @@
                 <!--경고-->
                 <div class="col-xl-3 col-md-6 mb-4">
                   <div class="card border-left-warning shadow h-100 py-2">
-                    <div class="small-card-body">
+                    <div class="small-card-body2">
                       <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                           <div
@@ -157,7 +204,7 @@
                 <!--위험-->
                 <div class="col-xl-3 col-md-6 mb-4">
                   <div class="card border-left-danger shadow h-100 py-2">
-                    <div class="small-card-body">
+                    <div class="small-card-body2">
                       <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                           <div
@@ -170,13 +217,14 @@
                           </div>
                         </div>
                         <div class="siren-icon text-gray-300">
-                          <img src="/static/img/siren.svg" alt="siren" />
+                          <img src="static/img/siren.svg" alt="siren" />
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+
               <!-- AVG 콘텐츠 -->
               <div class="row">
                 <!-- 좌측 콘텐츠 -->
@@ -188,59 +236,66 @@
                         상태분포
                       </h6>
                     </div>
-                    <div class="agv-env-card-body">
-                      <iframe
-                        src="http://localhost:8501"
-                        width="100%"
-                        height="110"
-                        frameborder="0"
-                      ></iframe>
+                    <div
+                      class="agv-env-card-body"
+                      style="height: 350px; overflow: hidden"
+                    >
+                      <div class="row">
+                        <!-- 왼쪽: 장비 목록 -->
+                        <div class="col-md-6">
+                          <div class="device-list p-3">
+                            <h6 class="font-weight-bold mb-3">
+                              가동 중인 장비
+                            </h6>
+                            <div
+                              class="device-status-list"
+                              id="avg-device-list"
+                            >
+                              <!-- JavaScript로 동적 생성됨 -->
+                            </div>
+                          </div>
+                        </div>
+                        <!-- 오른쪽: 상태분포 차트 -->
+                        <div class="col-md-6">
+                          <iframe
+                            src="http://localhost:8501/dashboard?page=AGV 상태 분포"
+                            width="100%"
+                            height="400"
+                            frameborder="0"
+                            scrolling="no"
+                          ></iframe>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <!-- 2. 주의 및 위험 장비-->
                   <div class="card shadow mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
-                        시간에 따른 장비 상태
+                        시간에 따른 AGV 상태
                       </h6>
                     </div>
                     <div class="agv-env-card-body">
                       <iframe
-                        src="http://localhost:8501"
+                        src="http://localhost:8501/?page=시간에 따른 AGV 상태 변화"
                         width="100%"
-                        height="315"
+                        height="470"
                         frameborder="0"
                       ></iframe>
                     </div>
                   </div>
-                  <!-- 주의 및 위험 장비 -->
+                  <!-- 경고 및 위험 장비 -->
                   <div class="card shadow mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
-                        주의 및 위험 장비
+                        경고 및 위험 장비
                       </h6>
                     </div>
                     <div class="agv-env-card-body">
                       <iframe
-                        src="http://localhost:8501"
+                        src="http://localhost:8501/?page=AGV 경고 및 위험 장비"
                         width="100%"
-                        height="315"
-                        frameborder="0"
-                      ></iframe>
-                    </div>
-                  </div>
-                  <!-- 장비설비 현황 -->
-                  <div class="card shadow mb-3">
-                    <div class="card-header py-3">
-                      <h6 class="m-0 font-weight-bold text-primary">
-                        장비설비 현황
-                      </h6>
-                    </div>
-                    <div class="agv-env-card-body">
-                      <iframe
-                        src="http://localhost:8501"
-                        width="100%"
-                        height="315"
+                        height="100"
                         frameborder="0"
                       ></iframe>
                     </div>
@@ -258,9 +313,9 @@
                     </div>
                     <div class="agv-env-card-body">
                       <iframe
-                        src="http://localhost:8501"
+                        src="http://localhost:8501/?page=최근 작업 환경"
                         width="100%"
-                        height="110"
+                        height="250"
                         frameborder="0"
                       ></iframe>
                     </div>
@@ -274,9 +329,9 @@
                     </div>
                     <div class="agv-env-card-body">
                       <iframe
-                        src="http://localhost:8501"
+                        src="http://localhost:8501/?page=AGV 온도 변화"
                         width="100%"
-                        height="315"
+                        height="470"
                         frameborder="0"
                       ></iframe>
                     </div>
@@ -290,9 +345,9 @@
                     </div>
                     <div class="agv-env-card-body">
                       <iframe
-                        src="http://localhost:8501"
+                        src="http://localhost:8501/?page=AGV 습도 변화"
                         width="100%"
-                        height="315"
+                        height="470"
                         frameborder="0"
                       ></iframe>
                     </div>
@@ -306,9 +361,9 @@
                     </div>
                     <div class="agv-env-card-body">
                       <iframe
-                        src="http://localhost:8501"
+                        src="http://localhost:8501/?page=AGV 조도 변화"
                         width="100%"
-                        height="315"
+                        height="470"
                         frameborder="0"
                       ></iframe>
                     </div>
@@ -319,17 +374,384 @@
 
             <!-- OHT 탭 콘텐츠 -->
             <div id="oht-tab" class="tab-content">
+              <!--상단 요약카드-->
+              <div class="row">
+                <!--정상가동-->
+                <div class="col-xl-3 col-md-6 mb-4">
+                  <div class="card border-left-success shadow h-100 py-2">
+                    <div class="small-card-body2">
+                      <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                          <div
+                            class="text-xs font-weight-bold text-success text-uppercase mb-1"
+                          >
+                            정상기기
+                          </div>
+                          <div class="h5 mb-0 font-weight-bold text-gray-900">
+                            0대
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <i
+                            class="fa-solid fa-circle-check fa-2x text-gray-300"
+                          ></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 관심 필요 -->
+                <div class="col-xl-3 col-md-6 mb-4">
+                  <div class="card border-left-caution shadow h-100 py-2">
+                    <div class="small-card-body2">
+                      <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                          <div
+                            class="text-xs font-weight-bold text-caution text-uppercase mb-1"
+                          >
+                            관심기기
+                          </div>
+                          <div class="h5 mb-0 font-weight-bold text-gray-900">
+                            0대
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <i
+                            class="fas fa-exclamation-circle fa-2x text-gray-300"
+                          ></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!--경고-->
+                <div class="col-xl-3 col-md-6 mb-4">
+                  <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="small-card-body2">
+                      <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                          <div
+                            class="text-xs font-weight-bold text-warning text-uppercase mb-1"
+                          >
+                            경고기기
+                          </div>
+                          <div class="row no-gutters align-items-center">
+                            <div class="col-auto">
+                              <div
+                                class="h5 mb-0 mr-3 font-weight-bold text-gray-900"
+                              >
+                                0대
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <i
+                            class="fas fa-exclamation-triangle fa-2x text-gray-300"
+                          ></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!--위험-->
+                <div class="col-xl-3 col-md-6 mb-4">
+                  <div class="card border-left-danger shadow h-100 py-2">
+                    <div class="small-card-body2">
+                      <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                          <div
+                            class="text-xs font-weight-bold text-danger text-uppercase mb-1"
+                          >
+                            위험기기
+                          </div>
+                          <div class="h5 mb-0 font-weight-bold text-gray-900">
+                            0대
+                          </div>
+                        </div>
+                        <div class="siren-icon text-gray-300">
+                          <img src="static/img/siren.svg" alt="siren" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <!-- OHT 콘텐츠 -->
+              <div class="row">
+                <!-- 좌측 콘텐츠 -->
+                <div class="col-lg-7 mb-3">
+                  <!-- 1. 상태분포 -->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        상태분포
+                      </h6>
+                    </div>
+                    <div
+                      class="oht-env-card-body"
+                      style="height: 350px; overflow: hidden"
+                    >
+                      <div class="row">
+                        <!-- 장비 목록 -->
+                        <div class="col-md-6">
+                          <div class="device-list p-3">
+                            <h6 class="font-weight-bold mb-3">
+                              가동 중인 장비
+                            </h6>
+                            <div
+                              class="device-status-list"
+                              id="oht-device-list"
+                            >
+                              <!-- JavaScript로 동적 생성됨 -->
+                            </div>
+                          </div>
+                        </div>
+                        <!-- 상태분포 차트 -->
+                        <div class="col-md-6">
+                          <iframe
+                            src="http://localhost:8501/?page=OHT 상태 분포"
+                            width="100%"
+                            height="400"
+                            frameborder="0"
+                            scrolling="no"
+                          ></iframe>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- 2. 주의 및 위험 장비-->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        시간에 따른 장비 상태
+                      </h6>
+                    </div>
+                    <div class="oht-env-card-body">
+                      <iframe
+                        src="http://localhost:8501/?page=시간에 따른 OHT 상태 변화"
+                        width="100%"
+                        height="470"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                  <!-- 경고 및 위험 장비 -->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        경고 및 위험 장비
+                      </h6>
+                    </div>
+                    <div class="oht-env-card-body">
+                      <iframe
+                        src="http://localhost:8501/?page=OHT 경고 및 위험 장비"
+                        width="100%"
+                        height="100"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 우측 콘텐츠 -->
+                <div class="col-lg-5 mb-3">
+                  <!-- 1. 기기 현황 -->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        최근 작업 환경
+                      </h6>
+                    </div>
+                    <div class="oht-env-card-body">
+                      <iframe
+                        src="http://localhost:8501/?page=OHT 최근 작업 환경"
+                        width="100%"
+                        height="200"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                  <!--2. 작업현장 온도 변화 -->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        작업현장 온도 변화
+                      </h6>
+                    </div>
+                    <div class="oht-env-card-body">
+                      <iframe
+                        src="http://localhost:8501/?page=OHT 온도 변화"
+                        width="100%"
+                        height="470"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                  <!-- 작업현장 습도 변화 -->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        작업현장 습도 변화
+                      </h6>
+                    </div>
+                    <div class="oht-env-card-body">
+                      <iframe
+                        src="http://localhost:8501/?page=OHT 습도 변화"
+                        width="100%"
+                        height="470"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                  <!-- 작업현장 조도 변화 -->
+                  <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        작업현장 조도 변화
+                      </h6>
+                    </div>
+                    <div class="oht-env-card-body">
+                      <iframe
+                        src="http://localhost:8501/?page=OHT 조도 변화"
+                        width="100%"
+                        height="470"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 탭 전환을 위한 JavaScript -->
-
     <script src="/static/js/mainfunc.js"></script>
+
+    <!-- 탭 전환을 위한 JavaScript -->
     <script>
+      async function updateDeviceList(deviceType) {
+        const devices =
+          deviceType === "agv" ? ["AGV17", "AGV18"] : ["OHT17", "OHT18"];
+        const listId =
+          deviceType === "agv" ? "avg-device-list" : "oht-device-list";
+        const listElement = document.getElementById(listId);
+
+        if (!listElement) return;
+
+        listElement.innerHTML = ""; // 목록 초기화
+
+        for (const deviceId of devices) {
+          try {
+            const response = await fetch(
+              `http://localhost:8000/pred/device_status/${deviceId}`
+            );
+            const data = await response.json();
+
+            const deviceItem = document.createElement("div");
+            deviceItem.className = "device-item";
+
+            // 상태에 따른 클래스 결정
+            let statusClass = "";
+            switch (data.current_status) {
+              case "정상":
+                statusClass = "status-normal";
+                break;
+              case "주의":
+                statusClass = "status-caution";
+                break;
+              case "경고":
+                statusClass = "status-warning";
+                break;
+              case "위험":
+                statusClass = "status-danger";
+                break;
+            }
+
+            deviceItem.innerHTML = `
+        <span class="device-name">${deviceId}</span>
+        <span class="device-status ${statusClass}">${data.current_status}</span>
+      `;
+
+            listElement.appendChild(deviceItem);
+          } catch (error) {
+            console.error(`Error fetching status for ${deviceId}:`, error);
+          }
+        }
+      }
+      // 장비 상태 요약을 업데이트하는 함수
+      async function updateStatusSummary(deviceType) {
+        try {
+          const devices =
+            deviceType === "agv" ? ["AGV17", "AGV18"] : ["OHT17", "OHT18"];
+          let normalCount = 0;
+          let cautionCount = 0;
+          let warningCount = 0;
+          let dangerCount = 0;
+
+          // 각 장비의 상태 확인
+          for (const deviceId of devices) {
+            const response = await fetch(
+              `http://localhost:8000/pred/device_status/${deviceId}`
+            );
+            const data = await response.json();
+
+            // 상태에 따라 카운트 증가
+            switch (data.current_status) {
+              case "정상":
+                normalCount++;
+                break;
+              case "주의":
+                cautionCount++;
+                break;
+              case "경고":
+                warningCount++;
+                break;
+              case "위험":
+                dangerCount++;
+                break;
+            }
+          }
+
+          // 상태 표시 업데이트
+          const tabId = deviceType === "agv" ? "avg" : "oht";
+          const tab = document.getElementById(`${tabId}-tab`);
+          if (tab) {
+            // 정상기기 업데이트
+            const normalElement = tab
+              .querySelector(".text-success")
+              .parentElement.parentElement.querySelector(".h5");
+            normalElement.textContent = `${normalCount}대`;
+
+            // 관심기기 업데이트
+            const cautionElement = tab
+              .querySelector(".text-caution")
+              .parentElement.parentElement.querySelector(".h5");
+            cautionElement.textContent = `${cautionCount}대`;
+
+            // 경고기기 업데이트
+            const warningElement = tab
+              .querySelector(".text-warning")
+              .parentElement.parentElement.querySelector(".h5");
+            warningElement.textContent = `${warningCount}대`;
+
+            // 위험기기 업데이트
+            const dangerElement = tab
+              .querySelector(".text-danger")
+              .parentElement.parentElement.querySelector(".h5");
+            dangerElement.textContent = `${dangerCount}대`;
+          }
+        } catch (error) {
+          console.error(`Error updating ${deviceType} status:`, error);
+        }
+      }
+
       // 탭 전환 함수
       function showTab(tabName) {
         // 모든 탭 콘텐츠 숨기기
@@ -365,10 +787,23 @@
             slider.style.width = buttonRect.width + "px";
             slider.style.transform = `translateX(${leftOffset}px)`;
           }
+
+          // 상태 요약과 장비 목록 업데이트
+          const deviceType = tabName === "avg" ? "agv" : "oht";
+          updateStatusSummary(deviceType);
+          updateDeviceList(deviceType);
         }
       }
 
-      // 페이지 로드 시 초기 슬라이더 위치 설정
+      // iframe 업데이트 함수
+      function updateIframe(type) {
+        const iframe = document.getElementById("mainIframe");
+        if (iframe) {
+          iframe.src = `http://localhost:8501/?page=${type}`;
+        }
+      }
+
+      // 페이지 로드 시 초기화
       document.addEventListener("DOMContentLoaded", () => {
         const firstButton = document.querySelector(".tab-btn");
         if (firstButton) {
@@ -377,9 +812,30 @@
             slider.style.width = firstButton.offsetWidth + "px";
           }
         }
-        // 초기 탭 설정
+
+        // 초기 탭 설정 및 상태 업데이트
         showTab("avg");
+
+        // 주기적으로 상태 업데이트 (5분마다)
+        setInterval(() => {
+          const activeTab = document.querySelector(".tab-btn.active");
+          if (activeTab) {
+            const tabName = activeTab.textContent.trim().toLowerCase();
+            const deviceType = tabName === "agv" ? "agv" : "oht";
+            updateStatusSummary(deviceType);
+            updateDeviceList(deviceType);
+          }
+        }, 300000);
+
+        // iframe 이벤트 리스너 설정
+        const iframes = document.querySelectorAll("iframe");
+        iframes.forEach((iframe) => {
+          iframe.onload = function () {
+            // iframe 로드 완료 후 처리
+            console.log("iframe loaded:", iframe.src);
+          };
+        });
       });
     </script>
-</body>
+  </body>
 </html>

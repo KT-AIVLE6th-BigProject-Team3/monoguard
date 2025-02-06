@@ -1,3 +1,4 @@
+from app.routers import predict
 from fastapi import FastAPI, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -18,7 +19,7 @@ app.include_router(user.router, prefix="/users", tags=["Users"])
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(board.router, prefix="/board", tags=["Board"])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"])
-app.include_router(predict.router, prefix="/predict", tags=["Predict"])
+app.include_router(predict.router, prefix="/pred", tags=["Predict"])
 app.include_router(chatbot.router, prefix="/chatbot", tags=["ChatBot"])
 
 app.add_middleware(
@@ -49,7 +50,7 @@ def act_main_page(request: Request, current_user: dict = Depends(auth.get_curren
 def act_notice_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
     return RedirectResponse(url="/board/notice/list")
 
-@app.get("/board/notice", response_class=HTMLResponse) # 일단 이렇게 접속할 경우가 있을까 싶지만
+@app.get("/board/notice", response_class=HTMLResponse)
 def redirect_notice_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
     return RedirectResponse(url="/board/notice/list")
 
@@ -61,7 +62,7 @@ def act_notice_detail_page(current_user: dict = Depends(auth.get_current_user_fr
 def act_qna_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
     return RedirectResponse(url="/board/qna/list")
 
-@app.get("/board/qna", response_class=HTMLResponse) # 설마 이렇게 들어갈까 싶지만 아무튼
+@app.get("/board/qna", response_class=HTMLResponse)
 def redirect_qna_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):  
     return RedirectResponse(url="/board/qna/list")
 
@@ -96,7 +97,6 @@ def get_current_user_api(current_user: dict = Depends(auth.get_current_user_from
     if current_user is None:
         return JSONResponse(content={"error": "User not authenticated"}, status_code=401)
     return JSONResponse(content=current_user)
-
 
 @app.get("/admin/equipment_management", response_class=HTMLResponse)
 def act_equip_management_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
