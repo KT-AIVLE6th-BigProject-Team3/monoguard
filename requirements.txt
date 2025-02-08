@@ -22,3 +22,4 @@ matplotlib
 tiktoken
 Transformers
 pdfkit
+joblib

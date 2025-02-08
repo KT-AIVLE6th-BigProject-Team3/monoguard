@@ -1,259 +1,326 @@
 <!DOCTYPE html>
 <html lang="ko">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MonoGuard - 회원가입</title>
-    <link rel="stylesheet" href="/static/css/signup.css">
-    <link rel="stylesheet" as="style" crossorigin
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
-</head>
+    <link rel="stylesheet" href="/static/css/signup.css" />
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+  </head>
 
-<body>
+  <body>
     <div class="page-container">
-        <div class="logo-container">
-            <img class="logo" src="/static/img/logo.svg" alt="MonoGuard Logo">
-        </div>
-        <div class="content">
-            <div class="form-container">
-                <div class="signup-header">
-                    <span class="signup-title">회원가입</span>
-                </div>
+      <div class="logo-container">
+        <img class="logo" src="/static/img/logo.svg" alt="MonoGuard Logo" />
+      </div>
+      <div class="content">
+        <div class="form-container">
+          <div class="signup-header">
+            <span class="signup-title">회원가입</span>
+          </div>
 
-                <div class="form-row">
-                    <div class="info-label">이름*</div>
-                    <input class="input-field2" id="name" type="text" placeholder="예) 홍길동" required>
-                </div>
-                
-                <div class="form-row2-container">
-                    <div class="form-row2">
-                        <!-- (A) 라벨과 버튼을 함께 묶을 컨테이너 -->
-                        <div class="info-label-container" style="display: flex; align-items: center;">
-                            <div class="info-label">사번*</div>
-                            <button type="button" class="check-id-btn" onclick="checkEmployeeId()">중복 확인</button>
-                        </div>
-                        <!-- (B) 사번 입력 필드는 별도 컨테이너 -->
-                        <div class="input-group">
-                            <input class="input-field2" id="employee-id" type="text" placeholder="예) 홍길동" required>
-                        </div>
-                    </div>
-                    
-                
-                    <div class="form-row2">
-                        <div class="info-label">부서*</div>
-                        <select class="input-field2" id="department" required>
-                            <option value=""disabled selected>부서를 선택하세요</option>
-                            <option value="development">개발팀</option>
-                            <option value="design">디자인팀</option>
-                            <option value="sales">영업팀</option>
-                            <option value="hr">인사팀</option>
-                            <option value="marketing">마케팅팀</option>
-                        </select>
-                    </div>
-                    
-                </div>
-                
-                <div class="form-row">
-                    <div class="info-label">전화번호*</div>
-                    <input class="input-field" id="tel" type="tel" placeholder="예) 010-1234-5678" required>
-                </div>
-                <div class="form-row">
-                    <div class="info-label">이메일*</div>
-                    <input class="input-field" id="email" type="email" placeholder="예) example@asdf.com" required>
-                </div>
-                <div class="form-row">
-                    <div class="info-label">비밀번호*</div>
-                    <input class="input-field" id="password" type="password" placeholder="비밀번호를 입력하세요" required>
-                </div>
-                <div class="form-row">
-                    <div class="info-label">비밀번호 확인*</div>
-                    <input class="input-field" id="confirm-password" type="password" placeholder="비밀번호를 입력하세요" required>
+          <div class="form-row">
+            <div class="info-label">이름*</div>
+            <input
+              class="input-field2"
+              id="name"
+              type="text"
+              placeholder="예) 홍길동"
+              required
+            />
+          </div>
 
-                </div>
-
-                <div class="form-row agreement-container">
-                    <div class="agreement-row all-agreement">
-                      <input type="checkbox" id="agree-all" />
-                      <label for="agree-all">전체 동의</label>
-                    </div>
-                    <div class="agreement-row">
-                      <input type="checkbox" id="agree-terms" required />
-                      <label for="agree-terms">
-                        서비스 이용약관 동의 (필수)
-                        <a href="/use" class="agreement-link" target="_blank">보기</a>
-                    </label>
-                    </div>
-                    <div class="agreement-row">
-                      <input type="checkbox" id="agree-privacy" required />
-                      <label for="agree-privacy">
-                        개인정보 수집 및 이용 동의 (필수)
-                        <a href="/privacy" class="agreement-link" target="_blank">보기</a>
-                    </label>
-                    </div>
-                  </div>
-        
-                  <div class="form-row">
-                    <div class="submit-container" onclick="handleSignUp()">
-                      <span class="submit-text">회원가입</span>
-                    </div>
-                  </div>
-                </div>
+          <div class="form-row2-container">
+            <div class="form-row2">
+              <div class="info-label">사번*</div>
+              <div class="input-with-button">
+                <input
+                  class="input-field2"
+                  id="employee-id"
+                  type="text"
+                  placeholder="예) 1234"
+                  required
+                />
+                <button
+                  type="button"
+                  class="check-id-btn"
+                  onclick="checkEmployeeId()"
+                  disabled
+                >
+                  중복 확인
+                </button>
               </div>
             </div>
-</body>
 
-<script>
+            <div class="form-row2">
+              <div class="info-label">부서*</div>
+              <select class="input-field2" id="department" required>
+                <option value="" disabled selected>부서를 선택하세요</option>
+                <option value="development">개발팀</option>
+                <option value="design">디자인팀</option>
+                <option value="sales">영업팀</option>
+                <option value="hr">인사팀</option>
+                <option value="marketing">마케팅팀</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="info-label">전화번호*</div>
+            <input
+              class="input-field"
+              id="tel"
+              type="tel"
+              placeholder="예) 010-1234-5678"
+              required
+            />
+          </div>
+          <div class="form-row">
+            <div class="info-label">이메일*</div>
+            <input
+              class="input-field"
+              id="email"
+              type="email"
+              placeholder="예) example@asdf.com"
+              required
+            />
+          </div>
+          <div class="form-row">
+            <div class="info-label">비밀번호*</div>
+            <input
+              class="input-field"
+              id="password"
+              type="password"
+              placeholder="비밀번호를 8자리이상 입력하세요"
+              required
+            />
+          </div>
+          <div class="form-row">
+            <div class="info-label">비밀번호 확인*</div>
+            <input
+              class="input-field"
+              id="confirm-password"
+              type="password"
+              placeholder="비밀번호를 입력하세요"
+              required
+            />
+          </div>
+
+          <div class="form-row agreement-container">
+            <div class="agreement-row all-agreement">
+              <input type="checkbox" id="agree-all" />
+              <label for="agree-all">전체 동의</label>
+            </div>
+            <div class="agreement-row">
+              <input type="checkbox" id="agree-terms" required />
+              <label for="agree-terms">
+                서비스 이용약관 동의 (필수)
+                <a href="/use" class="agreement-link" target="_blank">보기</a>
+              </label>
+            </div>
+            <div class="agreement-row">
+              <input type="checkbox" id="agree-privacy" required />
+              <label for="agree-privacy">
+                개인정보 수집 및 이용 동의 (필수)
+                <a href="/privacy" class="agreement-link" target="_blank"
+                  >보기</a
+                >
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="submit-container" onclick="handleSignUp()">
+              <span class="submit-text">회원가입</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script>
     let isEmployeeIdValid = false;
-    
-    // 전체 동의 체크박스와 개별 체크박스들을 가져옵니다
-    const agreeAllCheckbox = document.getElementById('agree-all');
-    const termsCheckbox = document.getElementById('agree-terms');
-    const privacyCheckbox = document.getElementById('agree-privacy');
 
-    // 전체 동의 체크박스의 이벤트 리스너
-    agreeAllCheckbox.addEventListener('change', function() {
+    // DOM이 로드되면 실행
+    document.addEventListener("DOMContentLoaded", function () {
+      // 체크박스 요소들 가져오기
+      const agreeAllCheckbox = document.getElementById("agree-all");
+      const termsCheckbox = document.getElementById("agree-terms");
+      const privacyCheckbox = document.getElementById("agree-privacy");
+
+      // 사번 입력창과 중복확인 버튼 요소 가져오기
+      const employeeIdInput = document.getElementById("employee-id");
+      const checkIdButton = document.querySelector(".check-id-btn");
+
+      // 중복확인 버튼 초기 상태 설정
+      checkIdButton.disabled = !employeeIdInput.value;
+
+      // 사번 입력 이벤트 리스너
+      employeeIdInput.addEventListener("input", function () {
+        checkIdButton.disabled = !this.value;
+        // 입력값이 변경되면 중복확인 상태 초기화
+        isEmployeeIdValid = false;
+      });
+
+      // 전체 동의 체크박스의 이벤트 리스너
+      agreeAllCheckbox.addEventListener("change", function () {
         termsCheckbox.checked = this.checked;
         privacyCheckbox.checked = this.checked;
-    });
+      });
 
-    // 개별 체크박스들의 이벤트 리스너
-    termsCheckbox.addEventListener('change', updateAllCheckbox);
-    privacyCheckbox.addEventListener('change', updateAllCheckbox);
+      // 개별 체크박스들의 이벤트 리스너
+      termsCheckbox.addEventListener("change", updateAllCheckbox);
+      privacyCheckbox.addEventListener("change", updateAllCheckbox);
+    });
 
     // 개별 체크박스들의 상태에 따라 전체 동의 체크박스 상태를 업데이트
     function updateAllCheckbox() {
-        agreeAllCheckbox.checked = termsCheckbox.checked && privacyCheckbox.checked;
+      const agreeAllCheckbox = document.getElementById("agree-all");
+      const termsCheckbox = document.getElementById("agree-terms");
+      const privacyCheckbox = document.getElementById("agree-privacy");
+      agreeAllCheckbox.checked =
+        termsCheckbox.checked && privacyCheckbox.checked;
     }
 
+    // 사번 중복 확인
     async function checkEmployeeId() {
-        const employeeId = document.getElementById('employee-id')?.value;
-        if (!employeeId) {
-            alert("사번을 입력해주세요.");
-            return;
-        }
+      const employeeId = document.getElementById("employee-id")?.value;
+      if (!employeeId) {
+        alert("사번을 입력해주세요.");
+        return;
+      }
 
-        try {
-            const response = await fetch(`/users/check-id?employee_id=${employeeId}`);
-            const data = await response.json();
-            if (data.exists) {
-                alert("이미 사용 중인 사번입니다.");
-                isEmployeeIdValid = false;
-            } else {
-                alert("사용 가능한 사번입니다.");
-                isEmployeeIdValid = true;
-            }
-        } catch (error) {
-            console.error(error);
-            alert("사번 중복 조회 중 오류가 발생했습니다.");
+      try {
+        const response = await fetch(
+          `/users/check-id?employee_id=${employeeId}`
+        );
+        const data = await response.json();
+        if (data.exists) {
+          alert("이미 사용 중인 사번입니다.");
+          isEmployeeIdValid = false;
+        } else {
+          alert("사용 가능한 사번입니다.");
+          isEmployeeIdValid = true;
         }
+      } catch (error) {
+        console.error(error);
+        alert("사번 중복 조회 중 오류가 발생했습니다.");
+      }
     }
 
+    // 입력값 유효성 검사
     function validateInputs() {
-        const employeeId = document.getElementById('employee-id')?.value.trim();
-        const name = document.getElementById('name')?.value.trim();
-        const phone = document.getElementById('tel')?.value.trim();
-        const email = document.getElementById('email')?.value.trim();
-        const password = document.getElementById('password')?.value;
-        const confirmPassword = document.getElementById('confirm-password')?.value;
-    
-        // 정규식 패턴
-        const employeeIdPattern = /^[a-zA-Z0-9]+$/;         // 알파벳과 숫자만 허용
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;  // 이메일 형식
-        const phonePattern = /^\d{3}-\d{3,4}-\d{4}$/;       // 010-1234-5678 형식
-    
-        // 1. 이름 필수 입력
-        if (!name) {
-            alert("이름을 입력해주세요.");
-            return false;
-        }
-    
-        // 2. 사번 형식 검증
-        if (!employeeIdPattern.test(employeeId)) {
-            alert("사번은 특수문자나 공백 없이 입력해주세요.");
-            return false;
-        }
+      const employeeId = document.getElementById("employee-id")?.value.trim();
+      const name = document.getElementById("name")?.value.trim();
+      const phone = document.getElementById("tel")?.value.trim();
+      const email = document.getElementById("email")?.value.trim();
+      const password = document.getElementById("password")?.value;
+      const confirmPassword =
+        document.getElementById("confirm-password")?.value;
+      const termsCheckbox = document.getElementById("agree-terms");
+      const privacyCheckbox = document.getElementById("agree-privacy");
 
-        // 3. 사번 중복 체크 여부
-        if (!isEmployeeIdValid) {
-             alert("사번 중복 확인을 해주세요.");
-             return;
-         }
+      // 정규식 패턴
+      const employeeIdPattern = /^[a-zA-Z0-9]+$/; // 알파벳과 숫자만 허용
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 이메일 형식
+      const phonePattern = /^\d{3}-\d{3,4}-\d{4}$/; // 010-1234-5678 형식
 
-    
-        // 4. 전화번호 형식 검증
-        if (!phonePattern.test(phone)) {
-            alert("전화번호는 '010-1234-5678' 형식으로 입력해주세요.");
-            return false;
-        }
-    
-        // 5. 이메일 형식 검증
-        if (!emailPattern.test(email)) {
-            alert("유효한 이메일 주소를 입력해주세요.");
-            return false;
-        }
-    
-        // 6. 비밀번호 길이 및 확인
-        if (password.length < 8) {
-            alert("비밀번호는 최소 8자 이상이어야 합니다.");
-            return false;
-        }
+      // 1. 이름 필수 입력
+      if (!name) {
+        alert("이름을 입력해주세요.");
+        return false;
+      }
 
-        // 7. 비밀번호 2차 검증 확인
-        if (password !== confirmPassword) {
-            alert("비밀번호가 일치하지 않습니다. 다시 확인해주세요.");
-            return false;
-        }
+      // 2. 사번 형식 검증
+      if (!employeeIdPattern.test(employeeId)) {
+        alert("사번은 특수문자나 공백 없이 입력해주세요.");
+        return false;
+      }
 
-        // 8. 필수 약관 동의 확인
-        if (!termsCheckbox.checked || !privacyCheckbox.checked) {
-            alert('필수 약관에 모두 동의해주세요.');
-            return;
-        }
-    
-        return true;
+      // 3. 사번 중복 체크 여부
+      if (!isEmployeeIdValid) {
+        alert("사번 중복 확인을 해주세요.");
+        return false;
+      }
+
+      // 4. 전화번호 형식 검증
+      if (!phonePattern.test(phone)) {
+        alert("전화번호는 '010-1234-5678' 형식으로 입력해주세요.");
+        return false;
+      }
+
+      // 5. 이메일 형식 검증
+      if (!emailPattern.test(email)) {
+        alert("유효한 이메일 주소를 입력해주세요.");
+        return false;
+      }
+
+      // 6. 비밀번호 길이 및 확인
+      if (password.length < 8) {
+        alert("비밀번호는 최소 8자 이상이어야 합니다.");
+        return false;
+      }
+
+      // 7. 비밀번호 2차 검증 확인
+      if (password !== confirmPassword) {
+        alert("비밀번호가 일치하지 않습니다. 다시 확인해주세요.");
+        return false;
+      }
+
+      // 8. 필수 약관 동의 확인
+      if (!termsCheckbox.checked || !privacyCheckbox.checked) {
+        alert("필수 약관에 모두 동의해주세요.");
+        return false;
+      }
+
+      return true;
     }
 
+    // 회원가입 처리
     function handleSignUp() {
-        const employeeId = document.getElementById('employee-id')?.value;
-        const name = document.getElementById('name')?.value;
-        const phone = document.getElementById('tel')?.value;
-        const email = document.getElementById('email')?.value;
-        const password = document.getElementById('password')?.value;
-        const confirmPassword = document.getElementById('confirm-password')?.value;
-        const department = document.getElementById('department')?.value; 
+      const employeeId = document.getElementById("employee-id")?.value;
+      const name = document.getElementById("name")?.value;
+      const phone = document.getElementById("tel")?.value;
+      const email = document.getElementById("email")?.value;
+      const password = document.getElementById("password")?.value;
+      const department = document.getElementById("department")?.value;
 
-        if(!validateInputs())
-            return;
+      if (!validateInputs()) {
+        return;
+      }
 
-        fetch("users/register", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({
-                name,
-                employee_id: employeeId,
-                department,
-                phone,
-                email,
-                password
-            })
-        })
+      fetch("users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          name,
+          employee_id: employeeId,
+          department,
+          phone,
+          email,
+          password,
+        }),
+      })
         .then((res) => {
-            if (res.redirected) {
-                window.location.href = res.url;
-            } else {
-                alert('회원가입이 완료되었습니다!');
-                window.location.href = '/';
-            }
+          if (res.redirected) {
+            window.location.href = res.url;
+          } else {
+            alert("회원가입이 완료되었습니다!");
+            window.location.href = "/";
+          }
         })
         .catch((err) => {
-            console.error(err);
-            alert("회원가입 요청 중 오류가 발생했습니다.");
+          console.error(err);
+          alert("회원가입 요청 중 오류가 발생했습니다.");
         });
     }
-
-</script>
-
+  </script>
 </html>

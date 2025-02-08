@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <!-- Head 부분은 이전과 동일하게 유지 -->
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MonoGuard API Test</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* 이전 스타일 유지 */
+      #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        z-index: 99999;
+        backdrop-filter: blur(3px);
+      }
+
+      #loadingOverlay.show {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      .loading-content {
+        text-align: center;
+        color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      .equipment-item {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .equipment-item:hover {
+        background-color: #f8f9fa;
+      }
+
+      .equipment-item.active {
+        background-color: #e8f4ff;
+      }
+
+      .equipment-status {
+        font-weight: 500;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+      }
+
+      .text-success {
+        color: #28a745 !important;
+      }
+      .text-warning {
+        color: #ffc107 !important;
+      }
+      .text-caution {
+        color: #fd7e14 !important;
+      }
+      .text-danger {
+        color: #dc3545 !important;
+      }
+
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .status-item {
+        padding: 1.5rem;
+        border-radius: 8px;
+        background: #f8f9fa;
+        text-align: center;
+      }
+
+      .status-item h6 {
+        margin-bottom: 0.5rem;
+        color: #666;
+      }
+
+      .status-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .device-title {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 500;
+      }
+
+      .current-status {
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        background: #f8f9fa;
+        margin-bottom: 1rem;
+        font-weight: 500;
+      }
+
+      .status-success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      .status-caution {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+      .status-warning {
+        background-color: #ffe5d0;
+        color: #fd7e14;
+      }
+      .status-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+
+      .last-update {
+        font-size: 0.875rem;
+        color: #666;
+        text-align: right;
+        margin-top: 1rem;
+      }
+
+      .refresh-button {
+        padding: 0.5rem 1rem;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .refresh-button:hover {
+        background-color: #e9ecef;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loadingOverlay">
+      <div class="loading-content">
+        <div class="loading-spinner">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">분석 중...</span>
+          </div>
+        </div>
+        <div class="loading-text">
+          멀티모달 예지보전 모델이 예측 중입니다...
+          <div class="progress mt-3" style="height: 2px; width: 200px">
+            <div
+              class="progress-bar"
+              role="progressbar"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container mt-4">
+      <div class="row">
+        <!-- 장비 목록 -->
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">장비 목록</h5>
+            </div>
+            <div class="card-body p-0" id="deviceList">
+              <!-- JavaScript로 동적 생성 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 메인 콘텐츠 -->
+        <div class="col-md-9">
+          <div class="card mb-4">
+            <div class="card-header">
+              <div class="status-header">
+                <div>
+                  <h5 class="device-title" id="selectedDevice">장비 선택됨</h5>
+                  <div class="current-status mt-2" id="currentStatus">
+                    상태: -
+                  </div>
+                </div>
+                <button class="refresh-button" id="refreshButton">
+                  <i class="fas fa-sync-alt mr-1"></i> 새로고침
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="status-grid">
+                <div class="status-item">
+                  <h6>정상</h6>
+                  <div id="normalCount" class="text-success">-</div>
+                  <div id="normalPercent" class="small text-muted">-%</div>
+                </div>
+                <div class="status-item">
+                  <h6>주의</h6>
+                  <div id="cautionCount" class="text-caution">-</div>
+                  <div id="cautionPercent" class="small text-muted">-%</div>
+                </div>
+                <div class="status-item">
+                  <h6>경고</h6>
+                  <div id="warningCount" class="text-warning">-</div>
+                  <div id="warningPercent" class="small text-muted">-%</div>
+                </div>
+                <div class="status-item">
+                  <h6>위험</h6>
+                  <div id="dangerCount" class="text-danger">-</div>
+                  <div id="dangerPercent" class="small text-muted">-%</div>
+                </div>
+              </div>
+              <div class="last-update" id="lastUpdate">최근 업데이트: -</div>
+            </div>
+          </div>
+
+          <div class="card mb-4">
+            <div class="card-header">
+              <h5 class="card-title mb-0">이미지 대시보드</h5>
+            </div>
+            <div class="card-body">
+              <iframe
+                id="dashboardFrame"
+                src="http://localhost:8501/image_dashboard?device=AGV17"
+                style="width: 100%; height: 500px; border: none"
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // 전역 변수
+      let selectedDevice = null;
+      const updateInterval = 60000; // 60초
+      const API_BASE_URL = "http://localhost:8000/pred";
+      let loadingInterval = null;
+      let isLoading = false;
+      let lastCheckTimes = {};
+
+      const devices = {
+        agv: ["AGV17", "AGV18"],
+        oht: ["OHT17", "OHT18"],
+      };
+
+      // 로딩 화면 표시 함수
+      function showLoading() {
+        if (isLoading) return;
+
+        isLoading = true;
+        const overlay = document.getElementById("loadingOverlay");
+        const progressBar = overlay.querySelector(".progress-bar");
+        overlay.classList.add("show");
+        progressBar.style.width = "0%";
+
+        let progress = 0;
+        loadingInterval = setInterval(() => {
+          progress = (progress + 1) % 101;
+          progressBar.style.width = `${progress}%`;
+        }, 50);
+      }
+
+      // 로딩 화면 숨김 함수
+      function hideLoading() {
+        if (!isLoading) return;
+
+        isLoading = false;
+        if (loadingInterval) {
+          clearInterval(loadingInterval);
+          loadingInterval = null;
+        }
+
+        const overlay = document.getElementById("loadingOverlay");
+        const progressBar = overlay.querySelector(".progress-bar");
+        overlay.classList.remove("show");
+        progressBar.style.width = "0%";
+      }
+
+      // 상태에 따른 클래스 반환 함수
+      function getStatusClass(status) {
+        const statusMap = {
+          정상: "success",
+          주의: "caution",
+          경고: "warning",
+          위험: "danger",
+        };
+        return statusMap[status] || "secondary";
+      }
+
+      // 장비 목록 생성 함수
+      async function createDeviceList() {
+        const deviceList = document.getElementById("deviceList");
+        deviceList.innerHTML = "";
+
+        for (const deviceId of [...devices.agv, ...devices.oht]) {
+          try {
+            const response = await fetch(
+              `${API_BASE_URL}/device_status/${deviceId}`
+            );
+            const data = await response.json();
+
+            const div = document.createElement("div");
+            div.className = `equipment-item${
+              selectedDevice === deviceId ? " active" : ""
+            }`;
+            div.setAttribute("data-device", deviceId);
+            div.innerHTML = `
+                <span class="equipment-name">${deviceId}</span>
+                <span class="equipment-status text-${getStatusClass(
+                  data.current_status
+                )}">${data.current_status}</span>
+            `;
+            div.onclick = () => selectDevice(deviceId);
+            deviceList.appendChild(div);
+          } catch (error) {
+            console.error(`Error fetching status for ${deviceId}:`, error);
+          }
+        }
+      }
+
+      // 상태별 카운트 및 비율 업데이트 함수
+      function updateStatusCounts(statusData) {
+        const total = 300;
+        const counts = {
+          normal: Math.round((statusData.ratios.normal / 100) * total),
+          caution: Math.round((statusData.ratios.caution / 100) * total),
+          warning: Math.round((statusData.ratios.warning / 100) * total),
+          danger: Math.round((statusData.ratios.risk / 100) * total),
+        };
+
+        // 카운트 업데이트
+        document.getElementById(
+          "normalCount"
+        ).textContent = `${counts.normal}개`;
+        document.getElementById(
+          "cautionCount"
+        ).textContent = `${counts.caution}개`;
+        document.getElementById(
+          "warningCount"
+        ).textContent = `${counts.warning}개`;
+        document.getElementById(
+          "dangerCount"
+        ).textContent = `${counts.danger}개`;
+
+        // 비율 업데이트
+        document.getElementById(
+          "normalPercent"
+        ).textContent = `${statusData.ratios.normal.toFixed(1)}%`;
+        document.getElementById(
+          "cautionPercent"
+        ).textContent = `${statusData.ratios.caution.toFixed(1)}%`;
+        document.getElementById(
+          "warningPercent"
+        ).textContent = `${statusData.ratios.warning.toFixed(1)}%`;
+        document.getElementById(
+          "dangerPercent"
+        ).textContent = `${statusData.ratios.risk.toFixed(1)}%`;
+      }
+
+      // 모니터링 상태 확인 함수
+      async function checkMonitoringStatus() {
+        for (const deviceId of [...devices.agv, ...devices.oht]) {
+          try {
+            const response = await fetch(
+              `${API_BASE_URL}/device_status/${deviceId}`
+            );
+            const data = await response.json();
+            const currentTime = Date.now();
+
+            // 상태 변경 감지
+            if (data.monitoring_in_progress) {
+              if (!lastCheckTimes[deviceId]) {
+                showLoading();
+              }
+              lastCheckTimes[deviceId] = currentTime;
+            } else if (
+              lastCheckTimes[deviceId] &&
+              currentTime - lastCheckTimes[deviceId] > 5000
+            ) {
+              delete lastCheckTimes[deviceId];
+              hideLoading();
+              if (selectedDevice === deviceId) {
+                await updateDeviceStatus(deviceId);
+              }
+            }
+          } catch (error) {
+            console.error(
+              `Error checking monitoring status for ${deviceId}:`,
+              error
+            );
+          }
+        }
+      }
+
+      // 장비 상태 업데이트 함수
+      async function updateDeviceStatus(deviceId) {
+        try {
+          // 상태 정보 가져오기
+          const statusResponse = await fetch(
+            `${API_BASE_URL}/device_status/${deviceId}`
+          );
+          const statusData = await statusResponse.json();
+
+          // 분석 데이터 가져오기
+          const analysisResponse = await fetch(
+            `${API_BASE_URL}/analyze_device/${deviceId}`
+          );
+          const analysisData = await analysisResponse.json();
+
+          // UI 업데이트
+          document.getElementById("selectedDevice").textContent = deviceId;
+          document.getElementById(
+            "currentStatus"
+          ).textContent = `상태: ${statusData.current_status}`;
+          document.getElementById(
+            "currentStatus"
+          ).className = `current-status status-${getStatusClass(
+            statusData.current_status
+          )}`;
+
+          // 상태별 카운트 및 비율 업데이트
+          updateStatusCounts(statusData);
+
+          // 마지막 업데이트 시간
+          const updateTime = new Date().toLocaleString("ko-KR");
+          document.getElementById(
+            "lastUpdate"
+          ).textContent = `최근 업데이트: ${updateTime}`;
+        } catch (error) {
+          console.error("Error updating device status:", error);
+        }
+      }
+
+      // 장비 선택 함수
+      async function selectDevice(deviceId) {
+        if (selectedDevice === deviceId) return;
+
+        selectedDevice = deviceId;
+        await createDeviceList();
+        await updateDeviceStatus(deviceId);
+
+        // 대시보드 iframe 업데이트
+        const dashboardFrame = document.getElementById("dashboardFrame");
+        dashboardFrame.src = `http://localhost:8501/image_dashboard?device=${deviceId}`;
+      }
+
+      // 페이지 로드 시 초기화
+      document.addEventListener("DOMContentLoaded", async function () {
+        await createDeviceList();
+
+        // 새로고침 버튼 이벤트 리스너
+        document
+          .getElementById("refreshButton")
+          .addEventListener("click", async () => {
+            if (selectedDevice) {
+              showLoading();
+              try {
+                await updateDeviceStatus(selectedDevice);
+                await createDeviceList();
+              } finally {
+                hideLoading();
+              }
+            }
+          });
+
+        // 초기 장비 선택
+        await selectDevice("AGV17");
+
+        // 주기적인 모니터링 상태 확인 시작
+        setInterval(checkMonitoringStatus, 1000); // 1초마다 확인
+      });
+    </script>
+  </body>
+</html>

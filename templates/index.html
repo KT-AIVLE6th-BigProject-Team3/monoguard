@@ -35,6 +35,7 @@
     <link rel="icon" href="static/img/fabicon.svg" />
 
     <style>
+      /* Device Status List Styles */
       .device-status-list {
         max-height: 300px;
         overflow-y: auto;
@@ -53,9 +54,11 @@
 
       .device-name {
         font-weight: 600;
-        color: #4e73df;
+        color: #000000;
+        margin-right: 5px;
       }
 
+      /* Status Badge Styles */
       .device-status {
         padding: 4px 8px;
         border-radius: 4px;
@@ -64,23 +67,78 @@
       }
 
       .status-normal {
-        background-color: #e8f5e9;
+        background-color: #ffffff;
         color: #1cc88a;
       }
-
       .status-caution {
-        background-color: #fff3e0;
+        background-color: #ffffff;
+        color: #f6c23e;
+      }
+      .status-warning {
+        background-color: #ffffff;
+        color: #fd7e14;
+      }
+      .status-danger {
+        background-color: #ffffff;
+        color: #e74a3b;
+      }
+
+      /* Alert Card Styles */
+      .simple-alert-list {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .alert-card {
+        padding: 1.25rem;
+        border-radius: 10px;
+        background-color: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+      }
+
+      .alert-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      /* Status Section Styles */
+      .status-section {
+        margin-bottom: 2rem;
+      }
+
+      .status-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        padding-left: 0.5rem;
+      }
+
+      .status-content {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+
+      /* Text Colors */
+      .text-danger {
+        color: #e74a3b;
+      }
+      .text-warning {
+        color: #fd7e14;
+      }
+      .text-caution {
         color: #f6c23e;
       }
 
-      .status-warning {
-        background-color: #fff3e6;
-        color: #fd7e14;
-      }
-
-      .status-danger {
-        background-color: #fde7e7;
-        color: #e74a3b;
+      .device-card {
+        background: #ffffff;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid #d2d2d2;
+        transition: transform 0.2s;
       }
     </style>
   </head>
@@ -122,7 +180,7 @@
               <div class="row">
                 <!--정상가동-->
                 <div class="col-xl-3 col-md-6 mb-4">
-                  <div class="card border-left-success shadow h-100 py-2">
+                  <div class="card border-left-success shadow-sm h-100 py-2 card-left-margin">
                     <div class="small-card-body2">
                       <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -147,7 +205,7 @@
 
                 <!-- 관심 필요 -->
                 <div class="col-xl-3 col-md-6 mb-4">
-                  <div class="card border-left-caution shadow h-100 py-2">
+                  <div class="card border-left-caution shadow-sm h-100 py-2">
                     <div class="small-card-body2">
                       <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -172,7 +230,7 @@
 
                 <!--경고-->
                 <div class="col-xl-3 col-md-6 mb-4">
-                  <div class="card border-left-warning shadow h-100 py-2">
+                  <div class="card border-left-warning shadow-sm h-100 py-2">
                     <div class="small-card-body2">
                       <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -203,7 +261,7 @@
 
                 <!--위험-->
                 <div class="col-xl-3 col-md-6 mb-4">
-                  <div class="card border-left-danger shadow h-100 py-2">
+                  <div class="card border-left-danger shadow-sm h-100 py-2">
                     <div class="small-card-body2">
                       <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -217,7 +275,7 @@
                           </div>
                         </div>
                         <div class="siren-icon text-gray-300">
-                          <img src="static/img/siren.svg" alt="siren" />
+                          <img src="../img/siren.svg" alt="siren" />
                         </div>
                       </div>
                     </div>
@@ -230,7 +288,7 @@
                 <!-- 좌측 콘텐츠 -->
                 <div class="col-lg-7 mb-3">
                   <!-- 1. 상태분포 -->
-                  <div class="card shadow mb-3">
+                  <div class="card shadow-sm mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
                         상태분포
@@ -258,7 +316,7 @@
                         <!-- 오른쪽: 상태분포 차트 -->
                         <div class="col-md-6">
                           <iframe
-                            src="http://localhost:8501/dashboard?page=AGV 상태 분포"
+                            src="http://localhost:8501/?page=AGV 상태 분포"
                             width="100%"
                             height="400"
                             frameborder="0"
@@ -269,7 +327,7 @@
                     </div>
                   </div>
                   <!-- 2. 주의 및 위험 장비-->
-                  <div class="card shadow mb-3">
+                  <div class="card shadow-sm-sm mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
                         시간에 따른 AGV 상태
@@ -279,25 +337,38 @@
                       <iframe
                         src="http://localhost:8501/?page=시간에 따른 AGV 상태 변화"
                         width="100%"
-                        height="470"
+                        height="315"
                         frameborder="0"
                       ></iframe>
                     </div>
                   </div>
-                  <!-- 경고 및 위험 장비 -->
-                  <div class="card shadow mb-3">
+                  <div class="card shadow-sm mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
-                        경고 및 위험 장비
+                        AVG 화상 센서 모니터링
                       </h6>
                     </div>
-                    <div class="agv-env-card-body">
+                    <div class="streamlit-card-body">
                       <iframe
-                        src="http://localhost:8501/?page=AGV 경고 및 위험 장비"
-                        width="100%"
-                        height="100"
+                        src="http://localhost:8501/?page=AGV 열화상 모니터링&embed=true"
                         frameborder="0"
+                        style="width: 100%; height: 500px"
+                        scrolling="no"
+                        allow="fullscreen"
                       ></iframe>
+                    </div>
+                  </div>
+
+                  <div class="card shadow-sm mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        센서 현황
+                      </h6>
+                    </div>
+                    <div class="card-body p-sensor">
+                      <div id="agv-sensorStatusOverview">
+                        <!-- 동적으로 채워질 내용 -->
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -305,7 +376,7 @@
                 <!-- 우측 콘텐츠 -->
                 <div class="col-lg-5 mb-3">
                   <!-- 1. 기기 현황 -->
-                  <div class="card shadow mb-3">
+                  <div class="card shadow-sm mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
                         최근 작업 환경
@@ -315,55 +386,55 @@
                       <iframe
                         src="http://localhost:8501/?page=최근 작업 환경"
                         width="100%"
-                        height="250"
+                        height="150px"
                         frameborder="0"
                       ></iframe>
                     </div>
                   </div>
                   <!--2. 작업현장 온도 변화 -->
-                  <div class="card shadow mb-3">
+                  <div class="card shadow-sm mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
-                        작업현장 온도 변화
+                        AGV 작업현장 온도 변화(분 단위)
                       </h6>
                     </div>
                     <div class="agv-env-card-body">
                       <iframe
                         src="http://localhost:8501/?page=AGV 온도 변화"
                         width="100%"
-                        height="470"
+                        height="500px"
                         frameborder="0"
                       ></iframe>
                     </div>
                   </div>
                   <!-- 작업현장 습도 변화 -->
-                  <div class="card shadow mb-3">
+                  <div class="card shadow-sm mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
-                        작업현장 습도 변화
+                        AGV 작업현장 습도 변화(분 단위)
                       </h6>
                     </div>
                     <div class="agv-env-card-body">
                       <iframe
                         src="http://localhost:8501/?page=AGV 습도 변화"
                         width="100%"
-                        height="470"
+                        height="510"
                         frameborder="0"
                       ></iframe>
                     </div>
                   </div>
                   <!-- 작업현장 조도 변화 -->
-                  <div class="card shadow mb-3">
+                  <div class="card shadow-sm mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
-                        작업현장 조도 변화
+                        AGV 작업현장 조도 변화(분 단위)
                       </h6>
                     </div>
                     <div class="agv-env-card-body">
                       <iframe
                         src="http://localhost:8501/?page=AGV 조도 변화"
                         width="100%"
-                        height="470"
+                        height="500"
                         frameborder="0"
                       ></iframe>
                     </div>
@@ -378,7 +449,7 @@
               <div class="row">
                 <!--정상가동-->
                 <div class="col-xl-3 col-md-6 mb-4">
-                  <div class="card border-left-success shadow h-100 py-2">
+                  <div class="card border-left-success shadow-sm h-100 py-2">
                     <div class="small-card-body2">
                       <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -403,7 +474,7 @@
 
                 <!-- 관심 필요 -->
                 <div class="col-xl-3 col-md-6 mb-4">
-                  <div class="card border-left-caution shadow h-100 py-2">
+                  <div class="card border-left-caution shadow-sm h-100 py-2">
                     <div class="small-card-body2">
                       <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -428,7 +499,7 @@
 
                 <!--경고-->
                 <div class="col-xl-3 col-md-6 mb-4">
-                  <div class="card border-left-warning shadow h-100 py-2">
+                  <div class="card border-left-warning shadow-sm h-100 py-2">
                     <div class="small-card-body2">
                       <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -459,7 +530,7 @@
 
                 <!--위험-->
                 <div class="col-xl-3 col-md-6 mb-4">
-                  <div class="card border-left-danger shadow h-100 py-2">
+                  <div class="card border-left-danger shadow-sm h-100 py-2">
                     <div class="small-card-body2">
                       <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -473,7 +544,7 @@
                           </div>
                         </div>
                         <div class="siren-icon text-gray-300">
-                          <img src="static/img/siren.svg" alt="siren" />
+                          <img src="../img/siren.svg" alt="siren" />
                         </div>
                       </div>
                     </div>
@@ -486,7 +557,7 @@
                 <!-- 좌측 콘텐츠 -->
                 <div class="col-lg-7 mb-3">
                   <!-- 1. 상태분포 -->
-                  <div class="card shadow mb-3">
+                  <div class="card shadow-sm mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
                         상태분포
@@ -525,35 +596,48 @@
                     </div>
                   </div>
                   <!-- 2. 주의 및 위험 장비-->
-                  <div class="card shadow mb-3">
+                  <div class="card shadow-sm mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
-                        시간에 따른 장비 상태
+                        시간에 따른 OHT 상태
                       </h6>
                     </div>
                     <div class="oht-env-card-body">
                       <iframe
                         src="http://localhost:8501/?page=시간에 따른 OHT 상태 변화"
                         width="100%"
-                        height="470"
+                        height="315"
                         frameborder="0"
                       ></iframe>
                     </div>
                   </div>
-                  <!-- 경고 및 위험 장비 -->
-                  <div class="card shadow mb-3">
+                  <div class="card shadow-sm mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
-                        경고 및 위험 장비
+                        OHT 열화상 센서 모니터링
                       </h6>
                     </div>
-                    <div class="oht-env-card-body">
+                    <div class="streamlit-card-body">
                       <iframe
-                        src="http://localhost:8501/?page=OHT 경고 및 위험 장비"
-                        width="100%"
-                        height="100"
+                        src="http://localhost:8501/?page=OHT 열화상 모니터링&embed=true"
                         frameborder="0"
+                        style="width: 100%; height: 500px"
+                        scrolling="no"
+                        allow="fullscreen"
                       ></iframe>
+                    </div>
+                  </div>
+                  <!-- 경고 및 위험 장비 -->
+                  <div class="card shadow-sm mb-3">
+                    <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold text-primary">
+                        센서 현황
+                      </h6>
+                    </div>
+                    <div class="card-body p-sensor">
+                      <div id="oht-sensorStatusOverview">
+                        <!-- 동적으로 채워질 내용 -->
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -561,7 +645,7 @@
                 <!-- 우측 콘텐츠 -->
                 <div class="col-lg-5 mb-3">
                   <!-- 1. 기기 현황 -->
-                  <div class="card shadow mb-3">
+                  <div class="card shadow-sm mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
                         최근 작업 환경
@@ -571,55 +655,55 @@
                       <iframe
                         src="http://localhost:8501/?page=OHT 최근 작업 환경"
                         width="100%"
-                        height="200"
+                        height="150px"
                         frameborder="0"
                       ></iframe>
                     </div>
                   </div>
                   <!--2. 작업현장 온도 변화 -->
-                  <div class="card shadow mb-3">
+                  <div class="card shadow-sm mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
-                        작업현장 온도 변화
+                        OHT 작업현장 온도 변화(분 단위)
                       </h6>
                     </div>
                     <div class="oht-env-card-body">
                       <iframe
                         src="http://localhost:8501/?page=OHT 온도 변화"
                         width="100%"
-                        height="470"
+                        height="500px"
                         frameborder="0"
                       ></iframe>
                     </div>
                   </div>
                   <!-- 작업현장 습도 변화 -->
-                  <div class="card shadow mb-3">
+                  <div class="card shadow-sm mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
-                        작업현장 습도 변화
+                        OHT 작업현장 습도 변화(분 단위)
                       </h6>
                     </div>
                     <div class="oht-env-card-body">
                       <iframe
                         src="http://localhost:8501/?page=OHT 습도 변화"
                         width="100%"
-                        height="470"
+                        height="510"
                         frameborder="0"
                       ></iframe>
                     </div>
                   </div>
                   <!-- 작업현장 조도 변화 -->
-                  <div class="card shadow mb-3">
+                  <div class="card shadow-sm mb-3">
                     <div class="card-header py-3">
                       <h6 class="m-0 font-weight-bold text-primary">
-                        작업현장 조도 변화
+                        OHT 작업현장 조도 변화(분 단위)
                       </h6>
                     </div>
                     <div class="oht-env-card-body">
                       <iframe
                         src="http://localhost:8501/?page=OHT 조도 변화"
                         width="100%"
-                        height="470"
+                        height="500"
                         frameborder="0"
                       ></iframe>
                     </div>
@@ -636,6 +720,71 @@
 
     <!-- 탭 전환을 위한 JavaScript -->
     <script>
+      function updateAlertEquipment(deviceId, sensorDetails, deviceType) {
+        const containerClass =
+          deviceType === "agv" ? ".agv-env-card-body" : ".oht-env-card-body";
+        const alertList = document.querySelector(
+          `${containerClass} .simple-alert-list`
+        );
+        if (!alertList) return;
+
+        const alerts = {
+          위험: [],
+          경고: [],
+          주의: [],
+        };
+
+        Object.entries(sensorDetails).forEach(([sensor, details]) => {
+          if (details.status in alerts) {
+            alerts[details.status].push(`${sensor}`);
+          }
+        });
+
+        alertList.innerHTML = "";
+        Object.entries(alerts).forEach(([status, sensors]) => {
+          if (sensors.length > 0) {
+            const cardClass =
+              status === "주의"
+                ? "caution"
+                : status === "경고"
+                ? "warning"
+                : "danger";
+            const icon =
+              status === "주의"
+                ? "fa-circle-exclamation"
+                : status === "경고"
+                ? "fa-triangle-exclamation"
+                : "fa-radiation";
+
+            const alertCard = document.createElement("div");
+            alertCard.className = `alert-card ${cardClass}`;
+            alertCard.innerHTML = `
+        <div class="alert-header">
+          <i class="fas ${icon} alert-icon"></i>
+          <h6 class="alert-title">${status}</h6>
+        </div>
+        <div class="alert-device">${deviceId}</div>
+        <div class="alert-sensors">이상 센서: ${sensors.join(", ")}</div>
+      `;
+            alertList.appendChild(alertCard);
+          }
+        });
+      }
+
+      async function updateAlertStatus(devices, deviceType) {
+        for (const deviceId of devices) {
+          try {
+            const response = await fetch(
+              `http://localhost:8000/pred/analyze_device/${deviceId}`
+            );
+            const data = await response.json();
+            updateAlertEquipment(deviceId, data.sensor_details, deviceType);
+          } catch (error) {
+            console.error(`Error fetching analysis for ${deviceId}:`, error);
+          }
+        }
+      }
+
       async function updateDeviceList(deviceType) {
         const devices =
           deviceType === "agv" ? ["AGV17", "AGV18"] : ["OHT17", "OHT18"];
@@ -644,8 +793,7 @@
         const listElement = document.getElementById(listId);
 
         if (!listElement) return;
-
-        listElement.innerHTML = ""; // 목록 초기화
+        listElement.innerHTML = "";
 
         for (const deviceId of devices) {
           try {
@@ -657,7 +805,6 @@
             const deviceItem = document.createElement("div");
             deviceItem.className = "device-item";
 
-            // 상태에 따른 클래스 결정
             let statusClass = "";
             switch (data.current_status) {
               case "정상":
@@ -685,24 +832,22 @@
           }
         }
       }
-      // 장비 상태 요약을 업데이트하는 함수
+
       async function updateStatusSummary(deviceType) {
         try {
           const devices =
             deviceType === "agv" ? ["AGV17", "AGV18"] : ["OHT17", "OHT18"];
-          let normalCount = 0;
-          let cautionCount = 0;
-          let warningCount = 0;
-          let dangerCount = 0;
+          let normalCount = 0,
+            cautionCount = 0,
+            warningCount = 0,
+            dangerCount = 0;
 
-          // 각 장비의 상태 확인
           for (const deviceId of devices) {
             const response = await fetch(
               `http://localhost:8000/pred/device_status/${deviceId}`
             );
             const data = await response.json();
 
-            // 상태에 따라 카운트 증가
             switch (data.current_status) {
               case "정상":
                 normalCount++;
@@ -719,29 +864,24 @@
             }
           }
 
-          // 상태 표시 업데이트
           const tabId = deviceType === "agv" ? "avg" : "oht";
           const tab = document.getElementById(`${tabId}-tab`);
           if (tab) {
-            // 정상기기 업데이트
             const normalElement = tab
               .querySelector(".text-success")
               .parentElement.parentElement.querySelector(".h5");
             normalElement.textContent = `${normalCount}대`;
 
-            // 관심기기 업데이트
             const cautionElement = tab
               .querySelector(".text-caution")
               .parentElement.parentElement.querySelector(".h5");
             cautionElement.textContent = `${cautionCount}대`;
 
-            // 경고기기 업데이트
             const warningElement = tab
               .querySelector(".text-warning")
               .parentElement.parentElement.querySelector(".h5");
             warningElement.textContent = `${warningCount}대`;
 
-            // 위험기기 업데이트
             const dangerElement = tab
               .querySelector(".text-danger")
               .parentElement.parentElement.querySelector(".h5");
@@ -751,22 +891,16 @@
           console.error(`Error updating ${deviceType} status:`, error);
         }
       }
-
-      // 탭 전환 함수
       function showTab(tabName) {
-        // 모든 탭 콘텐츠 숨기기
+        // Save current tab to localStorage
+        localStorage.setItem("activeTab", tabName);
+
         const tabContents = document.querySelectorAll(".tab-content");
-        tabContents.forEach((content) => {
-          content.classList.remove("active");
-        });
+        tabContents.forEach((content) => content.classList.remove("active"));
 
-        // 모든 탭 버튼 비활성화
         const tabButtons = document.querySelectorAll(".tab-btn");
-        tabButtons.forEach((btn) => {
-          btn.classList.remove("active");
-        });
+        tabButtons.forEach((btn) => btn.classList.remove("active"));
 
-        // 선택된 탭 활성화
         const selectedTab = document.getElementById(tabName + "-tab");
         const selectedButton = document.querySelector(
           `button[onclick="showTab('${tabName}')"]`
@@ -776,7 +910,6 @@
           selectedTab.classList.add("active");
           selectedButton.classList.add("active");
 
-          // 슬라이더 이동
           const slider = document.querySelector(".slider");
           if (slider) {
             const buttonRect = selectedButton.getBoundingClientRect();
@@ -788,14 +921,26 @@
             slider.style.transform = `translateX(${leftOffset}px)`;
           }
 
-          // 상태 요약과 장비 목록 업데이트
           const deviceType = tabName === "avg" ? "agv" : "oht";
+          const devices =
+            deviceType === "agv" ? ["AGV17", "AGV18"] : ["OHT17", "OHT18"];
+
           updateStatusSummary(deviceType);
           updateDeviceList(deviceType);
+          updateSensorStatus();
+
+          if (window.alertUpdateInterval) {
+            clearInterval(window.alertUpdateInterval);
+          }
+
+          updateAlertStatus(devices, deviceType);
+
+          window.alertUpdateInterval = setInterval(() => {
+            updateAlertStatus(devices, deviceType);
+          }, 300000);
         }
       }
 
-      // iframe 업데이트 함수
       function updateIframe(type) {
         const iframe = document.getElementById("mainIframe");
         if (iframe) {
@@ -803,8 +948,9 @@
         }
       }
 
-      // 페이지 로드 시 초기화
       document.addEventListener("DOMContentLoaded", () => {
+        const savedTab = localStorage.getItem("activeTab") || "avg";
+
         const firstButton = document.querySelector(".tab-btn");
         if (firstButton) {
           const slider = document.querySelector(".slider");
@@ -813,29 +959,132 @@
           }
         }
 
-        // 초기 탭 설정 및 상태 업데이트
-        showTab("avg");
+        showTab(savedTab);
 
-        // 주기적으로 상태 업데이트 (5분마다)
-        setInterval(() => {
-          const activeTab = document.querySelector(".tab-btn.active");
-          if (activeTab) {
-            const tabName = activeTab.textContent.trim().toLowerCase();
-            const deviceType = tabName === "agv" ? "agv" : "oht";
-            updateStatusSummary(deviceType);
-            updateDeviceList(deviceType);
-          }
-        }, 300000);
-
-        // iframe 이벤트 리스너 설정
+        // Set up iframe event listeners
         const iframes = document.querySelectorAll("iframe");
         iframes.forEach((iframe) => {
           iframe.onload = function () {
-            // iframe 로드 완료 후 처리
             console.log("iframe loaded:", iframe.src);
           };
         });
       });
+
+      function updateSensorStatus() {
+        const activeTab = document.querySelector(".tab-btn.active");
+        const tabName = activeTab.textContent.trim().toLowerCase();
+        const deviceType = tabName === "agv" ? "agv" : "oht";
+        const overviewId = `${deviceType}-sensorStatusOverview`;
+        const overview = document.getElementById(overviewId);
+
+        const devices =
+          deviceType === "agv" ? ["AGV17", "AGV18"] : ["OHT17", "OHT18"];
+
+        const statusData = {
+          danger: {},
+          warning: {},
+          caution: {},
+        };
+
+        Promise.all(
+          devices.map((deviceId) =>
+            fetch(`http://localhost:8000/pred/analyze_device/${deviceId}`).then(
+              (res) => res.json()
+            )
+          )
+        )
+          .then((results) => {
+            results.forEach((data, index) => {
+              const deviceId = devices[index];
+              Object.entries(data.sensor_details).forEach(
+                ([sensor, details]) => {
+                  if (details.status === "위험") {
+                    if (!statusData.danger[deviceId])
+                      statusData.danger[deviceId] = [];
+                    statusData.danger[deviceId].push(sensor);
+                  } else if (details.status === "경고") {
+                    if (!statusData.warning[deviceId])
+                      statusData.warning[deviceId] = [];
+                    statusData.warning[deviceId].push(sensor);
+                  } else if (details.status === "주의") {
+                    if (!statusData.caution[deviceId])
+                      statusData.caution[deviceId] = [];
+                    statusData.caution[deviceId].push(sensor);
+                  }
+                }
+              );
+            });
+
+            let html = "";
+            if (Object.keys(statusData.danger).length > 0) {
+              html += createStatusSection(
+                " 위험 상태 센서",
+                statusData.danger,
+                "danger",
+                "status-danger"
+              );
+            }
+            if (Object.keys(statusData.warning).length > 0) {
+              html += createStatusSection(
+                " 경고 상태 센서",
+                statusData.warning,
+                "warning",
+                "status-warning"
+              );
+            }
+            if (Object.keys(statusData.caution).length > 0) {
+              html += createStatusSection(
+                " 주의 상태 센서",
+                statusData.caution,
+                "caution",
+                "status-caution"
+              );
+            }
+
+            overview.innerHTML = html;
+          })
+          .catch((error) => {
+            console.error("Error fetching sensor data:", error);
+          });
+      }
+
+      function createStatusSection(title, data, cardClass, titleClass) {
+        const iconMap = {
+          danger: "fa-radiation",
+          warning: "fa-triangle-exclamation",
+          caution: "fa-circle-exclamation",
+        };
+
+        let html = `
+    <div class="status-section">
+      <div class="status-title ${titleClass}">
+        <i class="fas ${iconMap[cardClass]} me-2"></i>
+        ${title}
+      </div>
+      <div class="status-content">
+  `;
+
+        Object.entries(data).forEach(([deviceId, sensors]) => {
+          html += `
+      <div class="device-card sensor-status-${cardClass}">
+        <div class="device-info">
+          <span class="device-name">${deviceId}</span>
+          <span class="sensor-list">${sensors.join(", ")}</span>
+        </div>
+      </div>
+    `;
+        });
+
+        html += `
+      </div>
+    </div>
+  `;
+
+        return html;
+      }
+
+      // Initial sensor status update and interval setup
+      setInterval(updateSensorStatus, 300000);
     </script>
   </body>
 </html>

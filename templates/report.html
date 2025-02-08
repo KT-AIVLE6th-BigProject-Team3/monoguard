@@ -187,7 +187,13 @@
       .form-control {
         height: 38px; /* 모든 입력 필드의 높이 통일 */
       }
-
+      .form-control-input {
+        width: 100%;
+        padding: 10px;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
       .btn-block {
         height: 38px; /* 버튼 높이를 입력 필드와 동일하게 설정 */
         display: flex;
@@ -228,7 +234,7 @@
             <h1 class="h3 mb-0 text-gray-800">보고서 만들기</h1>
             <p class="mb-4">장비와 기간을 선택하여 보고서를 생성하세요</p>
 
-            <div class="card shadow mb-4">
+            <div class="card shadow-sm mb-4">
               <div class="card-body">
                 <div class="row align-items-end">
                   <!-- align-items-end 추가 -->

@@ -30,8 +30,8 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="static/css/prj.css" />
-    <link rel="icon" href="static/img/fabicon.svg" />
+    <link rel="stylesheet" href="/static/css/prj.css" />
+    <link rel="icon" href="/static/img/fabicon.svg" />
 
     <style>
       .text-orange {
@@ -157,7 +157,7 @@
       .history-item-mini {
         display: flex;
         align-items: center;
-        padding: 0.375rem 0;
+        padding: 0.575rem 0;
         font-size: 0.75rem;
         border-bottom: 1px solid #f8f9fc;
       }
@@ -170,12 +170,17 @@
       .history-dot {
         position: relative;
         display: inline-block;
-        min-width: 8px;
-        min-height: 8px;
         width: 8px;
         height: 8px;
+        min-width: 8px;
+        min-height: 8px;
+        max-width: 8px;
+        max-height: 8px;
         border-radius: 50%;
         margin-right: 8px;
+        flex-shrink: 0;
+        aspect-ratio: 1;
+        background-color: #e3e6f0; /* 항상 회색으로 고정 */
       }
 
       .history-content {
@@ -418,6 +423,55 @@
       .text-danger {
         color: #e74a3b;
       }
+
+      #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        z-index: 9999;
+        backdrop-filter: blur(3px);
+      }
+
+      #loadingOverlay.show {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      .loading-content {
+        text-align: center;
+        color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      .loading-spinner {
+        margin-bottom: 1rem;
+      }
+
+      .loading-text {
+        font-size: 1rem;
+        margin-top: 1rem;
+        color: #fff;
+      }
+
+      #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        z-index: 99999; /* z-index 값을 더 높게 설정 */
+        backdrop-filter: blur(3px);
+      }
     </style>
   </head>
 
@@ -431,10 +485,23 @@
         <!-- 상단바 영역 -->
         <div id="topbar"></div>
         <div id="loadingOverlay">
-          <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">로딩 중...</span>
+          <div class="loading-content">
+            <div class="loading-spinner">
+              <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">분석 중...</span>
+              </div>
+            </div>
+            <div class="loading-text">
+              멀티모달 예지보전 모델이 예측 중입니다...
+              <div class="progress mt-3" style="height: 2px; width: 200px">
+                <div
+                  class="progress-bar"
+                  role="progressbar"
+                  style="width: 0%"
+                ></div>
+              </div>
+            </div>
           </div>
-          <p>장비 상태를 불러오는 중...</p>
         </div>
         <div id="content-container">
           <!-- 페이지 콘텐츠 -->
@@ -497,7 +564,7 @@
                           장비 상태
                         </h6>
                       </div>
-                      <div class="card-body2">
+                      <div class="card-body3">
                         <div class="status-header">
                           <span class="currentStatus" id="currentStatus"></span>
                           <div
@@ -589,7 +656,7 @@
                           장비 상태 기록
                         </h6>
                       </div>
-                      <div class="card-body2">
+                      <div class="card-body3">
                         <div class="status-history" id="statusHistory">
                           <!-- 상태 기록은 JavaScript로 동적 생성됨 -->
                         </div>
@@ -615,7 +682,7 @@
                               OHT01 - 정상 가동중
                             </div>
                             <div class="info-summary-subtitle">
-                              최근 업데이트: 2024-02-01 13  :30
+                              최근 업데이트: 2024-02-01 13 :30
                             </div>
                           </div>
                         </div>
@@ -699,7 +766,7 @@
                           <iframe
                             src="http://localhost:8501"
                             frameborder="0"
-                            style="width: 100%; height: 350px"
+                            style="width: 100%; height: 360px"
                           ></iframe>
                         </div>
                       </div>
@@ -744,7 +811,7 @@
                           <iframe
                             src="http://localhost:8501"
                             frameborder="0"
-                            style="width: 100%; height: 320px"
+                            style="width: 100%; height: 330px"
                           ></iframe>
                         </div>
                       </div>
@@ -781,7 +848,7 @@
                           <iframe
                             src="http://localhost:8501/image_dashboard?device=AGV17"
                             frameborder="0"
-                            style="width: 100%; height: 580px"
+                            style="width: 100%; height: 640px"
                           ></iframe>
                         </div>
                       </div>
@@ -799,6 +866,18 @@
                         </h6>
                       </div>
                       <div class="card-body">
+                        <div class="d-flex align-items-center">
+                          <i
+                            class="fas fa-info-circle text-primary ml-2 mr-1"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="멀티모달 분석은 센서 데이터, 이미지, 텍스트 등 다양한 데이터를 통합적으로 분석합니다"
+                          ></i>
+                          <span
+                            >센서는 멀티모달 모델이 분석한 값을 기반으로 상태를
+                            분석합니다</span
+                          >
+                        </div>
                         <div id="analysis-content">
                           <!-- 상태 요약 -->
                           <div class="analysis-summary mb-4">
@@ -846,8 +925,104 @@
       let selectedDevice = null;
       let deviceStatuses = {};
       let currentType = "agv"; // 현재 선택된 장비 종류
-      const updateInterval = 300000; // 5분마다 업데이트
+      const updateInterval = 300000; // 5분 (300000ms)
       let globalSensorDetails = {}; // 전역 변수 추가
+
+      // 장비 정보를 담은 객체
+      const deviceInformation = {
+        AGV17: {
+          deviceId: "AGV17",
+          manufacturer: "Hyundai",
+          model: "H-AGV2000",
+          environment: "생산라인 A",
+          installDate: "2024-12-15",
+          operatingDays: "54일",
+          maintenanceCount: "8회",
+        },
+        AGV18: {
+          deviceId: "AGV18",
+          manufacturer: "Hyundai",
+          model: "S-AGV3000",
+          environment: "생산라인 B",
+          installDate: "2024-01-10",
+          operatingDays: "28일",
+          maintenanceCount: "4회",
+        },
+        OHT17: {
+          deviceId: "OHT17",
+          manufacturer: "Doosan",
+          model: "L-OHT1000",
+          environment: "물류센터 1층",
+          installDate: "2023-11-20",
+          operatingDays: "79일",
+          maintenanceCount: "12회",
+        },
+        OHT18: {
+          deviceId: "OHT18",
+          manufacturer: "Doosan",
+          model: "D-OHT2000",
+          environment: "물류센터 2층",
+          installDate: "2024-01-05",
+          operatingDays: "33일",
+          maintenanceCount: "5회",
+        },
+      };
+
+      // 장비 정보 업데이트 함수
+      function updateDeviceInformation(deviceId) {
+        const info = deviceInformation[deviceId];
+        if (!info) return;
+
+        const infoTable = document.querySelector(".info-table tbody");
+        if (!infoTable) return;
+
+        // 현재 날짜 기준으로 operating days 계산
+        const installDate = new Date(info.installDate);
+        const today = new Date();
+        const operatingDays = Math.floor(
+          (today - installDate) / (1000 * 60 * 60 * 24)
+        );
+
+        const currentTime = new Date().toLocaleString("ko-KR", {
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        });
+
+        infoTable.innerHTML = `
+        <tr>
+            <td>장비 ID</td>
+            <td>${info.deviceId}</td>
+        </tr>
+        <tr>
+            <td>제조사</td>
+            <td>${info.manufacturer}</td>
+        </tr>
+        <tr>
+            <td>모델명</td>
+            <td>${info.model}</td>
+        </tr>
+        <tr>
+            <td>설치환경</td>
+            <td>${info.environment}</td>
+        </tr>
+        <tr>
+            <td>수집일시</td>
+            <td>${currentTime}</td>
+        </tr>
+        <tr>
+            <td>누적가동일</td>
+            <td>${operatingDays}일</td>
+        </tr>
+        <tr>
+            <td>장비이력</td>
+            <td>${info.maintenanceCount}</td>
+        </tr>
+    `;
+      }
 
       document.addEventListener("DOMContentLoaded", async function () {
         try {
@@ -862,6 +1037,7 @@
             ".environment-monitoring .btn-tab"
           );
 
+          // 버튼 이벤트 리스너 설정...
           // 통합 모니터링 버튼 이벤트 리스너
           integratedButtons.forEach((button) => {
             button.addEventListener("click", function () {
@@ -893,9 +1069,10 @@
               }
             });
           });
-
-          // 주기적 업데이트 설정
-          setInterval(updateAllDeviceStatuses, updateInterval);
+          // 5분마다 주기적 업데이트 실행
+          setInterval(() => {
+            updateAllDeviceStatuses(true); // isPeriodic = true
+          }, updateInterval);
         } catch (error) {
           console.error("Error during initialization:", error);
         }
@@ -1026,6 +1203,8 @@
         window.history.pushState({}, "", url);
 
         try {
+          updateDeviceInformation(deviceId);
+
           // 먼저 상태 확인
           const statusResponse = await fetch(
             `http://localhost:8000/pred/device_status/${deviceId}`
@@ -1070,9 +1249,22 @@
       }
       function updateDeviceInfo(deviceId, status) {
         const summaryTitle = document.querySelector(".info-summary-title");
-        if (summaryTitle) {
-          // 장비ID와 상태를 동적으로 표시
+        const summarySubtitle = document.querySelector(
+          ".info-summary-subtitle"
+        );
+
+        if (summaryTitle && summarySubtitle) {
+          const currentTime = new Date().toLocaleString("ko-KR", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          });
+
           summaryTitle.textContent = `${deviceId} - ${status}상태로 가동중`;
+          summarySubtitle.textContent = `최근 업데이트: ${currentTime}`;
         }
       }
       // 상태 표시 업데이트
@@ -1130,7 +1322,7 @@
       async function fetchDeviceStatus(deviceId) {
         try {
           const response = await fetch(
-            `http://localhost:8000/device_status/${deviceId}`
+            `http://localhost:8000/pred/device_status/${deviceId}`
           );
           const data = await response.json();
 
@@ -1170,18 +1362,31 @@
 
       function hideLoading() {
         const overlay = document.getElementById("loadingOverlay");
+        const progressBar = overlay.querySelector(".progress-bar");
         overlay.classList.remove("show");
-        overlay.style.display = "none";
+        progressBar.style.width = "0%";
       }
-
+      // 로딩 관련 함수들
       function showLoading() {
         const overlay = document.getElementById("loadingOverlay");
-        const messageElement = overlay.querySelector("p");
-        if (messageElement) {
-          messageElement.textContent = `멀티모달 예지보전 모델이 예측 중입니다`;
-        }
+        const progressBar = overlay.querySelector(".progress-bar");
         overlay.classList.add("show");
-        overlay.style.display = "flex";
+
+        // 프로그레스 바 초기화
+        progressBar.style.width = "0%";
+
+        // 프로그레스 바 애니메이션
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 1;
+          if (progress <= 100) {
+            progressBar.style.width = `${progress}%`;
+          } else {
+            clearInterval(interval);
+          }
+        }, 50);
+
+        return interval;
       }
 
       // 상태에 따른 클래스 반환
@@ -1221,23 +1426,23 @@
               "0"
             )}-${String(date.getDate()).padStart(2, "0")}`;
 
-            // 상태에 따른 색상 결정
-            let dotClass = "check"; // 기본값
-            if (item.status === "주의") dotClass = "maintenance";
-            else if (item.status === "경고" || item.status === "위험")
-              dotClass = "alert";
+            // 상태에 따른 텍스트 색상 클래스 결정
+            let statusClass = "text-success"; // 기본값
+            if (item.status === "주의") statusClass = "text-caution";
+            else if (item.status === "경고") statusClass = "text-warning";
+            else if (item.status === "위험") statusClass = "text-danger";
 
             const historyItem = document.createElement("div");
             historyItem.className = "history-item-mini";
             historyItem.innerHTML = `
-                <span class="history-dot ${dotClass}"></span>
-                <div class="history-content">
-                    ${item.status} 상태
-                    <br>
-                    <small>정상: ${item.counts.normal_count.toFixed(1)}%</small>
-                </div>
-                <div class="history-date">${formattedDate}<br>${formattedTime}</div>
-            `;
+    <span class="history-dot"></span>
+    <div class="history-content">
+      <span class="${statusClass}">${item.status}</span> 상태
+      <br>
+      <small>정상: ${item.counts.normal_count.toFixed(1)}%</small>
+    </div>
+    <div class="history-date">${formattedDate}<br>${formattedTime}</div>
+  `;
 
             container.appendChild(historyItem);
           });
@@ -1252,7 +1457,7 @@
       async function updateAnalysis(deviceId) {
         try {
           const response = await fetch(
-            `http://localhost:8000/analyze_device/${deviceId}`
+            `http://localhost:8000/pred/analyze_device/${deviceId}`
           );
           const data = await response.json();
 
@@ -1469,26 +1674,52 @@
         }
       }
 
-      // 주기적 업데이트 함수도 수정
-      async function updateAllDeviceStatuses() {
-        await createDeviceList();
-        if (selectedDevice) {
-          const response = await fetch(
-            `http://localhost:8000/analyze_device/${selectedDevice}`
-          );
-          const data = await response.json();
-          updateStatusDisplay(selectedDevice, {
-            current_status: data.current_state,
-            normal_ratio: data.state_ratios.normal,
-            caution_ratio: data.state_ratios.caution,
-            warning_ratio: data.state_ratios.warning,
-            risk_ratio: data.state_ratios.risk,
-          });
-          updateCriticalIssues(data.critical_issues);
-          updateWarnings(data.warnings);
-          updateSensorDetails(data.sensor_details);
-          updateRecommendations(data.recommendations);
-          await fetchStatusHistory(selectedDevice);
+      async function updateAllDeviceStatuses(isPeriodic = false) {
+        let loadingInterval;
+
+        try {
+          if (isPeriodic) {
+            loadingInterval = showLoading();
+            console.log("Starting periodic update...");
+          }
+
+          await createDeviceList();
+
+          if (selectedDevice) {
+            const response = await fetch(
+              `http://localhost:8000/pred/analyze_device/${selectedDevice}`
+            );
+            const data = await response.json();
+
+            await Promise.all([
+              updateStatusDisplay(selectedDevice, {
+                current_status: data.current_state,
+                normal_ratio: data.state_ratios.normal,
+                caution_ratio: data.state_ratios.caution,
+                warning_ratio: data.state_ratios.warning,
+                risk_ratio: data.state_ratios.risk,
+              }),
+              updateCriticalIssues(data.critical_issues),
+              updateWarnings(data.warnings),
+              updateSensorDetails(data.sensor_details),
+              updateRecommendations(data.recommendations),
+              fetchStatusHistory(selectedDevice),
+            ]);
+
+            console.log("Update completed successfully");
+          }
+        } catch (error) {
+          console.error("Error updating device statuses:", error);
+        } finally {
+          if (isPeriodic) {
+            setTimeout(() => {
+              if (loadingInterval) {
+                clearInterval(loadingInterval);
+              }
+              hideLoading();
+              console.log("Update complete, hiding loading overlay");
+            }, 5000);
+          }
         }
       }
 
@@ -1542,7 +1773,5 @@
         )}:${String(date.getMinutes()).padStart(2, "0")}`;
       }
     </script>
-
-    
   </body>
 </html>
