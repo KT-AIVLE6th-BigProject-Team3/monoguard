@@ -1905,157 +1905,177 @@ def oht_illuminance_change():
 
 
 def oht_thermal_monitoring():
-   st.markdown("""
-       <style>
-       .block-container {padding: 0;}
-       .status-card {
-           padding: 1rem;
-           border-radius: 8px;
-       }
-       .status-badge {
-           text-align: center;
-           padding: 0.3rem 1rem;
-           border-radius: 4px;
-           font-weight: 500;
-           margin-bottom: 0.8rem;
-       }
-       .temp-grid {
-           display: grid;
-           grid-template-columns: repeat(3, 1fr);
-           gap: 1rem;
-           text-align: center;
-       }
-       .temp-label {
-           color: #858796;
-           font-size: 0.8rem;
-           margin-bottom: 0.3rem;
-       }
-       .temp-value {
-           font-size: 1.2rem;
-           font-weight: 500;
-       }
-       </style>
-   """, unsafe_allow_html=True)
-   
-   devices = ['OHT17', 'OHT18']
-   
-   with st.container():
-       cols = st.columns(len(devices))
-       for idx, device in enumerate(devices):
-           with cols[idx]:
-               timestamps = pd.date_range(end=pd.Timestamp.now(), periods=60, freq='S')
-               base_temp = 45 + np.sin(np.linspace(0, 2*np.pi, 60)) * 3  
-               temps = base_temp + np.random.randn(60) * 0.5
-               current_temp = temps[-1]
-               
-               if current_temp < 46.98:
-                   status = "정상"
-                   status_color = "#1cc88a"
-                   status_bg = "#e6fff0"
-               elif current_temp < 59.23 :
-                   status = "주의" 
-                   status_color = "#f6c23e"
-                   status_bg = "#fff8e6"
-               elif current_temp < 75.23:
-                   status = "경고"
-                   status_color = "#fd7e14"
-                   status_bg = "#fff4e6"
-               else:
-                   status = "위험"
-                   status_color = "#e74a3b"
-                   status_bg = "#ffe6e6"
+    st.markdown("""
+        <style>
+        .block-container {padding: 0;}
+        .status-card {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .status-badge {
+            text-align: center;
+            padding: 0.3rem 1rem;
+            border-radius: 4px;
+            font-weight: 500;
+            margin-bottom: 0.8rem;
+        }
+        .temp-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+        .temp-label {
+            color: #858796;
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
+        }
+        .temp-value {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        /* Add these new styles */
+        [data-testid="stHorizontalBlock"] {
+            gap: 1rem !important;
+            padding: 0 !important;
+        }
+        [data-testid="stVerticalBlock"] {
+            gap: 0 !important;
+            padding-top: 0 !important;
+        }
+        .element-container {
+            margin: 0 !important;
+        }
+        /* Adjust plotly chart container */
+        .js-plotly-plot {
+            max-height: 150px !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    devices = ['OHT17', 'OHT18']
+    
+    with st.container():
+        cols = st.columns(len(devices))
+        for idx, device in enumerate(devices):
+            with cols[idx]:
+                timestamps = pd.date_range(end=pd.Timestamp.now(), periods=60, freq='S')
+                base_temp = 45 + np.sin(np.linspace(0, 2*np.pi, 60)) * 3  
+                temps = base_temp + np.random.randn(60) * 0.5
+                current_temp = temps[-1]
+                
+                if current_temp < 46.98:
+                    status = "정상"
+                    status_color = "#1cc88a"
+                    status_bg = "#e6fff0"
+                elif current_temp < 59.23:
+                    status = "주의" 
+                    status_color = "#f6c23e"
+                    status_bg = "#fff8e6"
+                elif current_temp < 75.23:
+                    status = "경고"
+                    status_color = "#fd7e14"
+                    status_bg = "#fff4e6"
+                else:
+                    status = "위험"
+                    status_color = "#e74a3b"
+                    status_bg = "#ffe6e6"
 
-               gauge_fig = go.Figure()
-               gauge_fig.add_trace(go.Indicator(
-                   mode="gauge+number",
-                   value=current_temp,
-                   number={'suffix': "°C"},
-                   domain={'x': [0, 1], 'y': [0, 1]},
-                   title={
-                       'text': f"<b>{device}</b><br><span style='font-size:12px;color:gray'>현재 온도</span>",
-                       'font': {'color': 'black', 'size': 18}
-                   },
-                   gauge={
-                       'axis': {'range': [20, 80], 'tickwidth': 1},
-                       'bar': {'color': "lightgray", 'thickness': 0.1},
-                       'bgcolor': "white",
-                       'steps': [
-                           {'range': [20, 47], 'color': "#1cc88a"},
-                           {'range': [47, 60], 'color': "#f6c23e"},
-                           {'range': [60, 75], 'color': "#fd7e14"},
-                           {'range': [75, 80], 'color': "#e74a3b"}
-                       ],
-                       'threshold': {
-                           'line': {'color': status_color, 'width': 4},
-                           'thickness': 1,
-                           'value': current_temp
-                       }
-                   }
-               ))
+                gauge_fig = go.Figure()
+                gauge_fig.add_trace(go.Indicator(
+                    mode="gauge+number",
+                    value=current_temp,
+                    number={'suffix': "°C", 'font': {'size': 20}},
+                    domain={'x': [0, 1], 'y': [0, 1]},
+                    title={
+                        'text': f"<b>{device}</b><br><span style='font-size:12px;color:gray'>현재 온도</span>",
+                        'font': {'size': 16}
+                    },
+                    gauge={
+                        'axis': {'range': [20, 80], 'tickwidth': 1},
+                        'bar': {'color': "lightgray", 'thickness': 0.1},
+                        'bgcolor': "white",
+                        'steps': [
+                            {'range': [20, 47], 'color': "#1cc88a"},
+                            {'range': [47, 60], 'color': "#f6c23e"},
+                            {'range': [60, 75], 'color': "#fd7e14"},
+                            {'range': [75, 80], 'color': "#e74a3b"}
+                        ],
+                        'threshold': {
+                            'line': {'color': status_color, 'width': 4},
+                            'thickness': 1,
+                            'value': current_temp
+                        }
+                    }
+                ))
 
-               gauge_fig.update_layout(
-                   height=150,
-                   margin=dict(t=30, b=10, l=30, r=30),
-                   paper_bgcolor='rgba(0,0,0,0)'
-               )
-               
-               st.plotly_chart(gauge_fig, use_container_width=True, config={'displayModeBar': False})
-               
-               line_fig = go.Figure()
-               line_fig.add_trace(go.Scatter(
-                   x=timestamps,
-                   y=temps,
-                   mode='lines',
-                   line=dict(color=status_color, width=2)
-               ))
-               
-               line_fig.update_layout(
-                   title={
-                       'text': f"{device} 열화상 센서 온도", 
-                       'y':0.9,
-                       'x':0.5,
-                       'xanchor': 'center',
-                       'yanchor': 'top'
-                   },
-                   height=150,
-                   margin=dict(t=40, b=40, l=30, r=30),
-                   showlegend=False,
-                   paper_bgcolor='rgba(0,0,0,0)',
-                   plot_bgcolor='rgba(0,0,0,0)',
-                   yaxis=dict(
-                       range=[20, 80],
-                       showgrid=True,
-                       gridcolor='lightgray'
-                   ),
-                   xaxis=dict(
-                       showgrid=True,
-                       gridcolor='lightgray'
-                   )
-               )
-               
-               st.plotly_chart(line_fig, use_container_width=True, config={'displayModeBar': False})
-               
-               st.markdown(f"""
-                   <div class="status-card">
-                       <div class="status-badge" style="background: {status_bg}; color: {status_color};">
-                           {status}
-                       </div>
-                       <div class="temp-grid">
-                           <div>
-                               <div class="temp-label">평균</div>
-                               <div class="temp-value">{np.mean(temps):.1f}°C</div>
-                           </div>
-                           <div>
-                               <div class="temp-label">최고</div>
-                               <div class="temp-value" style="color: {status_color}">{np.max(temps):.1f}°C</div>
-                           </div>
-                           <div>
-                               <div class="temp-label">최저</div>
-                               <div class="temp-value">{np.min(temps):.1f}°C</div>
-                           </div>
-                       </div>
-                   </div>
-               """, unsafe_allow_html=True)
+                gauge_fig.update_layout(
+                    height=150,
+                    margin=dict(t=30, b=0, l=30, r=30),
+                    paper_bgcolor='rgba(0,0,0,0)'
+                )
+                
+                st.plotly_chart(gauge_fig, use_container_width=True, config={'displayModeBar': False})
+                
+                line_fig = go.Figure()
+                line_fig.add_trace(go.Scatter(
+                    x=timestamps,
+                    y=temps,
+                    mode='lines',
+                    line=dict(color=status_color, width=2)
+                ))
+                
+                line_fig.update_layout(
+                    title={
+                        'text': f"{device} 열화상 센서 온도", 
+                        'y':0.9,
+                        'x':0.5,
+                        'xanchor': 'center',
+                        'yanchor': 'top',
+                        'font': {'size': 14}
+                    },
+                    height=150,
+                    margin=dict(t=30, b=20, l=30, r=30),
+                    showlegend=False,
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    yaxis=dict(
+                        range=[20, 80],
+                        showgrid=True,
+                        gridcolor='lightgray',
+                        tickfont={'size': 10}
+                    ),
+                    xaxis=dict(
+                        showgrid=True,
+                        gridcolor='lightgray',
+                        tickfont={'size': 10}
+                    )
+                )
+                
+                st.plotly_chart(line_fig, use_container_width=True, config={'displayModeBar': False})
+                
+                st.markdown(f"""
+                    <div class="status-card">
+                        <div class="status-badge" style="background: {status_bg}; color: {status_color};">
+                            {status}
+                        </div>
+                        <div class="temp-grid">
+                            <div>
+                                <div class="temp-label">평균</div>
+                                <div class="temp-value">{np.mean(temps):.1f}°C</div>
+                            </div>
+                            <div>
+                                <div class="temp-label">최고</div>
+                                <div class="temp-value" style="color: {status_color}">{np.max(temps):.1f}°C</div>
+                            </div>
+                            <div>
+                                <div class="temp-label">최저</div>
+                                <div class="temp-value">{np.min(temps):.1f}°C</div>
+                            </div>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
 
 # ✅ 페이지 선택에 따라 실행
 if page == "AGV 상태 분포":
