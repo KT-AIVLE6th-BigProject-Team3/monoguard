@@ -34,19 +34,25 @@
     <link rel="icon" href="/static/img/fabicon.svg" />
 
     <style>
+      /* Colors */
       .text-orange {
         color: #fd7e14;
       }
 
+      /* Layout & Spacing */
       .state-probabilities {
         margin-top: 0.5rem;
       }
-      /* Common Styles */
+
       .card-body3 {
         padding: 0.75rem;
       }
 
-      /* Alert & Badge Styles */
+      .sensor-moitoring {
+        padding: 0.2rem 1rem !important;
+      }
+
+      /* Alert Styles */
       .alert {
         border-left: 4px solid;
       }
@@ -59,6 +65,7 @@
         border-left-color: #f6c23e;
       }
 
+      /* Card & Component Styles */
       .recommendation-item {
         padding: 0.75rem;
         border-left: 3px solid #4e73df;
@@ -115,7 +122,7 @@
         font-size: 0.75rem;
       }
 
-      /* Info Table */
+      /* Table Styles */
       .info-table {
         width: 100%;
         margin-bottom: 0.75rem;
@@ -154,6 +161,7 @@
         margin-right: 6px;
       }
 
+      /* History Items */
       .history-item-mini {
         display: flex;
         align-items: center;
@@ -182,21 +190,27 @@
         aspect-ratio: 1;
       }
 
-      /* Status-specific dot colors */
+      /* Status Dots */
       .history-dot-normal {
-        background-color: #1cc88a; /* Success color for normal status */
+        background-color: #1cc88a;
       }
-
       .history-dot-caution {
-        background-color: #f6c23e; /* Caution color */
+        background-color: #f6c23e;
       }
-
       .history-dot-warning {
-        background-color: #fd7e14; /* Warning/orange color */
+        background-color: #fd7e14;
       }
-
       .history-dot-danger {
-        background-color: #e74a3b; /* Danger color for risk status */
+        background-color: #e74a3b;
+      }
+      .history-dot.maintenance {
+        background-color: #4e73df;
+      }
+      .history-dot.alert {
+        background-color: #e74a3b;
+      }
+      .history-dot.check {
+        background-color: #1cc88a;
       }
 
       .history-content {
@@ -211,19 +225,6 @@
         font-size: 0.6875rem;
         text-align: right;
         white-space: nowrap;
-      }
-
-      /* Status Indicator Dots */
-      .history-dot.maintenance {
-        background-color: #4e73df;
-      }
-
-      .history-dot.alert {
-        background-color: #e74a3b;
-      }
-
-      .history-dot.check {
-        background-color: #1cc88a;
       }
 
       /* Navigation Pills */
@@ -293,32 +294,24 @@
         color: #dddfeb;
       }
 
-      /* Border Colors */
+      /* Border Styles */
       .border-left-primary {
         border-left: 4px solid #4e73df;
       }
-
       .border-left-success {
         border-left: 4px solid #1cc88a;
       }
-
       .border-left-info {
         border-left: 4px solid #36b9cc;
       }
-
       .border-left-warning {
         border-left: 4px solid #f6c23e;
       }
-
       .border-left-danger {
         border-left: 4px solid #e74a3b;
       }
 
-      /* Custom Padding */
-      .sensor-moitoring {
-        padding: 0.2rem 1rem !important;
-      }
-
+      /* Tab Pane Styles */
       .tab-pane iframe {
         width: 100%;
         height: 600px;
@@ -335,6 +328,7 @@
         opacity: 1;
       }
 
+      /* Button Styles */
       .btn-tab {
         color: #858796;
         background-color: transparent;
@@ -377,34 +371,88 @@
         border-bottom-right-radius: 4px;
       }
 
+      /* Loading Overlay */
+      /* 로딩 스타일 */
       #loadingOverlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 0.5);
         display: none;
-        z-index: 9999;
-        color: white;
+        z-index: 1000;
       }
 
       #loadingOverlay.show {
         display: flex;
         justify-content: center;
         align-items: center;
-        flex-direction: column;
       }
+
+      .loading-content {
+        background-color: white;
+        padding: 3rem 4rem;
+        border-radius: 1rem;
+        text-align: center;
+        min-width: 300px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .loading-spinner {
+        margin: 0 auto 1.5rem;
+      }
+
+      /* 톱니바퀴 아이콘 스타일링 */
+      .loading-spinner .position-relative {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .loading-spinner .fa-cog.fa-3x {
+        color: #4e73df;
+      }
+
+      .loading-spinner .fa-cog.fa-2x {
+        color: #4e73df;
+        margin-left: -15px; /* 두 번째 톱니바퀴를 첫 번째와 약간 겹치게 배치 */
+      }
+      .loading-text {
+        font-size: 1.2rem;
+        color: #333;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .progress {
+        margin-top: 0; /* 기존 margin-top 제거 */
+        height: 4px;
+        background-color: #f3f3f3;
+        border-radius: 2px;
+        overflow: hidden;
+        width: 200px;
+      }
+
+      .progress-bar {
+        background-color: #4e73df;
+        transition: width 0.5s ease;
+      }
+      /* Additional Components */
       .sensor-card-title {
         margin-bottom: 0rem;
       }
+
       .sensor-card-header {
         margin-bottom: 0.2rem;
       }
 
       .card-body2 {
         padding: 0.75rem;
-        height: 300px; /* 고정 높이 설정 */
+        height: 300px;
         overflow-y: auto;
       }
 
@@ -431,134 +479,11 @@
       .text-caution {
         color: #f6c23e;
       }
-
       .text-warning {
         color: #fd7e14;
       }
-
       .text-danger {
         color: #e74a3b;
-      }
-
-      #loadingOverlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        display: none;
-        z-index: 9999;
-        backdrop-filter: blur(3px);
-      }
-
-      #loadingOverlay.show {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-      }
-
-      .loading-content {
-        text-align: center;
-        color: white;
-        padding: 2rem;
-        border-radius: 8px;
-        background: rgba(0, 0, 0, 0.5);
-      }
-
-      .loading-spinner {
-        margin-bottom: 1rem;
-      }
-
-      .loading-text {
-        font-size: 1rem;
-        margin-top: 1rem;
-        color: #fff;
-      }
-
-      #loadingOverlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        display: none;
-        z-index: 99999; /* z-index 값을 더 높게 설정 */
-        backdrop-filter: blur(3px);
-      }
-
-      /* 기존 loadingOverlay 관련 스타일을 모두 아래 내용으로 교체 */
-      #loadingOverlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        display: none;
-        z-index: 99999;
-        backdrop-filter: blur(3px);
-        transition: opacity 0.3s ease;
-        opacity: 0;
-      }
-
-      #loadingOverlay.show {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        opacity: 1;
-      }
-
-      .loading-content {
-        text-align: center;
-        color: white;
-        padding: 2rem;
-        border-radius: 8px;
-        background: rgba(0, 0, 0, 0.5);
-        transform: translateY(20px);
-        transition: transform 0.3s ease;
-      }
-
-      #loadingOverlay.show .loading-content {
-        transform: translateY(0);
-      }
-
-      .loading-spinner {
-        margin-bottom: 1rem;
-      }
-
-      .loading-text {
-        font-size: 1rem;
-        margin-top: 1rem;
-        color: #fff;
-      }
-
-      /* progress bar 스타일 추가 */
-      .progress {
-        height: 2px;
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 2px;
-        overflow: hidden;
-        width: 200px;
-        margin-top: 1rem;
-      }
-
-      .progress-bar {
-        background-color: #4e73df;
-        transition: width 0.5s ease;
-      }
-
-      .sensor-badge {
-        padding: 0.4em 0.6em;
-        font-size: 0.775rem;
-        font-weight: 600;
-        max-width: 60px;
-        text-align: center;
-        border-radius: 6px;
-        margin-right: 6px;
       }
 
       .badge-orange {
@@ -580,8 +505,12 @@
         <div id="loadingOverlay">
           <div class="loading-content">
             <div class="loading-spinner">
-              <div class="spinner-border text-primary" role="status">
-                <span class="sr-only">분석 중...</span>
+              <div class="position-relative">
+                <i class="fas fa-cog fa-3x fa-spin"></i>
+                <i
+                  class="fas fa-cog fa-2x fa-spin"
+                  style="margin-left: -15px"
+                ></i>
               </div>
             </div>
             <div class="loading-text">
