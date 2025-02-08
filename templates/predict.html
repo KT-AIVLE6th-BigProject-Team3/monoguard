@@ -180,7 +180,23 @@
         margin-right: 8px;
         flex-shrink: 0;
         aspect-ratio: 1;
-        background-color: #e3e6f0; /* 항상 회색으로 고정 */
+      }
+
+      /* Status-specific dot colors */
+      .history-dot-normal {
+        background-color: #1cc88a; /* Success color for normal status */
+      }
+
+      .history-dot-caution {
+        background-color: #f6c23e; /* Caution color */
+      }
+
+      .history-dot-warning {
+        background-color: #fd7e14; /* Warning/orange color */
+      }
+
+      .history-dot-danger {
+        background-color: #e74a3b; /* Danger color for risk status */
       }
 
       .history-content {
@@ -544,7 +560,7 @@
         border-radius: 6px;
         margin-right: 6px;
       }
-      
+
       .badge-orange {
         color: #fff;
         background-color: #fd7e14;
@@ -1457,11 +1473,26 @@
             )}-${String(date.getDate()).padStart(2, "0")}`;
 
             const statusClass = getStatusClass(item.status);
+            // 상태에 따른 dot 클래스 결정
+            const dotClass = (() => {
+              switch (item.status) {
+                case "정상":
+                  return "history-dot-normal";
+                case "주의":
+                  return "history-dot-caution";
+                case "경고":
+                  return "history-dot-warning";
+                case "위험":
+                  return "history-dot-danger";
+                default:
+                  return "";
+              }
+            })();
 
             const historyItem = document.createElement("div");
             historyItem.className = "history-item-mini";
             historyItem.innerHTML = `
-        <span class="history-dot"></span>
+        <span class="history-dot ${dotClass}"></span>
         <div class="history-content">
           <span class="${statusClass}">${item.status}</span> 상태
           <br>
