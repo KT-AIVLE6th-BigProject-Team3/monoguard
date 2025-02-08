@@ -410,10 +410,11 @@ def agv_temperature_change():
     conn.close()
 
     # 온도 임계값
-    NORMAL_TEMP = 25.494680
-    CAUTION_TEMP = 25.464758 
-    WARNING_TEMP = 25.480036
-    DANGER_TEMP = 25.480520
+    NORMAL_TEMP = 25.066730
+    CAUTION_TEMP = 33.656681
+    WARNING_TEMP = 46.044304
+    DANGER_TEMP = 55.998341
+
 
     # 메트릭스 스타일
     st.markdown("""
@@ -546,11 +547,11 @@ def agv_humidity_change():
         return
     
     # 임계값 설정 (sensor_distributions의 ex_humidity 기준)
-    NORMAL_HUMID = 30.464285
-    CAUTION_HUMID = 30.569384
-    WARNING_HUMID = 30.417036
-    DANGER_HUMID = 30.498701
-    
+    NORMAL_HUMID = 30.484825
+    CAUTION_HUMID = 30.596287
+    WARNING_HUMID = 30.481356
+    DANGER_HUMID = 30.582888
+
     # 데이터 전처리 
     df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
     df = df.dropna(subset=["timestamp"])
@@ -658,18 +659,6 @@ def agv_humidity_change():
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
-    def get_humid_status_message(humid):
-        if abs(humid - DANGER_HUMID) <= 0.5:
-            st.error("⚠️ 습도가 매우 높습니다. 즉시 확인이 필요합니다")
-        elif abs(humid - WARNING_HUMID) <= 0.5:
-            st.warning("⚠️ 습도가 높습니다. 환기가 필요합니다")
-        elif abs(humid - CAUTION_HUMID) <= 0.5:
-            st.warning("📢 습도가 약간 상승했습니다. 모니터링이 필요합니다")
-        else:
-            st.success("✅ 습도 정상")
-
-    get_humid_status_message(current_humid)
        
 # ✅ AGV 조도 변화 
 def agv_illuminance_change():
@@ -681,10 +670,10 @@ def agv_illuminance_change():
         return
     
     # 임계값 설정 (sensor_distributions의 ex_illuminance 기준)
-    NORMAL_ILLUM = 155.609421
-    CAUTION_ILLUM = 155.480179
-    WARNING_ILLUM = 155.352264
-    DANGER_ILLUM = 155.241562
+    NORMAL_ILLUM = 155.632019
+    CAUTION_ILLUM = 155.566132
+    WARNING_ILLUM = 155.376266
+    DANGER_ILLUM = 155.069519
     
     # 데이터 전처리 
     df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
@@ -951,15 +940,15 @@ def agv_thermal_monitoring():
                 temps = base_temp + np.random.randn(60) * 0.5
                 current_temp = temps[-1]
                 
-                if current_temp < 47:
+                if current_temp < 50.86:
                     status = "정상"
                     status_color = "#1cc88a"
                     status_bg = "#e6fff0"
-                elif current_temp < 60:
+                elif current_temp < 66.82:
                     status = "주의" 
                     status_color = "#f6c23e"
                     status_bg = "#fff8e6"
-                elif current_temp < 75:
+                elif current_temp < 91.78:
                     status = "경고"
                     status_color = "#fd7e14"
                     status_bg = "#fff4e6"
@@ -1530,10 +1519,11 @@ def oht_temperature_change():
    df = df.groupby("minute")[["ex_temperature"]].mean().reset_index()
    conn.close()
 
-   NORMAL_TEMP = 25.494680
-   CAUTION_TEMP = 25.464758 
-   WARNING_TEMP = 25.480036
-   DANGER_TEMP = 25.480520
+   NORMAL_TEMP = 27.457478
+   CAUTION_TEMP = 29.167545 
+   WARNING_TEMP = 37.200157
+   DANGER_TEMP = 48.797676
+
 
    st.markdown("""
        <style>
@@ -1653,38 +1643,137 @@ def oht_temperature_change():
 # ✅ OHT 습도 변화
 def oht_humidity_change():
     conn = get_db_connection()
-    df = pd.read_sql("SELECT timestamp, ex_humidity FROM environment_measurements",conn)
+    df = pd.read_sql("SELECT timestamp, ex_humidity FROM environment_measurements", conn) 
+    
     if df.empty:
-        st.warning("⚠️ 현재 OHT 온도 데이터가 없습니다.")
-    else:
-        df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
-        # 변환 실패한 값 제거
-        df = df.dropna(subset=["timestamp"])
-        # 분 단위로 그룹화하여 평균 계산
-        df["minute"] = df["timestamp"].dt.floor("min")
-        df = df.groupby("minute")[["ex_humidity"]].mean().reset_index()
-        conn.close()
-       
-        # ✅ go.Scatter를 사용하여 평균값을 시각화
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=df["minute"],
-            y=df["ex_humidity"],
-            mode="lines+markers",  # 선과 마커 동시 표시
-            marker=dict(size=4, opacity=0.7),
-            line=dict(width=2),
-            name="평균 습도 변화"
-        ))
-       
-        fig.update_layout(
-            title="OHT 작업현장 습도",
-            xaxis_title="시간",
-            yaxis_title="평균 습도 (%)",
-            xaxis=dict(nticks=20, tickformat="%H:%M"),  # ✅ 초 단위로 표시
-            hovermode="x unified",
-            template="plotly_white"
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        st.warning("⚠️ 현재 OHT 습도 데이터가 없습니다.")
+        return
+    
+    # 임계값 설정 (sensor_distributions의 ex_humidity 기준)
+    NORMAL_HUMID = 35.482178
+    CAUTION_HUMID = 35.481819
+    WARNING_HUMID = 35.501583
+    DANGER_HUMID = 35.498600
+
+    # 데이터 전처리 
+    df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
+    df = df.dropna(subset=["timestamp"])
+    df["minute"] = df["timestamp"].dt.floor("min")
+    df = df.groupby("minute")[["ex_humidity"]].mean().reset_index()
+    conn.close()
+
+    # 메트릭스 스타일
+    st.markdown("""
+        <style>
+        .st-emotion-cache-p38tq {
+            font-size: 1.6rem !important;
+            color: rgb(49, 51, 63) !important;
+        }
+        [data-testid="metric-container"] {
+            width: fit-content;
+            margin: auto;
+        }
+        [data-testid="metric-container"] > div {
+            width: fit-content;
+            margin: auto;
+        }
+        [data-testid="metric-container"] label {
+            font-size: 0.6rem !important;
+            color: rgba(0,0,0,0.6);
+        }
+        [data-testid="metric-container"] div[data-testid="metric-value"] {
+            font-size: 0.8rem !important;
+        }
+        [data-testid="metric-container"] div[data-testid="metric-delta"] {
+            font-size: 0.6rem !important;
+        }
+        [data-testid="stHorizontalBlock"] {
+            gap: 0.5rem !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # 메트릭스
+    col1, col2, col3 = st.columns(3)
+    current_humid = df["ex_humidity"].iloc[-1]
+    max_humid = df["ex_humidity"].max()
+    min_humid = df["ex_humidity"].min()
+    humid_change = current_humid - df['ex_humidity'].iloc[-2] if len(df) > 1 else 0
+    
+    with col1:
+        st.metric("현재 습도", f"{current_humid:.1f}%", f"{humid_change:.1f}%", delta_color="inverse")
+    with col2:
+        st.metric("최고 습도", f"{max_humid:.1f}%")
+    with col3:
+        st.metric("최저 습도", f"{min_humid:.1f}%")
+
+    # 그래프
+    fig = go.Figure()
+    
+    def get_humid_status_color(humid):
+        if abs(humid - DANGER_HUMID) <= 0.5:
+            return '#FF4444'
+        elif abs(humid - WARNING_HUMID) <= 0.5:
+            return '#FFA726'  
+        elif abs(humid - CAUTION_HUMID) <= 0.5:
+            return '#FFC107'
+        return '#4CAF50'
+
+    # 기준선
+    fig.add_hline(y=DANGER_HUMID, line_dash="dash", line_color="#FF4444", annotation_text="위험")
+    fig.add_hline(y=WARNING_HUMID, line_dash="dash", line_color="#FFA726", annotation_text="경고")
+    fig.add_hline(y=CAUTION_HUMID, line_dash="dash", line_color="#FFC107", annotation_text="주의")
+    
+    # 습도 변화 그래프 
+    fig.add_trace(go.Scatter(
+        x=df["minute"],
+        y=df["ex_humidity"],
+        mode="lines+markers",
+        line=dict(color=get_humid_status_color(current_humid), width=2),
+        marker=dict(
+            size=4,
+            color=df["ex_humidity"].apply(get_humid_status_color)
+        ),
+        name="습도 변화",
+        hovertemplate="<b>시간</b>: %{x|%H:%M}<br>" +
+                      "<b>습도</b>: %{y:.1f}%<br><extra></extra>"
+    ))
+
+    fig.update_layout(
+        title="OHT 외부 습도",
+        height=300,
+        margin=dict(l=20, r=20, t=40, b=20),
+        xaxis=dict(
+            title=None,
+            gridcolor='rgba(128,128,128,0.1)',
+            nticks=10,
+            tickformat="%H:%M"
+        ),
+        yaxis=dict(
+            title=None,
+            gridcolor='rgba(128,128,128,0.1)',
+            range=[min(NORMAL_HUMID - 0.5, df["ex_humidity"].min() - 0.2),
+                   max(DANGER_HUMID + 0.5, df["ex_humidity"].max() + 0.2)]
+        ),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        showlegend=False,
+        hovermode="x unified"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    def get_humid_status_message(humid):
+        if abs(humid - DANGER_HUMID) <= 0.5:
+            st.error("⚠️ 습도가 매우 높습니다. 즉시 확인이 필요합니다")
+        elif abs(humid - WARNING_HUMID) <= 0.5:
+            st.warning("⚠️ 습도가 높습니다. 환기가 필요합니다")
+        elif abs(humid - CAUTION_HUMID) <= 0.5:
+            st.warning("📢 습도가 약간 상승했습니다. 모니터링이 필요합니다")
+        else:
+            st.success("✅ 습도 정상")
+
+    get_humid_status_message(current_humid)
        
 # ✅ OHT 조도 변화
 def oht_illuminance_change():
@@ -1695,10 +1784,10 @@ def oht_illuminance_change():
        st.warning("⚠️ 현재 OHT 조도 데이터가 없습니다.")
        return
    
-   NORMAL_ILLUM = 155.609421
-   CAUTION_ILLUM = 155.480179
-   WARNING_ILLUM = 155.352264
-   DANGER_ILLUM = 155.241562
+   NORMAL_ILLUM = 520.163391
+   CAUTION_ILLUM = 520.262512
+   WARNING_ILLUM = 520.438232
+   DANGER_ILLUM = 520.030823
    
    df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
    df = df.dropna(subset=["timestamp"])
@@ -1859,15 +1948,15 @@ def oht_thermal_monitoring():
                temps = base_temp + np.random.randn(60) * 0.5
                current_temp = temps[-1]
                
-               if current_temp < 47:
+               if current_temp < 46.98:
                    status = "정상"
                    status_color = "#1cc88a"
                    status_bg = "#e6fff0"
-               elif current_temp < 60:
+               elif current_temp < 59.23 :
                    status = "주의" 
                    status_color = "#f6c23e"
                    status_bg = "#fff8e6"
-               elif current_temp < 75:
+               elif current_temp < 75.23:
                    status = "경고"
                    status_color = "#fd7e14"
                    status_bg = "#fff4e6"
