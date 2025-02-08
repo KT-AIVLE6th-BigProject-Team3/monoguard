@@ -25,7 +25,7 @@ class DeviceMonitor:
         self.running = True
         self.window_size = 300
         self.step_size = 30
-        self.monitoring_interval = 60
+        self.monitoring_interval = 300
         self.monitoring_devices = set()  # 모니터링 중인 장비 추적
         self.monitoring_threads = {}  # Store monitoring threads
 

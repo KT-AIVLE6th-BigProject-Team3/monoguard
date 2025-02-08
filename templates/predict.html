@@ -472,6 +472,68 @@
         z-index: 99999; /* z-index 값을 더 높게 설정 */
         backdrop-filter: blur(3px);
       }
+
+      /* 기존 loadingOverlay 관련 스타일을 모두 아래 내용으로 교체 */
+      #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        z-index: 99999;
+        backdrop-filter: blur(3px);
+        transition: opacity 0.3s ease;
+        opacity: 0;
+      }
+
+      #loadingOverlay.show {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        opacity: 1;
+      }
+
+      .loading-content {
+        text-align: center;
+        color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.5);
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+      }
+
+      #loadingOverlay.show .loading-content {
+        transform: translateY(0);
+      }
+
+      .loading-spinner {
+        margin-bottom: 1rem;
+      }
+
+      .loading-text {
+        font-size: 1rem;
+        margin-top: 1rem;
+        color: #fff;
+      }
+
+      /* progress bar 스타일 추가 */
+      .progress {
+        height: 2px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+        width: 200px;
+        margin-top: 1rem;
+      }
+
+      .progress-bar {
+        background-color: #4e73df;
+        transition: width 0.5s ease;
+      }
     </style>
   </head>
 
@@ -493,7 +555,7 @@
             </div>
             <div class="loading-text">
               멀티모달 예지보전 모델이 예측 중입니다...
-              <div class="progress mt-3" style="height: 2px; width: 200px">
+              <div class="progress">
                 <div
                   class="progress-bar"
                   role="progressbar"
@@ -924,9 +986,15 @@
 
       let selectedDevice = null;
       let deviceStatuses = {};
-      let currentType = "agv"; // 현재 선택된 장비 종류
+      let currentType = "agv";
       const updateInterval = 300000; // 5분 (300000ms)
-      let globalSensorDetails = {}; // 전역 변수 추가
+      let globalSensorDetails = {};
+
+      // 로딩 상태 관리를 위한 변수들
+      let sensorFrameLoaded = false;
+      let imageFrameLoaded = false;
+      let apiDataLoaded = false;
+      let isInitialLoad = true;
 
       // 장비 정보를 담은 객체
       const deviceInformation = {
@@ -968,65 +1036,8 @@
         },
       };
 
-      // 장비 정보 업데이트 함수
-      function updateDeviceInformation(deviceId) {
-        const info = deviceInformation[deviceId];
-        if (!info) return;
-
-        const infoTable = document.querySelector(".info-table tbody");
-        if (!infoTable) return;
-
-        // 현재 날짜 기준으로 operating days 계산
-        const installDate = new Date(info.installDate);
-        const today = new Date();
-        const operatingDays = Math.floor(
-          (today - installDate) / (1000 * 60 * 60 * 24)
-        );
-
-        const currentTime = new Date().toLocaleString("ko-KR", {
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        });
-
-        infoTable.innerHTML = `
-        <tr>
-            <td>장비 ID</td>
-            <td>${info.deviceId}</td>
-        </tr>
-        <tr>
-            <td>제조사</td>
-            <td>${info.manufacturer}</td>
-        </tr>
-        <tr>
-            <td>모델명</td>
-            <td>${info.model}</td>
-        </tr>
-        <tr>
-            <td>설치환경</td>
-            <td>${info.environment}</td>
-        </tr>
-        <tr>
-            <td>수집일시</td>
-            <td>${currentTime}</td>
-        </tr>
-        <tr>
-            <td>누적가동일</td>
-            <td>${operatingDays}일</td>
-        </tr>
-        <tr>
-            <td>장비이력</td>
-            <td>${info.maintenanceCount}</td>
-        </tr>
-    `;
-      }
-
       document.addEventListener("DOMContentLoaded", async function () {
         try {
-          // 초기화 및 데이터 로드
           await initialize();
 
           // 센서 모니터링 탭 이벤트 리스너 설정
@@ -1037,17 +1048,13 @@
             ".environment-monitoring .btn-tab"
           );
 
-          // 버튼 이벤트 리스너 설정...
           // 통합 모니터링 버튼 이벤트 리스너
           integratedButtons.forEach((button) => {
             button.addEventListener("click", function () {
-              // 모든 버튼에서 active 클래스 제거
               integratedButtons.forEach((btn) =>
                 btn.classList.remove("active")
               );
-              // 클릭된 버튼에 active 클래스 추가
               this.classList.add("active");
-
               if (selectedDevice) {
                 updateSensorFrame(selectedDevice);
               }
@@ -1057,21 +1064,19 @@
           // 외부 환경 모니터링 버튼 이벤트 리스너
           environmentButtons.forEach((button) => {
             button.addEventListener("click", function () {
-              // 모든 버튼에서 active 클래스 제거
               environmentButtons.forEach((btn) =>
                 btn.classList.remove("active")
               );
-              // 클릭된 버튼에 active 클래스 추가
               this.classList.add("active");
-
               if (selectedDevice) {
                 updateSensorFrame(selectedDevice);
               }
             });
           });
+
           // 5분마다 주기적 업데이트 실행
           setInterval(() => {
-            updateAllDeviceStatuses(true); // isPeriodic = true
+            updateAllDeviceStatuses(true);
           }, updateInterval);
         } catch (error) {
           console.error("Error during initialization:", error);
@@ -1092,7 +1097,7 @@
             await createDeviceList();
 
             if (devices[currentType].length > 0) {
-              selectDevice(devices[currentType][0]);
+              selectDevice(devices[currentType][0], false); // true에서 false로 변경
             }
           });
         });
@@ -1126,9 +1131,9 @@
 
         const deviceFromUrl = initializeFromUrl();
         if (deviceFromUrl && devices[currentType].includes(deviceFromUrl)) {
-          await selectDevice(deviceFromUrl);
+          await selectDevice(deviceFromUrl, true);
         } else if (devices[currentType].length > 0) {
-          await selectDevice(devices[currentType][0]);
+          await selectDevice(devices[currentType][0], true);
         }
       }
 
@@ -1143,15 +1148,6 @@
               `http://localhost:8000/pred/device_status/${deviceId}`
             );
             const data = await response.json();
-
-            deviceStatuses[deviceId] = {
-              current_status: data.current_status,
-              normal_ratio: data.ratios.normal,
-              caution_ratio: data.ratios.caution,
-              warning_ratio: data.ratios.warning,
-              risk_ratio: data.ratios.risk,
-            };
-
             return { deviceId, status: data.current_status };
           } catch (error) {
             console.error(`Error fetching status for ${deviceId}:`, error);
@@ -1166,27 +1162,33 @@
           div.className = "equipment-item";
           div.setAttribute("data-device", deviceId);
           div.innerHTML = `
-            <span class="equipment-name">${deviceId}</span>
-            <span class="equipment-status ${getStatusClass(
-              status
-            )}">${status}</span>
-        `;
-          div.onclick = () => selectDevice(deviceId);
+      <span class="equipment-name">${deviceId}</span>
+      <span class="equipment-status ${getStatusClass(status)}">${status}</span>
+    `;
+          div.onclick = () => selectDevice(deviceId, false);
           deviceList.appendChild(div);
         });
       }
 
-      async function selectDevice(deviceId) {
-        if (selectedDevice === deviceId) return;
+      // 장비 선택 함수
+      async function selectDevice(deviceId, isStatusUpdate = false) {
+        if (selectedDevice === deviceId && !isStatusUpdate) return;
 
-        // 이전 선택 해제
-        if (selectedDevice) {
+        // 로딩 상태 초기화
+        sensorFrameLoaded = false;
+        imageFrameLoaded = false;
+        apiDataLoaded = false;
+
+        // isStatusUpdate가 true일 때만 로딩 창을 표시
+        if (isStatusUpdate) {
+          showLoading();
+        }
+
+        if (selectedDevice && !isStatusUpdate) {
           const prevElement = document.querySelector(
             `[data-device="${selectedDevice}"]`
           );
-          if (prevElement) {
-            prevElement.classList.remove("active");
-          }
+          if (prevElement) prevElement.classList.remove("active");
         }
 
         selectedDevice = deviceId;
@@ -1197,21 +1199,15 @@
           currentElement.classList.add("active");
         }
 
-        // URL 업데이트
-        const url = new URL(window.location);
-        url.searchParams.set("device", deviceId);
-        window.history.pushState({}, "", url);
-
         try {
           updateDeviceInformation(deviceId);
 
-          // 먼저 상태 확인
+          // 상태 데이터 가져오기
           const statusResponse = await fetch(
             `http://localhost:8000/pred/device_status/${deviceId}`
           );
           const statusData = await statusResponse.json();
 
-          // 실제 모니터링 중일 때만 로딩 표시
           if (statusData.monitoring_in_progress) {
             showLoading();
           }
@@ -1222,7 +1218,7 @@
           );
           const data = await response.json();
 
-          // 나머지 업데이트 로직...
+          // 데이터 업데이트
           updateStatusDisplay(deviceId, {
             current_status: data.current_state,
             normal_ratio: data.state_ratios.normal,
@@ -1236,17 +1232,72 @@
           updateSensorDetails(data.sensor_details);
           updateRecommendations(data.recommendations);
           await fetchStatusHistory(deviceId);
+
+          // iframe 업데이트
           updateSensorFrame(deviceId);
 
-          // 모니터링이 끝났을 때만 로딩 숨김
-          if (!statusData.monitoring_in_progress) {
-            hideLoading();
-          }
+          // API 데이터 로드 완료 표시
+          apiDataLoaded = true;
+          checkAllLoaded();
         } catch (error) {
           console.error("Error fetching device data:", error);
           hideLoading();
         }
       }
+
+      // iframe 로드 완료 핸들러
+      function handleIframeLoad(type) {
+        if (type === "sensor") {
+          sensorFrameLoaded = true;
+        } else if (type === "image") {
+          imageFrameLoaded = true;
+        }
+        checkAllLoaded();
+      }
+
+      // 모든 로딩이 완료되었는지 확인
+      function checkAllLoaded() {
+        if (sensorFrameLoaded && imageFrameLoaded && apiDataLoaded) {
+          setTimeout(() => {
+            hideLoading();
+          }, 1000);
+        }
+      }
+
+      // 장비 정보 업데이트
+      function updateDeviceInformation(deviceId) {
+        const info = deviceInformation[deviceId];
+        if (!info) return;
+
+        const infoTable = document.querySelector(".info-table tbody");
+        if (!infoTable) return;
+
+        const installDate = new Date(info.installDate);
+        const today = new Date();
+        const operatingDays = Math.floor(
+          (today - installDate) / (1000 * 60 * 60 * 24)
+        );
+
+        const currentTime = new Date().toLocaleString("ko-KR", {
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        });
+
+        infoTable.innerHTML = `
+    <tr><td>장비 ID</td><td>${info.deviceId}</td></tr>
+    <tr><td>제조사</td><td>${info.manufacturer}</td></tr>
+    <tr><td>모델명</td><td>${info.model}</td></tr>
+    <tr><td>설치환경</td><td>${info.environment}</td></tr>
+    <tr><td>수집일시</td><td>${currentTime}</td></tr>
+    <tr><td>누적가동일</td><td>${operatingDays}일</td></tr>
+    <tr><td>장비이력</td><td>${info.maintenanceCount}</td></tr>
+  `;
+      }
+
       function updateDeviceInfo(deviceId, status) {
         const summaryTitle = document.querySelector(".info-summary-title");
         const summarySubtitle = document.querySelector(
@@ -1267,6 +1318,7 @@
           summarySubtitle.textContent = `최근 업데이트: ${currentTime}`;
         }
       }
+
       // 상태 표시 업데이트
       function updateStatusDisplay(deviceId, data) {
         document.getElementById("selectedDeviceID").textContent = deviceId;
@@ -1277,16 +1329,16 @@
         ).className = `currentStatus status-${getStatusClass(
           data.current_status
         ).replace("text-", "")}`;
-        // 장비 정보 업데이트 추가
+
         updateDeviceInfo(deviceId, data.current_status);
 
-        // 개수 표시 - 비율을 기반으로 실제 개수 계산
+        // 개수 계산 (300개 기준)
         const normalCount = Math.round((data.normal_ratio / 100) * 300);
         const cautionCount = Math.round((data.caution_ratio / 100) * 300);
         const warningCount = Math.round((data.warning_ratio / 100) * 300);
         const riskCount = Math.round((data.risk_ratio / 100) * 300);
 
-        // 개수 표시
+        // 개수 업데이트
         document.getElementById("normalCount").textContent = `${normalCount}개`;
         document.getElementById(
           "cautionCount"
@@ -1296,7 +1348,7 @@
         ).textContent = `${warningCount}개`;
         document.getElementById("dangerCount").textContent = `${riskCount}개`;
 
-        // 비율 표시 - 모든 비율을 있는 그대로 표시
+        // 비율 업데이트
         document.getElementById(
           "normalPercent"
         ).textContent = `${data.normal_ratio.toFixed(1)}%`;
@@ -1316,70 +1368,23 @@
         ).textContent = `최근 업데이트: ${updateTime}`;
       }
 
-      // 장비 상태 가져오기
-      let monitoringDevices = new Set(); // 현재 모니터링 중인 장비들을 추적
-
-      async function fetchDeviceStatus(deviceId) {
-        try {
-          const response = await fetch(
-            `http://localhost:8000/pred/device_status/${deviceId}`
-          );
-          const data = await response.json();
-
-          // 모니터링 상태 업데이트
-          if (data.monitoring_in_progress) {
-            monitoringDevices.add(deviceId);
-            showLoading();
-          } else {
-            monitoringDevices.delete(deviceId);
-            // 모든 장비의 모니터링이 끝났을 때만 로딩창 숨김
-            if (monitoringDevices.size === 0) {
-              hideLoading();
-            }
-          }
-
-          deviceStatuses[deviceId] = {
-            current_status: data.current_status,
-            normal_ratio: data.ratios.normal,
-            caution_ratio: data.ratios.caution,
-            warning_ratio: data.ratios.warning,
-            risk_ratio: data.ratios.risk,
-          };
-
-          if (deviceId === selectedDevice) {
-            updateStatusDisplay(deviceId, deviceStatuses[deviceId]);
-          }
-
-          updateDeviceListStatus(deviceId, data.current_status);
-        } catch (error) {
-          console.error(`Error fetching status for ${deviceId}:`, error);
-          monitoringDevices.delete(deviceId);
-          if (monitoringDevices.size === 0) {
-            hideLoading();
-          }
-        }
-      }
-
-      function hideLoading() {
-        const overlay = document.getElementById("loadingOverlay");
-        const progressBar = overlay.querySelector(".progress-bar");
-        overlay.classList.remove("show");
-        progressBar.style.width = "0%";
-      }
       // 로딩 관련 함수들
       function showLoading() {
         const overlay = document.getElementById("loadingOverlay");
         const progressBar = overlay.querySelector(".progress-bar");
-        overlay.classList.add("show");
 
-        // 프로그레스 바 초기화
+        // 이미 표시 중이면 리턴
+        if (overlay.classList.contains("show")) return;
+
+        overlay.classList.add("show");
         progressBar.style.width = "0%";
 
-        // 프로그레스 바 애니메이션
+        // 프로그레스바 애니메이션
         let progress = 0;
         const interval = setInterval(() => {
           progress += 1;
-          if (progress <= 100) {
+          if (progress <= 90) {
+            // 90%까지만 자동으로 증가
             progressBar.style.width = `${progress}%`;
           } else {
             clearInterval(interval);
@@ -1387,6 +1392,20 @@
         }, 50);
 
         return interval;
+      }
+
+      function hideLoading() {
+        const overlay = document.getElementById("loadingOverlay");
+        const progressBar = overlay.querySelector(".progress-bar");
+
+        // 프로그레스바를 100%로 설정
+        progressBar.style.width = "100%";
+
+        // 약간의 지연 후 오버레이 숨김
+        setTimeout(() => {
+          overlay.classList.remove("show");
+          progressBar.style.width = "0%";
+        }, 500);
       }
 
       // 상태에 따른 클래스 반환
@@ -1397,25 +1416,21 @@
           경고: "text-warning",
           위험: "text-danger",
         };
-        return statusMap[status] || "text-success";
+        return statusMap[status] || "text-secondary";
       }
 
       // 상태 기록 가져오기
       async function fetchStatusHistory(deviceId) {
         const container = document.getElementById("statusHistory");
-        console.log("Container element:", container); // 디버깅
-
         try {
           const response = await fetch(
             `http://localhost:8000/pred/device_history/${deviceId}`
           );
           const data = await response.json();
 
-          // 컨테이너 초기화
           container.innerHTML = "";
 
           data.forEach((item) => {
-            // 날짜 포맷팅
             const date = new Date(item.timestamp);
             const formattedTime = `${String(date.getHours()).padStart(
               2,
@@ -1426,23 +1441,19 @@
               "0"
             )}-${String(date.getDate()).padStart(2, "0")}`;
 
-            // 상태에 따른 텍스트 색상 클래스 결정
-            let statusClass = "text-success"; // 기본값
-            if (item.status === "주의") statusClass = "text-caution";
-            else if (item.status === "경고") statusClass = "text-warning";
-            else if (item.status === "위험") statusClass = "text-danger";
+            const statusClass = getStatusClass(item.status);
 
             const historyItem = document.createElement("div");
             historyItem.className = "history-item-mini";
             historyItem.innerHTML = `
-    <span class="history-dot"></span>
-    <div class="history-content">
-      <span class="${statusClass}">${item.status}</span> 상태
-      <br>
-      <small>정상: ${item.counts.normal_count.toFixed(1)}%</small>
-    </div>
-    <div class="history-date">${formattedDate}<br>${formattedTime}</div>
-  `;
+        <span class="history-dot"></span>
+        <div class="history-content">
+          <span class="${statusClass}">${item.status}</span> 상태
+          <br>
+          <small>정상: ${item.counts.normal_count.toFixed(1)}%</small>
+        </div>
+        <div class="history-date">${formattedDate}<br>${formattedTime}</div>
+      `;
 
             container.appendChild(historyItem);
           });
@@ -1453,39 +1464,16 @@
         }
       }
 
-      // 분석 데이터 업데이트
-      async function updateAnalysis(deviceId) {
-        try {
-          const response = await fetch(
-            `http://localhost:8000/pred/analyze_device/${deviceId}`
-          );
-          const data = await response.json();
-
-          document.getElementById(
-            "analysis-status"
-          ).textContent = `현재 상태: ${data.current_state}`;
-          document.getElementById("analysis-summary-text").textContent =
-            data.summary;
-
-          updateCriticalIssues(data.critical_issues);
-          updateWarnings(data.warnings);
-          updateSensorDetails(data.sensor_details);
-          updateRecommendations(data.recommendations);
-        } catch (error) {
-          console.error("Error updating analysis:", error);
-        }
-      }
-
       function updateCriticalIssues(issues) {
         const criticalIssuesElements =
           document.querySelectorAll("#critical-issues");
         const issuesHtml = issues
           .map(
             (issue) => `
-        <div class="alert alert-danger">
-          <i class="fas fa-exclamation-circle mr-2"></i>${issue}
-        </div>
-      `
+    <div class="alert alert-danger">
+      <i class="fas fa-exclamation-circle mr-2"></i>${issue}
+    </div>
+  `
           )
           .join("");
 
@@ -1508,17 +1496,15 @@
           summaryTexts.join("");
       }
 
-      // 경고 업데이트
-
       function updateWarnings(warnings) {
         const warningsElements = document.querySelectorAll("#warnings");
         const warningsHtml = warnings
           .map(
             (warning) => `
-        <div class="alert alert-warning">
-          <i class="fas fa-exclamation-triangle mr-2"></i>${warning}
-        </div>
-      `
+    <div class="alert alert-warning">
+      <i class="fas fa-exclamation-triangle mr-2"></i>${warning}
+    </div>
+  `
           )
           .join("");
 
@@ -1544,9 +1530,8 @@
         }
       }
 
-      // 센서 상세 정보 업데이트
       async function updateSensorDetails(sensorDetails) {
-        globalSensorDetails = sensorDetails; // 전역 변수 업데이트
+        globalSensorDetails = sensorDetails;
         const detailsContainer = document.getElementById("sensor-details");
         if (!detailsContainer) return;
 
@@ -1612,14 +1597,12 @@
           위험: [],
         };
 
-        // 각 상태별로 센서 분류
         Object.entries(sensorDetails).forEach(([sensor, details]) => {
           if (details.status in alerts) {
             alerts[details.status].push(sensor);
           }
         });
 
-        // 알림 리스트 HTML 생성
         alertList.innerHTML = "";
         Object.entries(alerts).forEach(([status, sensors]) => {
           if (sensors.length > 0) {
@@ -1633,17 +1616,16 @@
             const alertRow = document.createElement("div");
             alertRow.className = "alert-row";
             alertRow.innerHTML = `
-                <span class="alert-status ${statusClass}">${status}(${
+        <span class="alert-status ${statusClass}">${status}(${
               sensors.length
             })</span>
-                <span class="alert-sensors">: ${sensors.join(", ")}</span>
-            `;
+        <span class="alert-sensors">: ${sensors.join(", ")}</span>
+      `;
             alertList.appendChild(alertRow);
           }
         });
       }
 
-      // 권장사항 업데이트
       function updateRecommendations(recommendations) {
         const recommendationsList = document.getElementById(
           "recommendations-list"
@@ -1653,24 +1635,54 @@
         recommendationsList.innerHTML = recommendations
           .map(
             (rec) => `
-        <li class="recommendation-item">
-            <i class="fas fa-check-circle text-primary mr-2"></i>${rec}
-        </li>
-    `
+    <li class="recommendation-item">
+      <i class="fas fa-check-circle text-primary mr-2"></i>${rec}
+    </li>
+  `
           )
           .join("");
       }
 
-      // 장비 목록 상태 업데이트
-      function updateDeviceListStatus(deviceId, status) {
-        const deviceElement = document.querySelector(
-          `[data-device="${deviceId}"] .equipment-status`
+      function updateSensorFrame(deviceId) {
+        // 통합 모니터링 iframe 업데이트
+        const integratedActiveButton = document.querySelector(
+          ".integrated-monitoring .btn-tab.active"
         );
-        if (deviceElement) {
-          deviceElement.className = `equipment-status ${getStatusClass(
-            status
-          )}`;
-          deviceElement.textContent = status;
+        if (integratedActiveButton) {
+          const page = integratedActiveButton.dataset.page;
+          const iframe = document
+            .querySelector(".integrated-monitoring")
+            .closest(".card")
+            .querySelector("iframe");
+          if (iframe) {
+            iframe.src = `http://localhost:8501/${page}?device=${deviceId}`;
+            iframe.onload = () => handleIframeLoad("sensor");
+          }
+        }
+
+        // 외부 환경 모니터링 iframe 업데이트
+        const environmentActiveButton = document.querySelector(
+          ".environment-monitoring .btn-tab.active"
+        );
+        if (environmentActiveButton) {
+          const page = environmentActiveButton.dataset.page;
+          const iframe = document
+            .querySelector(".environment-monitoring")
+            .closest(".card")
+            .querySelector("iframe");
+          if (iframe) {
+            iframe.src = `http://localhost:8501/${page}?device=${deviceId}`;
+            iframe.onload = () => handleIframeLoad("sensor");
+          }
+        }
+
+        // 열화상 센서 모니터링 iframe 업데이트
+        const thermalIframe = document.querySelector(
+          ".streamlit-card-body2 iframe"
+        );
+        if (thermalIframe) {
+          thermalIframe.src = `http://localhost:8501/image_dashboard?device=${deviceId}`;
+          thermalIframe.onload = () => handleIframeLoad("image");
         }
       }
 
@@ -1723,47 +1735,6 @@
         }
       }
 
-      function updateSensorFrame(deviceId) {
-        // 통합 모니터링 iframe 업데이트
-        const integratedActiveButton = document.querySelector(
-          ".integrated-monitoring .btn-tab.active"
-        );
-        if (integratedActiveButton) {
-          const page = integratedActiveButton.dataset.page;
-          const iframe = document
-            .querySelector(".integrated-monitoring")
-            .closest(".card")
-            .querySelector("iframe");
-          if (iframe) {
-            iframe.src = `http://localhost:8501/${page}?device=${deviceId}`;
-          }
-        }
-
-        // 외부 환경 모니터링 iframe 업데이트
-        const environmentActiveButton = document.querySelector(
-          ".environment-monitoring .btn-tab.active"
-        );
-        if (environmentActiveButton) {
-          const page = environmentActiveButton.dataset.page;
-          const iframe = document
-            .querySelector(".environment-monitoring")
-            .closest(".card")
-            .querySelector("iframe");
-          if (iframe) {
-            iframe.src = `http://localhost:8501/${page}?device=${deviceId}`;
-          }
-        }
-
-        // 열화상 센서 모니터링 iframe 별도 업데이트
-        const thermalIframe = document.querySelector(
-          ".streamlit-card-body2 iframe"
-        );
-        if (thermalIframe) {
-          thermalIframe.src = `http://localhost:8501/image_dashboard?device=${deviceId}`;
-        }
-      }
-
-      // 날짜 포맷팅
       function formatDate(date) {
         return `${String(date.getMonth() + 1).padStart(2, "0")}-${String(
           date.getDate()
