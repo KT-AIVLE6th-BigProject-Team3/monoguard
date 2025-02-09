@@ -1,0 +1,321 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+ }
+ 
+ .page-container {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+ }
+ 
+ .logo-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+ }
+ 
+ .logo {
+    width: 200px;
+    height: auto;
+    object-fit: contain;
+ }
+ 
+ .content {
+    width: 100%;
+    background: white;
+    box-shadow: 1px 1px 16px 12px rgba(216, 216, 216, 0.25);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+ }
+ 
+ .form-container {
+    width: 100%;
+    margin-top: 1rem;
+ }
+ 
+ .form-row {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    margin-bottom: 1rem;
+    padding-left: 1px;
+ }
+ 
+ .input-field, .input-field2 {
+    width: 100%;
+    height: 45px;
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    padding-left: 12px;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 16px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+ }
+ 
+ .input-field:focus, .input-field2:focus {
+    border-color: #293A91;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(41, 58, 145, 0.1);
+ }
+ 
+ .input-field::placeholder, .input-field2::placeholder {
+    color: #A9ABB0;
+    font-size: 14px;
+ }
+ 
+ .form-row2-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    margin-bottom: 1rem;
+    gap: 1rem;
+ }
+ 
+ .form-row2 {
+    display: flex;
+    flex-direction: column;
+    width: 48%;
+ }
+ 
+ .input-label {
+    color: #4C4E52;
+    font-size: 16px;
+    font-weight: 300;
+ }
+ 
+ .submit-container {
+    width: 100%;
+    max-width: 600px;
+    height: 45px;
+    background: #293A91;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease;
+ }
+ 
+ .submit-container:hover {
+    background-color: #1a2456;
+ }
+ 
+ .submit-text {
+    color: white;
+    font-size: 16px;
+    font-weight: 300;
+    text-align: center;
+ }
+ 
+ .signup-header {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    margin-bottom: 1rem;
+ }
+ 
+ .signup-title {
+    color: #4C4E52;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: default;
+ }
+ 
+ .info-label {
+    color: #4C4E52;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: default;
+    margin-bottom: 0.5rem;
+ }
+ 
+ select.input-field2 {
+    width: 100%;
+    height: 45px;
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    padding-left: 12px;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27 viewBox%3D%270 0 4 5%27%3E%3Cpath fill%3D%27%23A9ABB0%27 d%3D%27M2 0L0 2h4z%27%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 8px 8px;
+    cursor: pointer;
+ }
+ 
+ .agreement-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    margin-bottom: 1rem;
+ }
+ 
+ .agreement-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.7rem;
+    font-size: 14px;
+    color: #4C4E52;
+ }
+ 
+ .agreement-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
+    cursor: pointer;
+    accent-color: #293A91;
+ }
+ 
+ .agreement-row label {
+    cursor: pointer;
+ }
+ 
+ .agreement-link {
+    margin-left: 10px;
+    color: #293A91;
+    text-decoration: none;
+    border-bottom: 1px solid #293A91;
+    padding-bottom: 1px;
+    transition: all 0.2s ease;
+ }
+ 
+ .agreement-link:hover {
+    color: #1a2456;
+    border-bottom-color: #1a2456;
+ }
+ 
+ .all-agreement {
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #E0E0E0;
+    font-weight: 600;
+ }
+ 
+ @media (max-width: 600px) {
+    .page-container {
+        padding: 16px;
+    }
+    
+    .content {
+        padding: 20px;
+    }
+ 
+    .form-row2-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+ 
+    .form-row2 {
+        width: 100%;
+    }
+ 
+    .logo {
+        width: 150px;
+    }
+ 
+    .input-field, .input-field2, 
+    .submit-container {
+        height: 40px;
+        font-size: 14px;
+    }
+ 
+    .info-label, .signup-title {
+        font-size: 14px;
+    }
+ 
+    .agreement-row {
+        font-size: 12px;
+    }
+ }
+
+
+.input-with-button {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.input-with-button .input-field2 {
+    flex: 1;
+}
+
+.check-id-btn {
+    padding: 0 16px;
+    height: 45px;
+    background: #293A91;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+
+.check-id-btn:hover {
+    background-color: #1a2456;
+}
+
+@media (max-width: 600px) {
+    .check-id-btn {
+        height: 40px;
+        padding: 0 12px;
+        font-size: 12px;
+    }
+}
+
+.check-id-btn {
+   padding: 0 16px;
+   height: 45px;
+   background: #293A91;
+   color: white;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   font-size: 14px;
+   white-space: nowrap;
+   transition: all 0.2s ease;
+}
+
+.check-id-btn:disabled {
+   background: #aaaaaa;
+   cursor: not-allowed;
+}
+
+.check-id-btn:hover:not(:disabled) {
+   background-color: #1a2456;
+}
+
+@media (max-width: 600px) {
+   .check-id-btn {
+       height: 40px;
+       padding: 0 12px;
+       font-size: 12px;
+   }
+}

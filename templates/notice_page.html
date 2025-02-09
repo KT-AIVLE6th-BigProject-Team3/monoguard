@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="메인페이지">
+    <meta name="author" content="">
+    <title>MonoGuard</title>
+
+    <!-- 아이콘이랑 폰트 가져오기 -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="stylesheet" href="/static/css/prj.css">
+    <link rel="icon" href="/static/img/fabicon.svg" />
+</head>
+
+<body id="page-top">
+
+    <div id="wrapper">
+        <!-- 메뉴가 동적으로 로드될 영역 -->
+        <div id="menu"></div>
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <!-- 상단바를 삽입할 영역 -->
+                <div id="topbar"></div>
+                <!-- 상단바 끝! -->
+                 
+                <div class="container-fluid">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <!-- <h1 class="h3 mb-2 text-gray-800 mb-4">공지사항</h1> -->
+                        <h1 class="h3 mb-2 text-gray-800 mb-4"><a href="/board/notice" style="color: #5a5c69;">공지사항</a></h1>
+                        {% if notice_content.admin %}
+                        <div>
+                            <a href="#" id="editNoticeBtn" class="d-none d-sm-inline-block btn2 btn-sm btn-success shadow-sm ">
+                                <span>수정</span>
+                            </a>
+                            <a href="#" id="deleteNoticeBtn" class="d-none d-sm-inline-block btn2 btn-sm btn-danger shadow-sm ">
+                                <span>삭제</span>
+                            </a>
+                        </div>
+
+                        <!-- 수정 모달 -->
+                        <div class="modal" id="noticeEditModal">
+                            <div class="qna-form-container">
+                                <div class="modal-header justify-content-between">
+                                    <h2>공지사항 수정</h2>
+                                    <button class="close-btn" id="closeNoticeEditModal">&times;</button>
+                                </div>
+
+                                <form id="noticeEditForm">
+                                    <div class="form-group">
+                                        <label for="edit_notice_title">*제목</label>
+                                        <input type="text" id="title" name="title" class="form-control" value="{{ notice_content.title }}" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="edit_notice_content">*내용</label>
+                                        <textarea id="content" name="content" class="form-control" rows="5" required>{{ notice_content.content }}</textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" id="public" name="public" value="true" {% if notice_content.public %}checked{% endif %}>
+                                            <label class="form-check-label" for="public">  공개 여부</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-sm-flex align-items-center justify-content-between">
+                                        <p></p>
+                                        <button type="submit" class="btn btn-primary">수정하기</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card shadow mb-4">
+                        <div class="notice-card-header py-3">
+                            <p class="notice-date">작성자 : {{ notice_content.user_id}} | {{ notice_content.created_at }} 작성
+                                {% if notice_content.updated_at %}
+                                    ({{ notice_content.updated_at }} 수정)
+                                {% endif %}
+                            </p>
+                            <h4 class="m-0 font-weight-bold text-primary">{{ notice_content.title }}</h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="notice">
+                                {{ notice_content.content }}
+                            </p>
+                        </div>
+                        <!-- 첨부파일 목록-->
+                        {% if notice_content.files %}
+                        <div class="attachments mt-3 card-body">
+                           <h6 class="font-weight-bold d-flex">첨부 파일</h6>
+                           <ul>
+                               {% for file in notice_content.files %}
+                               <li>
+                                   <a href="/board/notice/download/{{ file.id }}" target="_blank">
+                                       {{ file.filename }}
+                                   </a>
+                               </li>
+                               {% endfor %}
+                           </ul>
+                       </div>
+                       {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="notice-navigation">
+                <div class="notice-nav-item">
+                    <span class="nav-arrow">∧</span>
+                    <span class="nav-label">다음글</span>
+                    {% if next_notice %}
+                    <a href="/board/notice/content/{{ next_notice.id }}" class="nav-title">{{ next_notice.title }}</a>
+                    {% else %}
+                    <span class="nav-title text-mutad">마지막 글입니다.</span>
+                    {% endif %}
+                </div>
+                <div class="notice-nav-item">
+                    <span class="nav-arrow">∨</span>
+                    <span class="nav-label">이전글</span>
+                    {% if prev_notice %}
+                    <a href="/board/notice/content/{{ prev_notice.id }}" class="nav-title">{{ prev_notice.title }}</a>
+                    {% else %}
+                    <span class="nav-title text-mutad">첫 번째 글입니다.</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <script src="/static/js/mainfunc.js"></script>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const editNoticeBtn = document.getElementById('editNoticeBtn');
+                    const deleteNoticeBtn = document.getElementById('deleteNoticeBtn');
+                
+                    const noticeEditModal = document.getElementById('noticeEditModal');
+                    const closeNoticeEditModal = document.getElementById('closeNoticeEditModal');
+                    const noticeEditForm = document.getElementById('noticeEditForm');
+                
+                    // 현재 notice ID
+                    const noticeId = "{{ notice_content.id }}";
+                
+                    // ---- 수정 ----
+                    if (editNoticeBtn) {
+                        editNoticeBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            noticeEditModal.classList.add('active');
+                        });
+                    }
+                
+                    if (closeNoticeEditModal) {
+                        closeNoticeEditModal.addEventListener('click', () => {
+                            noticeEditModal.classList.remove('active');
+                            noticeEditForm.reset();
+                        });
+                    }
+                
+                    if (noticeEditForm) {
+                        noticeEditForm.addEventListener('submit', (e) => {
+                            e.preventDefault();
+                            const formData = new FormData(noticeEditForm);
+                
+                            fetch(`/board/notice/content/${noticeId}/edit`, {
+                                method: 'PUT',
+                                body: formData
+                            })
+                            .then(res => {
+                                if (!res.ok) throw new Error('수정 실패');
+                                return res.json();
+                            })
+                            .then(data => {
+                                alert("공지사항이 수정되었습니다.");
+                                window.location.reload();
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                alert("수정 중 오류가 발생했습니다.");
+                            });
+                        });
+                    }
+                
+                    // ---- 삭제 ----
+                    if (deleteNoticeBtn) {
+                        deleteNoticeBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const confirmed = confirm("정말로 삭제하시겠습니까?");
+                            if (!confirmed) return;
+                
+                            fetch(`/board/notice/content/${noticeId}/delete`, {
+                                method: 'DELETE'
+                            })
+                            .then(res => {
+                                if (!res.ok) throw new Error('삭제 실패');
+                                return res.json();
+                            })
+                            .then(data => {
+                                alert("삭제되었습니다.");
+                                // 목록으로 이동
+                                window.location.href = "/board/notice/list";
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                alert("삭제 중 오류가 발생했습니다.");
+                            });
+                        });
+                    }
+                });
+            </script>
+        </div>
+    </div>
+
+</body>
+
+</html>

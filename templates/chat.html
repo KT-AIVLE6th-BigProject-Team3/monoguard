@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="QnA" />
+    <meta name="author" content="황은비" />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+ 
+    <title>MonoGuard</title>
+ 
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/css/prj.css">
+    <link rel="icon" href="/static/img/fabicon.svg" />
+ 
+    <style>
+      .message {
+        max-width: 80%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        word-wrap: break-word;
+        margin-bottom: 10px;
+        display: inline-block;
+        width: auto;
+      }
+ 
+      .chat-messages {
+        height: 400px;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+ 
+      .user-message {
+        background: #4e73df;
+        color: rgb(255, 255, 255);
+        align-self: flex-end;
+      }
+ 
+      .bot-message {
+        background: #f8f9fc;
+        color: #1a1a1a;
+        align-self: flex-start;
+      }
+ 
+      .input-container {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+ 
+      .input-container input {
+        flex-grow: 1;
+        border: 1px solid #d1d3e2;
+        padding: 10px;
+      }
+ 
+      #user-input:focus,
+      #device-id:focus,
+      #start-date:focus,
+      #end-date:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+      }
+ 
+      #download-url {
+        display: none;
+        margin-top: 10px;
+        text-align: center;
+      }
+ 
+      #download-list {
+        margin-top: 10px;
+        border-top: 1px solid #ddd;
+        padding-top: 10px;
+      }
+ 
+      /* style 태그 안에 아래 스타일을 추가해주세요 */
+      .message {
+        max-width: 80%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        word-wrap: break-word;
+        margin-bottom: 10px;
+        display: inline-block;
+        width: auto;
+      } 
+ 
+      .loading {
+        padding: 10px;
+        text-align: center;
+        color: #666;
+        font-style: italic;
+      }
+ 
+      .input-container {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+      }
+ 
+      #user-input {
+        flex-grow: 1;
+        padding: 10px;
+        border: 1px solid #d1d3e2;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+ 
+  <body id="page-top">
+    <div id="wrapper">
+      <div id="menu"></div>
+      <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+          <div id="topbar"></div>
+          <div class="container-fluid">
+            <h1 class="h3 mb-0 mb-4 text-gray-800">MonoGuard 챗봇</h1>
+ 
+            <div class="card shadow-sm mb-4">
+              <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">대화 내용</h6>
+              </div>
+              <div class="card-body">
+                <div class="chat-messages" id="chat-messages"></div>
+                <div
+                  class="loading"
+                  id="loading"
+                  style="display: none; text-align: center; color: #666"
+                >
+                  AI가 대답을 생성하는 중...
+                </div>
+                <div class="input-container">
+                  <input
+                    type="text"
+                    id="user-input"
+                    class="form-control"
+                    placeholder="메시지를 입력하세요..."
+                  />
+                  <button id="send-button" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+
+    <script src="/static/js/mainfunc.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const chatMessages = document.getElementById("chat-messages");
+        const userInput = document.getElementById("user-input");
+        const sendButton = document.getElementById("send-button");
+        const loadingIndicator = document.getElementById("loading");
+      
+        function addMessage(content, isUser = false) {
+          const messageDiv = document.createElement("div");
+          messageDiv.className = `message ${isUser ? "user-message" : "bot-message"}`;
+          messageDiv.textContent = content;
+          chatMessages.appendChild(messageDiv);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      
+        async function sendMessage() {
+          const message = userInput.value.trim();
+          if (!message) return;
+      
+          // 사용자 메시지 표시
+          addMessage(message, true);
+          userInput.value = "";
+      
+          // 로딩 표시
+          loadingIndicator.style.display = "block";
+      
+          try {
+            // 챗봇 API 호출
+            const response = await fetch(
+              `http://localhost:8000/chatbot/api?question=${encodeURIComponent(
+                message
+              )}`
+            );
+      
+            if (!response.ok) {
+              throw new Error("API 응답이 실패했습니다.");
+            }
+      
+            // JSON 응답 파싱
+            const botResponse = await response.json();
+      
+            // `answer` 키 값만 출력
+            addMessage(botResponse.answer);
+          } catch (error) {
+            addMessage(`❌ 오류: ${error.message}`, false);
+          } finally {
+            loadingIndicator.style.display = "none";
+          }
+        }
+      
+        // 이벤트 리스너 등록
+        sendButton.addEventListener("click", sendMessage);
+        userInput.addEventListener("keypress", function (event) {
+          if (event.key === "Enter") {
+            sendMessage();
+          }
+        });
+      });
+      
+      document
+        .getElementById("report-button")
+        .addEventListener("click", async function () {
+          const deviceId = document.getElementById("device-id").value.trim();
+          const startDate = document.getElementById("start-date").value.trim();
+          const endDate = document.getElementById("end-date").value.trim();
+          const reportResponse = document.getElementById("report-response");
+          const downloadList = document.getElementById("download-list");
+ 
+          if (!deviceId || !startDate || !endDate) {
+            reportResponse.innerHTML = `<p style="color: red;">❌ 모든 필드를 입력하세요.</p>`;
+            return;
+          }
+ 
+          const requestData = {
+            장비_ID: deviceId,
+            시작_날짜: startDate,
+            종료_날짜: endDate,
+          };
+ 
+          try {
+            const response = await fetch(
+              "http://localhost:8000/generate-equipment-report",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestData),
+              }
+            );
+ 
+            const data = await response.json();
+            if (!response.ok || !data.download_url)
+              throw new Error("다운로드 URL이 없습니다.");
+ 
+            reportResponse.innerHTML = `<p>✅ 보고서 생성 완료!</p>`;
+ 
+            // 다운로드 링크 생성 및 추가
+            const newFileEntry = document.createElement("div");
+            newFileEntry.innerHTML = `
+                    <a href="${data.download_url}"
+                       download="${data.pdf_filename}"
+                       class="btn btn-link">
+                        📄 ${data.pdf_filename}
+                    </a>`;
+            downloadList.appendChild(newFileEntry);
+ 
+            // 자동 다운로드 시작
+            const downloadLink = document.createElement("a");
+            downloadLink.href = data.download_url;
+            downloadLink.download = data.pdf_filename;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+          } catch (error) {
+            reportResponse.innerHTML = `<p style="color: red;">❌ 오류 발생: ${error.message}</p>`;
+          }
+        });
+    </script>
+  </body>
+</html>

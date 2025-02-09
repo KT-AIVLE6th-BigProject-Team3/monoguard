@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>MonoGuard - 장비 상세정보</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/css/prj.css" />
+    <link rel="icon" href="/static/img/fabicon.svg" />
+
+    <style>
+      /* Colors */
+      .text-orange {
+        color: #fd7e14;
+      }
+
+      /* Layout & Spacing */
+      .state-probabilities {
+        margin-top: 0.5rem;
+      }
+
+      .card-body3 {
+        padding: 0.75rem;
+      }
+
+      .sensor-moitoring {
+        padding: 0.2rem 1rem !important;
+      }
+
+      /* Alert Styles */
+      .alert {
+        border-left: 4px solid;
+      }
+
+      .alert-danger {
+        border-left-color: #e74a3b;
+      }
+
+      .alert-warning {
+        border-left-color: #f6c23e;
+      }
+
+      /* Card & Component Styles */
+      .recommendation-item {
+        padding: 0.75rem;
+        border-left: 3px solid #4e73df;
+        background-color: #f8f9fc;
+        margin-bottom: 0.5rem;
+      }
+
+      .sensor-badge {
+        padding: 0.4em 0.6em;
+        font-size: 0.775rem;
+        font-weight: 600;
+        max-width: 60px;
+        text-align: center;
+        border-radius: 6px;
+        margin-right: 6px;
+      }
+
+      /* Info Summary Section */
+      .info-summary {
+        background: #f8f9fc;
+        border-radius: 6px;
+        padding: 0.5rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .status-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #4e73df;
+        color: white;
+        font-size: 0.875rem;
+      }
+
+      .info-summary-text {
+        flex-grow: 1;
+      }
+
+      .info-summary-title {
+        font-weight: 600;
+        color: #2e3139;
+        font-size: 0.875rem;
+        margin-bottom: 0.125rem;
+      }
+
+      .info-summary-subtitle {
+        color: #858796;
+        font-size: 0.75rem;
+      }
+
+      /* Table Styles */
+      .info-table {
+        width: 100%;
+        margin-bottom: 0.75rem;
+        font-size: 0.8125rem;
+      }
+
+      .info-table tr {
+        border-bottom: 1px solid #e3e6f0;
+      }
+
+      .info-table tr:last-child {
+        border-bottom: none;
+      }
+
+      .info-table td {
+        padding: 0.375rem 0.8rem;
+      }
+
+      /* History Section */
+      .recent-history {
+        border-top: 1px solid #e3e6f0;
+        padding-top: 0.75rem;
+      }
+
+      .recent-history-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #4e73df;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+      }
+
+      .recent-history-title i {
+        margin-right: 6px;
+      }
+
+      /* History Items */
+      .history-item-mini {
+        display: flex;
+        align-items: center;
+        padding: 0.575rem 0;
+        font-size: 0.75rem;
+        border-bottom: 1px solid #f8f9fc;
+      }
+
+      .history-item-mini:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .history-dot {
+        position: relative;
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        min-width: 8px;
+        min-height: 8px;
+        max-width: 8px;
+        max-height: 8px;
+        border-radius: 50%;
+        margin-right: 8px;
+        flex-shrink: 0;
+        aspect-ratio: 1;
+      }
+
+      /* Status Dots */
+      .history-dot-normal {
+        background-color: #1cc88a;
+      }
+      .history-dot-caution {
+        background-color: #f6c23e;
+      }
+      .history-dot-warning {
+        background-color: #fd7e14;
+      }
+      .history-dot-danger {
+        background-color: #e74a3b;
+      }
+      .history-dot.maintenance {
+        background-color: #4e73df;
+      }
+      .history-dot.alert {
+        background-color: #e74a3b;
+      }
+      .history-dot.check {
+        background-color: #1cc88a;
+      }
+
+      .history-content {
+        flex: 1;
+        color: #2e3139;
+        font-weight: 500;
+        padding-right: 8px;
+      }
+
+      .history-date {
+        color: #858796;
+        font-size: 0.6875rem;
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      /* Navigation Pills */
+      .nav-pills {
+        border: 1px solid #e3e6f0;
+        border-radius: 6px;
+        padding: 4px;
+        background: #fff;
+      }
+
+      .nav-pills .nav-link {
+        color: #858796;
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+      }
+
+      .nav-pills .nav-link i {
+        font-size: 1rem;
+        opacity: 0.7;
+      }
+
+      .nav-pills .nav-link:hover {
+        background: #f8f9fc;
+        color: #4e73df;
+      }
+
+      .nav-pills .nav-link.active {
+        background: #4e73df;
+        color: white;
+      }
+
+      .nav-pills .nav-link.active i {
+        opacity: 1;
+      }
+
+      /* Sensor Cards */
+      .sensor-value-card {
+        height: 100%;
+        transition: transform 0.2s;
+        border: none;
+      }
+
+      .sensor-value-card:hover {
+        transform: translateY(-2px);
+      }
+
+      .sensor-value-card .card-body {
+        padding: 1.25rem;
+      }
+
+      .sensor-value-card .text-xs {
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+      }
+
+      .sensor-value-card .h5 {
+        margin-top: 0.5rem;
+        font-size: 1.25rem;
+      }
+
+      .sensor-value-card .text-gray-300 {
+        color: #dddfeb;
+      }
+
+      /* Border Styles */
+      .border-left-primary {
+        border-left: 4px solid #4e73df;
+      }
+      .border-left-success {
+        border-left: 4px solid #1cc88a;
+      }
+      .border-left-info {
+        border-left: 4px solid #36b9cc;
+      }
+      .border-left-warning {
+        border-left: 4px solid #f6c23e;
+      }
+      .border-left-danger {
+        border-left: 4px solid #e74a3b;
+      }
+
+      /* Tab Pane Styles */
+      .tab-pane iframe {
+        width: 100%;
+        height: 600px;
+        border: none;
+        display: block;
+      }
+
+      .tab-pane.fade {
+        opacity: 0;
+        transition: opacity 0.15s linear;
+      }
+
+      .tab-pane.fade.show {
+        opacity: 1;
+      }
+
+      /* Button Styles */
+      .btn-tab {
+        color: #858796;
+        background-color: transparent;
+        border: 1px solid #e3e6f0;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+      }
+
+      .btn-tab:hover {
+        color: #4e73df;
+        background-color: #f8f9fc;
+      }
+
+      .btn-tab.active {
+        color: white;
+        background-color: #4e73df;
+        border-color: #4e73df;
+      }
+
+      .btn-tab i {
+        opacity: 0.7;
+      }
+
+      .btn-tab.active i {
+        opacity: 1;
+      }
+
+      .btn-group .btn-tab:not(:first-child) {
+        margin-left: -1px;
+      }
+
+      .btn-group .btn-tab:first-child {
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+      }
+
+      .btn-group .btn-tab:last-child {
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+      }
+
+      /* Loading Overlay */
+      /* 로딩 스타일 */
+      #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        z-index: 1000;
+      }
+
+      #loadingOverlay.show {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .loading-content {
+        background-color: white;
+        padding: 3rem 4rem;
+        border-radius: 1rem;
+        text-align: center;
+        min-width: 300px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .loading-spinner {
+        margin: 0 auto 1.5rem;
+      }
+
+      /* 톱니바퀴 아이콘 스타일링 */
+      .loading-spinner .position-relative {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .loading-spinner .fa-cog.fa-3x {
+        color: #4e73df;
+      }
+
+      .loading-spinner .fa-cog.fa-2x {
+        color: #4e73df;
+        margin-left: -15px; /* 두 번째 톱니바퀴를 첫 번째와 약간 겹치게 배치 */
+      }
+      .loading-text {
+        font-size: 1.2rem;
+        color: #333;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .progress {
+        margin-top: 0; /* 기존 margin-top 제거 */
+        height: 4px;
+        background-color: #f3f3f3;
+        border-radius: 2px;
+        overflow: hidden;
+        width: 200px;
+      }
+
+      .progress-bar {
+        background-color: #4e73df;
+        transition: width 0.5s ease;
+      }
+      /* Additional Components */
+      .sensor-card-title {
+        margin-bottom: 0rem;
+      }
+
+      .sensor-card-header {
+        margin-bottom: 0.2rem;
+      }
+
+      .card-body2 {
+        padding: 0.75rem;
+        height: 300px;
+        overflow-y: auto;
+      }
+
+      .simple-alert-list {
+        padding: 1rem;
+      }
+
+      .alert-row {
+        margin-bottom: 0.75rem;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: flex-start;
+      }
+
+      .alert-status {
+        font-weight: 600;
+        margin-right: 0.5rem;
+      }
+
+      .alert-sensors {
+        color: #5a5c69;
+      }
+
+      .text-caution {
+        color: #f6c23e;
+      }
+      .text-warning {
+        color: #fd7e14;
+      }
+      .text-danger {
+        color: #e74a3b;
+      }
+
+      .badge-orange {
+        color: #fff;
+        background-color: #fd7e14;
+      }
+    </style>
+  </head>
+
+  <body id="page-top">
+    <div id="wrapper">
+      <!-- 메뉴 영역 -->
+      <div id="menu"></div>
+
+      <!-- 메인 콘텐츠 영역 -->
+      <div id="content-wrapper" class="d-flex flex-column">
+        <!-- 상단바 영역 -->
+        <div id="topbar"></div>
+        <div id="loadingOverlay">
+          <div class="loading-content">
+            <div class="loading-spinner">
+              <div class="position-relative">
+                <i class="fas fa-cog fa-3x fa-spin"></i>
+                <i
+                  class="fas fa-cog fa-2x fa-spin"
+                  style="margin-left: -15px"
+                ></i>
+              </div>
+            </div>
+            <div class="loading-text">
+              멀티모달 예지보전 모델이 예측 중입니다...
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  role="progressbar"
+                  style="width: 0%"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="content-container">
+          <!-- 페이지 콘텐츠 -->
+          <div class="container-fluid">
+            <!-- 페이지 제목 -->
+            <div
+              class="d-sm-flex align-items-center justify-content-between mb-4"
+            >
+              <h1 class="h3 mb-0 text-gray-800">장비 상세정보</h1>
+            </div>
+
+            <!-- 콘텐츠 영역 -->
+            <div class="row">
+              <!-- 왼쪽 영역 - 장비 목록 -->
+              <div class="col-lg-3">
+                <div class="card mb-4 shadow-sm">
+                  <div
+                    class="card-header py-2 d-flex justify-content-between align-items-center"
+                  >
+                    <h6 class="m-0 font-weight-bold text-primary">장비 목록</h6>
+                    <div class="dropdown">
+                      <button
+                        class="btn text-black dropdown-toggle"
+                        type="button"
+                        id="equipmentTypeDropdown"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                      >
+                        AGV
+                      </button>
+                      <div
+                        class="dropdown-menu dropdown-menu-right"
+                        aria-labelledby="equipmentTypeDropdown"
+                      >
+                        <a class="dropdown-item" href="#" data-type="agv"
+                          >AGV</a
+                        >
+                        <a class="dropdown-item" href="#" data-type="oht"
+                          >OHT</a
+                        >
+                      </div>
+                    </div>
+                  </div>
+                  <div class="equipment-card-body" id="deviceList">
+                    <!-- 장비 목록은 JavaScript로 동적 생성됨 -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- 오른쪽 영역 - 상세 정보 -->
+              <div class="col-lg-9">
+                <!-- 첫 번째 행: 기본 정보 + 장비 상태 이력 -->
+                <div class="row">
+                  <!-- 장비 상태 -->
+                  <div class="col-lg-5">
+                    <div class="card mb-4 shadow-sm">
+                      <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                          장비 상태
+                        </h6>
+                      </div>
+                      <div class="card-body3">
+                        <div class="status-header">
+                          <span class="currentStatus" id="currentStatus"></span>
+                          <div
+                            class="selectedDeviceID"
+                            id="selectedDeviceID"
+                          ></div>
+                        </div>
+                        <div class="status-grid">
+                          <div class="status-item normal">
+                            <div class="status-item-title text-success">
+                              정상
+                            </div>
+                            <div
+                              class="status-item-count text-success"
+                              id="normalCount"
+                            >
+                              -
+                            </div>
+                            <div
+                              class="status-item-value text-success-dark"
+                              id="normalPercent"
+                            >
+                              -
+                            </div>
+                          </div>
+                          <div class="status-item status-caution-second">
+                            <div class="status-item-title text-caution">
+                              주의
+                            </div>
+                            <div
+                              class="status-item-count text-caution"
+                              id="cautionCount"
+                            >
+                              -
+                            </div>
+                            <div
+                              class="status-item-value text-caution-dark"
+                              id="cautionPercent"
+                            >
+                              -
+                            </div>
+                          </div>
+                          <div class="status-item warning">
+                            <div class="status-item-title text-warning">
+                              경고
+                            </div>
+                            <div
+                              class="status-item-count text-warning"
+                              id="warningCount"
+                            >
+                              -
+                            </div>
+                            <div
+                              class="status-item-value text-warning-dark"
+                              id="warningPercent"
+                            >
+                              -
+                            </div>
+                          </div>
+                          <div class="status-item danger">
+                            <div class="status-item-title text-danger">
+                              위험
+                            </div>
+                            <div
+                              class="status-item-count text-danger"
+                              id="dangerCount"
+                            >
+                              -
+                            </div>
+                            <div
+                              class="status-item-value text-danger-dark"
+                              id="dangerPercent"
+                            >
+                              -
+                            </div>
+                          </div>
+                        </div>
+                        <div class="timestamp" id="lastUpdate">
+                          최근 업데이트: -
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- 기본 정보 카드 -->
+                  <div class="col-lg-3">
+                    <div class="card mb-4 shadow-sm">
+                      <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                          장비 상태 기록
+                        </h6>
+                      </div>
+                      <div class="card-body3">
+                        <div class="status-history" id="statusHistory">
+                          <!-- 상태 기록은 JavaScript로 동적 생성됨 -->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- 기본 정보 카드 -->
+                  <div class="col-lg-4">
+                    <div class="card mb-4 shadow-sm">
+                      <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                          장비 정보
+                        </h6>
+                      </div>
+                      <div class="card-body3">
+                        <!-- 상단 요약 정보 -->
+                        <div class="info-summary">
+                          <div class="status-circle">
+                            <i class="fas fa-truck-loading"></i>
+                          </div>
+                          <div class="info-summary-text">
+                            <div class="info-summary-title">
+                              OHT01 - 정상 가동중
+                            </div>
+                            <div class="info-summary-subtitle">
+                              최근 업데이트: 2024-02-01 13 :30
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- 기존 테이블 -->
+                        <table class="info-table">
+                          <tbody>
+                            <tr>
+                              <td>장비 ID</td>
+                              <td>oht01</td>
+                            </tr>
+                            <tr>
+                              <td>제조사</td>
+                              <td>A</td>
+                            </tr>
+                            <tr>
+                              <td>모델명</td>
+                              <td>A1</td>
+                            </tr>
+                            <tr>
+                              <td>설치환경</td>
+                              <td>테스트베드</td>
+                            </tr>
+                            <tr>
+                              <td>수집일시</td>
+                              <td>08-26 20:29:01</td>
+                            </tr>
+                            <tr>
+                              <td>누적가동일</td>
+                              <td>18일</td>
+                            </tr>
+                            <tr>
+                              <td>장비이력</td>
+                              <td>13회</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-lg-8">
+                    <div class="card mb-4 shadow-sm">
+                      <div
+                        class="card-header sensor-moitoring d-flex justify-content-between align-items-center"
+                      >
+                        <h6 class="m-0 font-weight-bold text-primary">
+                          통합 모니터링
+                        </h6>
+                        <div
+                          class="btn-group integrated-monitoring"
+                          role="group"
+                        >
+                          <button
+                            type="button"
+                            class="btn btn-tab active"
+                            data-page="pm_dashboard"
+                          >
+                            <i class="fas fa-wind mr-2"></i>미세먼지센서
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-tab"
+                            data-page="ntc_dashboard"
+                          >
+                            <i class="fas fa-thermometer-half mr-2"></i>온도센서
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-tab"
+                            data-page="ct_dashboard"
+                          >
+                            <i class="fas fa-bolt mr-2"></i>전류센서
+                          </button>
+                        </div>
+                      </div>
+                      <div class="streamlit-card-body">
+                        <div id="sensorFrame">
+                          <iframe
+                            src="http://localhost:8501"
+                            frameborder="0"
+                            style="width: 100%; height: 360px"
+                          ></iframe>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="card mb-4 shadow-sm">
+                      <div
+                        class="card-header sensor-moitoring d-flex justify-content-between align-items-center"
+                      >
+                        <h6 class="m-0 font-weight-bold text-primary">
+                          외부 환경
+                        </h6>
+                        <div
+                          class="btn-group environment-monitoring"
+                          role="group"
+                        >
+                          <button
+                            type="button"
+                            class="btn btn-tab active"
+                            data-page="temp_dashboard"
+                          >
+                            <i class="fas fa-thermometer-half mr-2"></i>온도
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-tab"
+                            data-page="light_dashboard"
+                          >
+                            <i class="fas fa-sun mr-2"></i>조도
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-tab"
+                            data-page="humidity_dashboard"
+                          >
+                            <i class="fas fa-tint mr-2"></i>습도
+                          </button>
+                        </div>
+                      </div>
+                      <div class="card-body4">
+                        <div id="sensorFrame">
+                          <iframe
+                            src="http://localhost:8501"
+                            frameborder="0"
+                            style="width: 100%; height: 330px"
+                          ></iframe>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 기본 정보 카드 -->
+                  <div class="col-lg-4">
+                    <div class="card mb-4 shadow-sm">
+                      <div
+                        class="card-header d-flex justify-content-between align-items-center"
+                      >
+                        <h6 class="m-0 font-weight-bold text-primary">
+                          센서 현황
+                        </h6>
+                      </div>
+                      <div class="sensor-info-card-body">
+                        <div
+                          class="simple-alert-list"
+                          id="simpleAlertList"
+                        ></div>
+                      </div>
+                    </div>
+                    <div class="card mb-4">
+                      <div
+                        class="card-header d-flex justify-content-between align-items-center"
+                      >
+                        <h6 class="m-0 font-weight-bold text-primary shadow-sm">
+                          열화상 센서 모니터링
+                        </h6>
+                      </div>
+                      <div class="streamlit-card-body2">
+                        <div id="sensorFrame">
+                          <iframe
+                            src="http://localhost:8501/image_dashboard?device=AGV17"
+                            frameborder="0"
+                            style="width: 100%; height: 640px"
+                          ></iframe>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 세번째 행: 상태 분석 -->
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="card mb-4 shadow-sm">
+                      <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                          센서 상태 상세보기
+                        </h6>
+                      </div>
+                      <div class="card-body">
+                        <div class="d-flex align-items-center">
+                          <i
+                            class="fas fa-info-circle text-primary ml-2 mr-1"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="멀티모달 분석은 센서 데이터, 이미지, 텍스트 등 다양한 데이터를 통합적으로 분석합니다"
+                          ></i>
+                          <span
+                            >센서는 멀티모달 모델이 분석한 값을 기반으로 상태를
+                            분석합니다</span
+                          >
+                        </div>
+                        <div id="analysis-content">
+                          <!-- 상태 요약 -->
+                          <div class="analysis-summary mb-4">
+                            <h5
+                              class="font-weight-bold"
+                              id="analysis-status"
+                            ></h5>
+                            <p id="analysis-summary-text"></p>
+                          </div>
+
+                          <!-- 권장사항 -->
+                          <div class="analysis-recommendations">
+                            <h6 class="font-weight-bold mb-3">권장사항</h6>
+                            <ul
+                              id="recommendations-list"
+                              class="list-unstyled"
+                            ></ul>
+                          </div>
+                          <!-- 센서별 상태 -->
+                          <div class="sensor-analysis mb-4">
+                            <h6 class="font-weight-bold mb-3">센서별 상태</h6>
+                            <div id="sensor-details" class="row"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/static/js/mainfunc.js"></script>
+
+    <script>
+      // 장비 데이터 구조
+      const devices = {
+        agv: ["AGV17", "AGV18"],
+        oht: ["OHT17", "OHT18"],
+      };
+
+      let selectedDevice = null;
+      let deviceStatuses = {};
+      let currentType = "agv";
+      const updateInterval = 300000; // 5분 (300000ms)
+      let globalSensorDetails = {};
+
+      // 로딩 상태 관리를 위한 변수들
+      let sensorFrameLoaded = false;
+      let imageFrameLoaded = false;
+      let apiDataLoaded = false;
+      let isInitialLoad = true;
+
+      // 장비 정보를 담은 객체
+      const deviceInformation = {
+        AGV17: {
+          deviceId: "AGV17",
+          manufacturer: "Hyundai",
+          model: "H-AGV2000",
+          environment: "생산라인 A",
+          installDate: "2024-12-15",
+          operatingDays: "54일",
+          maintenanceCount: "8회",
+        },
+        AGV18: {
+          deviceId: "AGV18",
+          manufacturer: "Hyundai",
+          model: "S-AGV3000",
+          environment: "생산라인 B",
+          installDate: "2024-01-10",
+          operatingDays: "28일",
+          maintenanceCount: "4회",
+        },
+        OHT17: {
+          deviceId: "OHT17",
+          manufacturer: "Doosan",
+          model: "L-OHT1000",
+          environment: "물류센터 1층",
+          installDate: "2023-11-20",
+          operatingDays: "79일",
+          maintenanceCount: "12회",
+        },
+        OHT18: {
+          deviceId: "OHT18",
+          manufacturer: "Doosan",
+          model: "D-OHT2000",
+          environment: "물류센터 2층",
+          installDate: "2024-01-05",
+          operatingDays: "33일",
+          maintenanceCount: "5회",
+        },
+      };
+
+      document.addEventListener("DOMContentLoaded", async function () {
+        try {
+          await initialize();
+
+          // 센서 모니터링 탭 이벤트 리스너 설정
+          const integratedButtons = document.querySelectorAll(
+            ".integrated-monitoring .btn-tab"
+          );
+          const environmentButtons = document.querySelectorAll(
+            ".environment-monitoring .btn-tab"
+          );
+
+          // 통합 모니터링 버튼 이벤트 리스너
+          integratedButtons.forEach((button) => {
+            button.addEventListener("click", function () {
+              integratedButtons.forEach((btn) =>
+                btn.classList.remove("active")
+              );
+              this.classList.add("active");
+              if (selectedDevice) {
+                updateSensorFrame(selectedDevice);
+              }
+            });
+          });
+
+          // 외부 환경 모니터링 버튼 이벤트 리스너
+          environmentButtons.forEach((button) => {
+            button.addEventListener("click", function () {
+              environmentButtons.forEach((btn) =>
+                btn.classList.remove("active")
+              );
+              this.classList.add("active");
+              if (selectedDevice) {
+                updateSensorFrame(selectedDevice);
+              }
+            });
+          });
+
+          // 5분마다 주기적 업데이트 실행
+          setInterval(() => {
+            updateAllDeviceStatuses(true);
+          }, updateInterval);
+        } catch (error) {
+          console.error("Error during initialization:", error);
+        }
+      });
+
+      // 드롭다운 초기화
+      function initializeDropdown() {
+        const dropdownItems = document.querySelectorAll(".dropdown-item");
+        const dropdownButton = document.getElementById("equipmentTypeDropdown");
+
+        dropdownItems.forEach((item) => {
+          item.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const selectedType = item.dataset.type;
+            dropdownButton.textContent = selectedType.toUpperCase();
+            currentType = selectedType;
+            await createDeviceList();
+
+            if (devices[currentType].length > 0) {
+              selectDevice(devices[currentType][0], false); // true에서 false로 변경
+            }
+          });
+        });
+      }
+
+      // URL에서 장비 초기화
+      function initializeFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const deviceFromUrl = urlParams.get("device");
+
+        if (deviceFromUrl) {
+          const type = deviceFromUrl.toLowerCase().startsWith("oht")
+            ? "oht"
+            : "agv";
+          currentType = type;
+          const dropdownButton = document.getElementById(
+            "equipmentTypeDropdown"
+          );
+          if (dropdownButton) {
+            dropdownButton.textContent = type.toUpperCase();
+          }
+          return deviceFromUrl;
+        }
+        return null;
+      }
+
+      // 초기화
+      async function initialize() {
+        initializeDropdown();
+        await createDeviceList();
+
+        const deviceFromUrl = initializeFromUrl();
+        if (deviceFromUrl && devices[currentType].includes(deviceFromUrl)) {
+          await selectDevice(deviceFromUrl, true);
+        } else if (devices[currentType].length > 0) {
+          await selectDevice(devices[currentType][0], true);
+        }
+      }
+
+      // 장비 목록 생성
+      async function createDeviceList() {
+        const deviceList = document.getElementById("deviceList");
+        deviceList.innerHTML = "";
+
+        const statusPromises = devices[currentType].map(async (deviceId) => {
+          try {
+            const response = await fetch(
+              `http://localhost:8000/pred/device_status/${deviceId}`
+            );
+            const data = await response.json();
+            return { deviceId, status: data.current_status };
+          } catch (error) {
+            console.error(`Error fetching status for ${deviceId}:`, error);
+            return { deviceId, status: "-" };
+          }
+        });
+
+        const statuses = await Promise.all(statusPromises);
+
+        statuses.forEach(({ deviceId, status }) => {
+          const div = document.createElement("div");
+          div.className = "equipment-item";
+          div.setAttribute("data-device", deviceId);
+          div.innerHTML = `
+      <span class="equipment-name">${deviceId}</span>
+      <span class="equipment-status ${getStatusClass(status)}">${status}</span>
+    `;
+          div.onclick = () => selectDevice(deviceId, false);
+          deviceList.appendChild(div);
+        });
+      }
+
+      // 장비 선택 함수
+      async function selectDevice(deviceId, isStatusUpdate = false) {
+        if (selectedDevice === deviceId && !isStatusUpdate) return;
+
+        // 로딩 상태 초기화
+        sensorFrameLoaded = false;
+        imageFrameLoaded = false;
+        apiDataLoaded = false;
+
+        // isStatusUpdate가 true일 때만 로딩 창을 표시
+        if (isStatusUpdate) {
+          showLoading();
+        }
+
+        if (selectedDevice && !isStatusUpdate) {
+          const prevElement = document.querySelector(
+            `[data-device="${selectedDevice}"]`
+          );
+          if (prevElement) prevElement.classList.remove("active");
+        }
+
+        selectedDevice = deviceId;
+        const currentElement = document.querySelector(
+          `[data-device="${deviceId}"]`
+        );
+        if (currentElement) {
+          currentElement.classList.add("active");
+        }
+
+        try {
+          updateDeviceInformation(deviceId);
+
+          // 상태 데이터 가져오기
+          const statusResponse = await fetch(
+            `http://localhost:8000/pred/device_status/${deviceId}`
+          );
+          const statusData = await statusResponse.json();
+
+          if (statusData.monitoring_in_progress) {
+            showLoading();
+          }
+
+          // 분석 데이터 가져오기
+          const response = await fetch(
+            `http://localhost:8000/pred/analyze_device/${deviceId}`
+          );
+          const data = await response.json();
+
+          // 데이터 업데이트
+          updateStatusDisplay(deviceId, {
+            current_status: data.current_state,
+            normal_ratio: data.state_ratios.normal,
+            caution_ratio: data.state_ratios.caution,
+            warning_ratio: data.state_ratios.warning,
+            risk_ratio: data.state_ratios.risk,
+          });
+
+          updateCriticalIssues(data.critical_issues);
+          updateWarnings(data.warnings);
+          updateSensorDetails(data.sensor_details);
+          updateRecommendations(data.recommendations);
+          await fetchStatusHistory(deviceId);
+
+          // iframe 업데이트
+          updateSensorFrame(deviceId);
+
+          // API 데이터 로드 완료 표시
+          apiDataLoaded = true;
+          checkAllLoaded();
+        } catch (error) {
+          console.error("Error fetching device data:", error);
+          hideLoading();
+        }
+      }
+
+      // iframe 로드 완료 핸들러
+      function handleIframeLoad(type) {
+        if (type === "sensor") {
+          sensorFrameLoaded = true;
+        } else if (type === "image") {
+          imageFrameLoaded = true;
+        }
+        checkAllLoaded();
+      }
+
+      // 모든 로딩이 완료되었는지 확인
+      function checkAllLoaded() {
+        if (sensorFrameLoaded && imageFrameLoaded && apiDataLoaded) {
+          setTimeout(() => {
+            hideLoading();
+          }, 1000);
+        }
+      }
+
+      // 장비 정보 업데이트
+      function updateDeviceInformation(deviceId) {
+        const info = deviceInformation[deviceId];
+        if (!info) return;
+
+        const infoTable = document.querySelector(".info-table tbody");
+        if (!infoTable) return;
+
+        const installDate = new Date(info.installDate);
+        const today = new Date();
+        const operatingDays = Math.floor(
+          (today - installDate) / (1000 * 60 * 60 * 24)
+        );
+
+        const currentTime = new Date().toLocaleString("ko-KR", {
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        });
+
+        infoTable.innerHTML = `
+    <tr><td>장비 ID</td><td>${info.deviceId}</td></tr>
+    <tr><td>제조사</td><td>${info.manufacturer}</td></tr>
+    <tr><td>모델명</td><td>${info.model}</td></tr>
+    <tr><td>설치환경</td><td>${info.environment}</td></tr>
+    <tr><td>수집일시</td><td>${currentTime}</td></tr>
+    <tr><td>누적가동일</td><td>${operatingDays}일</td></tr>
+    <tr><td>장비이력</td><td>${info.maintenanceCount}</td></tr>
+  `;
+      }
+
+      function updateDeviceInfo(deviceId, status) {
+        const summaryTitle = document.querySelector(".info-summary-title");
+        const summarySubtitle = document.querySelector(
+          ".info-summary-subtitle"
+        );
+
+        if (summaryTitle && summarySubtitle) {
+          const currentTime = new Date().toLocaleString("ko-KR", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          });
+
+          summaryTitle.textContent = `${deviceId} - ${status}상태로 가동중`;
+          summarySubtitle.textContent = `최근 업데이트: ${currentTime}`;
+        }
+      }
+
+      // 상태 표시 업데이트
+      function updateStatusDisplay(deviceId, data) {
+        document.getElementById("selectedDeviceID").textContent = deviceId;
+        document.getElementById("currentStatus").textContent =
+          data.current_status;
+        document.getElementById(
+          "currentStatus"
+        ).className = `currentStatus status-${getStatusClass(
+          data.current_status
+        ).replace("text-", "")}`;
+
+        updateDeviceInfo(deviceId, data.current_status);
+
+        // 개수 계산 (300개 기준)
+        const normalCount = Math.round((data.normal_ratio / 100) * 300);
+        const cautionCount = Math.round((data.caution_ratio / 100) * 300);
+        const warningCount = Math.round((data.warning_ratio / 100) * 300);
+        const riskCount = Math.round((data.risk_ratio / 100) * 300);
+
+        // 개수 업데이트
+        document.getElementById("normalCount").textContent = `${normalCount}개`;
+        document.getElementById(
+          "cautionCount"
+        ).textContent = `${cautionCount}개`;
+        document.getElementById(
+          "warningCount"
+        ).textContent = `${warningCount}개`;
+        document.getElementById("dangerCount").textContent = `${riskCount}개`;
+
+        // 비율 업데이트
+        document.getElementById(
+          "normalPercent"
+        ).textContent = `${data.normal_ratio.toFixed(1)}%`;
+        document.getElementById(
+          "cautionPercent"
+        ).textContent = `${data.caution_ratio.toFixed(1)}%`;
+        document.getElementById(
+          "warningPercent"
+        ).textContent = `${data.warning_ratio.toFixed(1)}%`;
+        document.getElementById(
+          "dangerPercent"
+        ).textContent = `${data.risk_ratio.toFixed(1)}%`;
+
+        const updateTime = new Date().toLocaleString();
+        document.getElementById(
+          "lastUpdate"
+        ).textContent = `최근 업데이트: ${updateTime}`;
+      }
+
+      // 로딩 관련 함수들
+      function showLoading() {
+        const overlay = document.getElementById("loadingOverlay");
+        const progressBar = overlay.querySelector(".progress-bar");
+
+        // 이미 표시 중이면 리턴
+        if (overlay.classList.contains("show")) return;
+
+        overlay.classList.add("show");
+        progressBar.style.width = "0%";
+
+        // 프로그레스바 애니메이션
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 1;
+          if (progress <= 90) {
+            // 90%까지만 자동으로 증가
+            progressBar.style.width = `${progress}%`;
+          } else {
+            clearInterval(interval);
+          }
+        }, 50);
+
+        return interval;
+      }
+
+      function hideLoading() {
+        const overlay = document.getElementById("loadingOverlay");
+        const progressBar = overlay.querySelector(".progress-bar");
+
+        // 프로그레스바를 100%로 설정
+        progressBar.style.width = "100%";
+
+        // 약간의 지연 후 오버레이 숨김
+        setTimeout(() => {
+          overlay.classList.remove("show");
+          progressBar.style.width = "0%";
+        }, 500);
+      }
+
+      // 상태에 따른 클래스 반환
+      function getStatusClass(status) {
+        const statusMap = {
+          정상: "text-success",
+          주의: "text-caution",
+          경고: "text-warning",
+          위험: "text-danger",
+        };
+        return statusMap[status] || "text-secondary";
+      }
+
+      // 상태 기록 가져오기
+      async function fetchStatusHistory(deviceId) {
+        const container = document.getElementById("statusHistory");
+        try {
+          const response = await fetch(
+            `http://localhost:8000/pred/device_history/${deviceId}`
+          );
+          const data = await response.json();
+
+          container.innerHTML = "";
+
+          data.forEach((item) => {
+            const date = new Date(item.timestamp);
+            const formattedTime = `${String(date.getHours()).padStart(
+              2,
+              "0"
+            )}:${String(date.getMinutes()).padStart(2, "0")}`;
+            const formattedDate = `${String(date.getMonth() + 1).padStart(
+              2,
+              "0"
+            )}-${String(date.getDate()).padStart(2, "0")}`;
+
+            const statusClass = getStatusClass(item.status);
+            // 상태에 따른 dot 클래스 결정
+            const dotClass = (() => {
+              switch (item.status) {
+                case "정상":
+                  return "history-dot-normal";
+                case "주의":
+                  return "history-dot-caution";
+                case "경고":
+                  return "history-dot-warning";
+                case "위험":
+                  return "history-dot-danger";
+                default:
+                  return "";
+              }
+            })();
+
+            const historyItem = document.createElement("div");
+            historyItem.className = "history-item-mini";
+            historyItem.innerHTML = `
+        <span class="history-dot ${dotClass}"></span>
+        <div class="history-content">
+          <span class="${statusClass}">${item.status}</span> 상태
+          <br>
+          <small>정상: ${item.counts.normal_count.toFixed(1)}%</small>
+        </div>
+        <div class="history-date">${formattedDate}<br>${formattedTime}</div>
+      `;
+
+            container.appendChild(historyItem);
+          });
+        } catch (error) {
+          console.error("Error fetching history:", error);
+          container.innerHTML =
+            '<div class="empty-message">데이터를 불러올 수 없습니다.</div>';
+        }
+      }
+
+      function updateCriticalIssues(issues) {
+        const criticalIssuesElements =
+          document.querySelectorAll("#critical-issues");
+        const issuesHtml = issues
+          .map(
+            (issue) => `
+    <div class="alert alert-danger">
+      <i class="fas fa-exclamation-circle mr-2"></i>${issue}
+    </div>
+  `
+          )
+          .join("");
+
+        criticalIssuesElements.forEach((element) => {
+          element.innerHTML = issuesHtml;
+        });
+
+        // Update summary section with alert styling
+        const summaryTexts = [];
+        Object.entries(globalSensorDetails).forEach(([sensor, details]) => {
+          if (details.message) {
+            summaryTexts.push(`
+        <div class="alert alert-danger">
+          <i class="fas fa-exclamation-circle mr-2"></i>${sensor} 센서: ${details.message}
+        </div>
+      `);
+          }
+        });
+        document.getElementById("analysis-summary-text").innerHTML =
+          summaryTexts.join("");
+      }
+
+      function updateWarnings(warnings) {
+        const warningsElements = document.querySelectorAll("#warnings");
+        const warningsHtml = warnings
+          .map(
+            (warning) => `
+    <div class="alert alert-warning">
+      <i class="fas fa-exclamation-triangle mr-2"></i>${warning}
+    </div>
+  `
+          )
+          .join("");
+
+        warningsElements.forEach((element) => {
+          element.innerHTML = warningsHtml;
+        });
+
+        // Update summary section with alert styling for non-critical warnings
+        const summaryTexts = [];
+        Object.entries(globalSensorDetails).forEach(([sensor, details]) => {
+          if (details.message && !details.message.includes("위험")) {
+            summaryTexts.push(`
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle mr-2"></i>${sensor} 센서: ${details.message}
+        </div>
+      `);
+          }
+        });
+
+        if (!document.getElementById("analysis-summary-text").innerHTML) {
+          document.getElementById("analysis-summary-text").innerHTML =
+            summaryTexts.join("");
+        }
+      }
+
+      async function updateSensorDetails(sensorDetails) {
+        globalSensorDetails = sensorDetails;
+        const detailsContainer = document.getElementById("sensor-details");
+        if (!detailsContainer) return;
+
+        detailsContainer.innerHTML = "";
+
+        Object.entries(sensorDetails).forEach(([sensor, details]) => {
+          const statusClass =
+            {
+              정상: "success",
+              주의: "warning",
+              경고: "orange",
+              위험: "danger",
+            }[details.status] || "secondary";
+
+          const card = document.createElement("div");
+          card.className = "col-lg-4 mb-4";
+          card.innerHTML = `
+      <div class="card">
+        <div class="card-body">
+          <div class="sensor-card-header d-flex align-items-center">
+            <span class="sensor-badge badge-${statusClass}">${
+            details.status
+          }</span>
+            <h6 class="sensor-card-title">${sensor}</h6>
+          </div>
+          <p class="mb-1">현재값: ${details.current_value.toFixed(2)}</p>
+          <p class="mb-1">평균: ${details.mean.toFixed(2)}</p>
+          <p class="mb-1">정상범위: ${details.normal_range.min.toFixed(
+            2
+          )} ~ ${details.normal_range.max.toFixed(2)}</p>
+          <div class="state-probabilities mt-2">
+            <p class="mb-1 small">
+              정상: <span class="text-success">${(
+                details.state_probabilities.정상 * 100
+              ).toFixed(1)}%</span> | 
+              주의: <span class="text-warning">${(
+                details.state_probabilities.주의 * 100
+              ).toFixed(1)}%</span> | 
+              경고: <span class="text-orange">${(
+                details.state_probabilities.경고 * 100
+              ).toFixed(1)}%</span> | 
+              위험: <span class="text-danger">${(
+                details.state_probabilities.위험 * 100
+              ).toFixed(1)}%</span>
+            </p>
+          </div>
+          ${
+            details.message
+              ? `<div class="mt-2 small text-${statusClass}">${details.message}</div>`
+              : ""
+          }
+        </div>
+      </div>
+    `;
+          detailsContainer.appendChild(card);
+        });
+
+        // 간단한 알림 리스트 업데이트
+        const alertList = document.getElementById("simpleAlertList");
+        const alerts = {
+          주의: [],
+          경고: [],
+          위험: [],
+        };
+
+        Object.entries(sensorDetails).forEach(([sensor, details]) => {
+          if (details.status in alerts) {
+            alerts[details.status].push(sensor);
+          }
+        });
+
+        alertList.innerHTML = "";
+        Object.entries(alerts).forEach(([status, sensors]) => {
+          if (sensors.length > 0) {
+            const statusClass =
+              status === "주의"
+                ? "text-caution"
+                : status === "경고"
+                ? "text-warning"
+                : "text-danger";
+
+            const alertRow = document.createElement("div");
+            alertRow.className = "alert-row";
+            alertRow.innerHTML = `
+        <span class="alert-status ${statusClass}">${status}(${
+              sensors.length
+            })</span>
+        <span class="alert-sensors">: ${sensors.join(", ")}</span>
+      `;
+            alertList.appendChild(alertRow);
+          }
+        });
+      }
+
+      function updateRecommendations(recommendations) {
+        const recommendationsList = document.getElementById(
+          "recommendations-list"
+        );
+        if (!recommendationsList) return;
+
+        recommendationsList.innerHTML = recommendations
+          .map(
+            (rec) => `
+    <li class="recommendation-item">
+      <i class="fas fa-check-circle text-primary mr-2"></i>${rec}
+    </li>
+  `
+          )
+          .join("");
+      }
+
+      function updateSensorFrame(deviceId) {
+        // 통합 모니터링 iframe 업데이트
+        const integratedActiveButton = document.querySelector(
+          ".integrated-monitoring .btn-tab.active"
+        );
+        if (integratedActiveButton) {
+          const page = integratedActiveButton.dataset.page;
+          const iframe = document
+            .querySelector(".integrated-monitoring")
+            .closest(".card")
+            .querySelector("iframe");
+          if (iframe) {
+            iframe.src = `http://localhost:8501/${page}?device=${deviceId}`;
+            iframe.onload = () => handleIframeLoad("sensor");
+          }
+        }
+
+        // 외부 환경 모니터링 iframe 업데이트
+        const environmentActiveButton = document.querySelector(
+          ".environment-monitoring .btn-tab.active"
+        );
+        if (environmentActiveButton) {
+          const page = environmentActiveButton.dataset.page;
+          const iframe = document
+            .querySelector(".environment-monitoring")
+            .closest(".card")
+            .querySelector("iframe");
+          if (iframe) {
+            iframe.src = `http://localhost:8501/${page}?device=${deviceId}`;
+            iframe.onload = () => handleIframeLoad("sensor");
+          }
+        }
+
+        // 열화상 센서 모니터링 iframe 업데이트
+        const thermalIframe = document.querySelector(
+          ".streamlit-card-body2 iframe"
+        );
+        if (thermalIframe) {
+          thermalIframe.src = `http://localhost:8501/image_dashboard?device=${deviceId}`;
+          thermalIframe.onload = () => handleIframeLoad("image");
+        }
+      }
+
+      async function updateAllDeviceStatuses(isPeriodic = false) {
+        let loadingInterval;
+
+        try {
+          if (isPeriodic) {
+            loadingInterval = showLoading();
+            console.log("Starting periodic update...");
+          }
+
+          await createDeviceList();
+
+          if (selectedDevice) {
+            const response = await fetch(
+              `http://localhost:8000/pred/analyze_device/${selectedDevice}`
+            );
+            const data = await response.json();
+
+            await Promise.all([
+              updateStatusDisplay(selectedDevice, {
+                current_status: data.current_state,
+                normal_ratio: data.state_ratios.normal,
+                caution_ratio: data.state_ratios.caution,
+                warning_ratio: data.state_ratios.warning,
+                risk_ratio: data.state_ratios.risk,
+              }),
+              updateCriticalIssues(data.critical_issues),
+              updateWarnings(data.warnings),
+              updateSensorDetails(data.sensor_details),
+              updateRecommendations(data.recommendations),
+              fetchStatusHistory(selectedDevice),
+            ]);
+
+            console.log("Update completed successfully");
+          }
+        } catch (error) {
+          console.error("Error updating device statuses:", error);
+        } finally {
+          if (isPeriodic) {
+            setTimeout(() => {
+              if (loadingInterval) {
+                clearInterval(loadingInterval);
+              }
+              hideLoading();
+              console.log("Update complete, hiding loading overlay");
+            }, 5000);
+          }
+        }
+      }
+
+      function formatDate(date) {
+        return `${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+          date.getDate()
+        ).padStart(2, "0")} ${String(date.getHours()).padStart(
+          2,
+          "0"
+        )}:${String(date.getMinutes()).padStart(2, "0")}`;
+      }
+    </script>
+  </body>
+</html>

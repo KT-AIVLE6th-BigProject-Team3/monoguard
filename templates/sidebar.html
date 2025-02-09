@@ -1,0 +1,84 @@
+<!-- Page Wrapper -->
+<div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+        <!-- Sidebar - Brand -->
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/home">
+            <div class="logo-container">
+                <img class="logo" src="/static/img/logo_white.svg" alt="MonoGuard Logo">
+            </div>
+        </a>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider my-0">
+
+        <!-- Nav Item - Dashboard -->
+        <li class="nav-item active">
+            <a class="nav-link" href="/home">
+                <span class="material-icons sidebor-icon">home </span>
+                <span>홈페이지</span>
+            </a>
+        </li>
+
+        <li class="nav-item active">
+            <a class="nav-link" href="/predict">
+                <span class="material-icons">visibility</span>
+                <span>예지보전 예측</span>
+            </a>
+        </li>
+
+        <li class="nav-item active">
+            <a class="nav-link" href="/chat">
+                <span class="material-icons">sms</span>
+                <span>챗봇</span>
+            </a>
+        </li>
+
+        <li class="nav-item active">
+            <a class="nav-link" href="/report">
+              <span class="material-icons"> assignment </span>
+              <span>보고서 만들기</span>
+            </a>
+          </li>
+
+        <li class="nav-item active">
+            <a class="nav-link" href="/notice">
+                <span class="material-icons">info</span>
+                <span>공지사항</span>
+
+            </a>
+        </li>
+
+        <li class="nav-item active">
+            <a class="nav-link" href="/qna">
+                <span class="material-icons sidebor-icon">help_center</span>
+                <span>QnA</span>
+            </a>
+        </li>
+
+        <!-------------------------------- Nav Item - Administrator Dashboard -------------------------------->
+        {% if user.admin %}
+        <li class="nav-item active">
+            <a class="nav-link">
+                <span>관리자 메뉴</span>
+            </a>
+        </li>
+    
+        <li class="nav-item active">
+            <a class="nav-link" href="/admin/userlist">
+                <span class="material-icons">person</span>
+                <span>사용자 관리</span>
+            </a>
+        </li>
+
+        <li class="nav-item active">
+            <a class="nav-link" href="/admin/equipment_management">
+                <span class="material-icons">build</span>
+                <span>장비 이력 관리</span>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+    <!-- 슬라이드바 끝!! -->

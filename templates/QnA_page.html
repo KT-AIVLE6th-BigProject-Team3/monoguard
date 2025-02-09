@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="메인페이지">
+    <meta name="author" content="">
+    <title>MonoGuard</title>
+
+    <!-- 아이콘이랑 폰트 가져오기 -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="stylesheet" href="/static/css/prj.css">
+    <link rel="icon" href="/static/img/fabicon.svg" />
+</head>
+
+<body id="page-top">
+
+    <div id="wrapper">
+        <!-- 메뉴가 동적으로 로드될 영역 -->
+        <div id="menu"></div>
+
+        <script>
+            // 메뉴를 동적으로 로드
+            fetch('/sidebar')  // 경로 확인
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById('menu').innerHTML = html;
+                })
+                .catch(error => console.error('Error loading sidebar:', error));
+        </script>
+
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <!-- 상단바를 삽입할 영역 -->
+                <div id="topbar"></div>
+
+                <!-- JavaScript -->
+                <script>
+                    // 상단바를 동적으로 로드
+                    fetch('/topbar')
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok ' + response.statusText);
+                            }
+                            return response.text();
+                        })
+                        .then(html => {
+                            document.getElementById('topbar').innerHTML = html;
+                        })
+                        .catch(error => console.error('Error loading topbar:', error));
+                </script>
+                <!-- 상단바 끝! -->
+                <div class="container-fluid">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <!-- <h1 class="h3 mb-2 text-gray-800 mb-4">QnA</h1> -->
+                         <h1 class="h3 mb-2 text-gray-800 mb-4"><a href="/board/qna" style="color: #5a5c69;">QnA</a></h1>
+
+                        {% if qna_content.current_user == qna_content.user_id %}
+                        <div>
+                            <!-- 수정 버튼 -->
+                            <a href="#" id="editQnaBtn" class="d-none d-sm-inline-block btn2 btn-sm btn-primary shadow-sm">
+                                <span>수정</span>
+                            </a>
+                            <!-- 삭제 버튼 -->
+                            <a href="#" id="deleteQnaBtn" class="d-none d-sm-inline-block btn2 btn-sm btn-danger shadow-sm">
+                                <span>삭제</span>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card shadow-sm mb-4">
+                        <div class="notice-card-header py-3">
+                            <p class="notice-date">작성자 : {{ qna_content.user_id }} | {{ qna_content.created_at }} 작성
+                                {% if qna_content.updated_at %}
+                                ({{ qna_content.updated_at }} 수정)
+                                {% endif %}
+                            </p>
+                            <div class="QnA-title d-flex">
+                                <h4 class="m-0 font-weight-bold text-primary">Q.</h4>
+                                <h4 class="m-0 font-weight-bold text-black">{{ qna_content.title }}</h4>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="notice">
+                                {{ qna_content.content }}
+                        </div>
+                        <!-- 첨부파일 목록-->
+                         {% if qna_content.filename %}
+                         <div class="attachments mt-3 card-body">
+                            <h6 class="font-weight-bold d-flex">첨부 파일</h6>
+                            <ul>
+                                <li>
+                                    <a href="/board/qna/download/{{ qna_content.id }}" target="_blank">
+                                        {{ qna_content.filename }}
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if qna_content.current_user == qna_content.user_id %}
+                        <!-- 수정 모달 -->
+                        <div class="modal" id="qnaEditModal">
+                            <div class="qna-form-container">
+                                <div class="modal-header justify-content-between">
+                                    <h2>QnA 수정하기</h2>
+                                    <button class="close-btn" id="closeQnaEditModal">&times;</button>
+                                </div>
+
+                                <form id="qnaEditForm">
+                                    <div class="form-group">
+                                        <label for="edit_title">*제목</label>
+                                        <input type="text" id="edit_title" name="title" class="form-control" placeholder="제목" value="{{ qna_content.title }}" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="edit_content">*내용</label>
+                                        <textarea id="edit_content" name="content" class="form-control" rows="5" placeholder="내용" required>{{ qna_content.content }}</textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" id="public" name="public" value="true" {% if qna_content.public %}checked{% endif %}>
+                                            <label class="form-check-label" for="public">  공개 여부</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-sm-flex align-items-center justify-content-between">
+                                        <p></p>
+                                        <button type="submit" class="btn btn-primary">수정</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if qna_content.admin %}
+                    <!-- 답변 모달 -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <div></div>
+                        <div>
+                            <a href="#" id="replyBtn" data-qna-id="{{ qna_content.id }}" class="d-none d-sm-inline-block btn2 btn-sm btn-info shadow-sm ">
+                            {% if qna_content.reply_title %}
+                                <span>답변수정</span>
+                            {% else %}
+                                <span>답변하기</span>
+                            {% endif %}
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 답변하기 -->
+                    <!-- 답변 모달 -->
+                    <div class="modal" id="replyModal">
+                        <div class="qna-form-container">
+                        <div class="modal-header justify-content-between">
+                            <h2>답변하기</h2>
+                            <button class="close-btn" id="closeReplyModal">&times;</button>
+                        </div>
+                    
+                        <form id="replyForm" method="PUT" enctype="multipart/form-data">
+                            <div class="form-group">
+                            <label for="reply_title">*답변 제목</label>
+                            <input type="text" id="reply_title" name="reply_title" class="form-control"
+                                    placeholder="답변 제목을 입력하세요" {% if qna_content.reply_title %}value="{{ qna_content.reply_title }}"{% endif %} required>
+                            </div>
+                    
+                            <div class="form-group">
+                            <label for="reply_content">*답변 내용</label>
+                            <textarea id="reply_content" name="reply_content" class="form-control" rows="5"
+                                        placeholder="답변 내용을 입력하세요" required>{% if qna_content.reply_content %}{{ qna_content.reply_content }}{% endif %}</textarea>
+                            </div>
+                    
+                            <div class="d-sm-flex align-items-center justify-content-between">
+                            <p></p>
+                            <button type="submit" class="btn btn-primary">답변 등록</button>
+                            </div>
+                        </form>
+                        </div>
+                    </div>
+                    
+                    {% endif %}
+
+                    <div class="card shadow-sm mb-4">
+                        {% if qna_content.reply_title %}
+                        <div class="notice-card-header py-3">
+                            <p class="notice-date">답변 관리자 : {{ qna_content.user_id }} | {{ qna_content.reply_at }} 답변 작성</p>
+                            <div class="QnA-title d-flex">
+                                <h4 class="m-0 font-weight-bold text-danger">A. </h4>
+                                <h4 class="m-0 font-weight-bold text-black">{{ qna_content.reply_title }}</h4>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="notice">
+                                {{ qna_content.reply_content }}
+                            </p>
+                        </div>
+                        {% else %}
+                        <div class="notice-card-header py-3">
+                            <div class="QnA-title d-flex">
+                                <h4 class="m-0 font-weight-bold text-black"> 관리자의 검토 및 답변 작성 대기 중입니다. </h4>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="notice">
+                                답변 작성에 약간의 시간이 소요됩니다 양해 부탁드립니다.
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+
+            <script src="/static/js/mainfunc.js"></script>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // ----------- 1) 수정/삭제 (작성자용) -----------
+                    const editQnaBtn = document.getElementById('editQnaBtn');
+                    const deleteQnaBtn = document.getElementById('deleteQnaBtn');
+                    
+                    const qnaEditModal = document.getElementById('qnaEditModal');
+                    const closeQnaEditModal = document.getElementById('closeQnaEditModal');
+                    const qnaEditForm = document.getElementById('qnaEditForm');
+                
+                    // 현재 게시글 ID (템플릿에서 qna_content.id)
+                    const qnaId = "{{ qna_content.id }}";
+                
+                    // (1) 수정 모달 열기
+                    if (editQnaBtn) {
+                        editQnaBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            qnaEditModal.classList.add('active');
+                        });
+                    }
+                
+                    // 모달 닫기
+                    if (closeQnaEditModal) {
+                        closeQnaEditModal.addEventListener('click', () => {
+                            qnaEditModal.classList.remove('active');
+                            qnaEditForm.reset();
+                        });
+                    }
+                
+                    // (2) 수정 Form 제출 -> PUT /board/qna/content/{id}/edit
+                    if (qnaEditForm) {
+                        qnaEditForm.addEventListener('submit', (e) => {
+                            e.preventDefault();
+                            const formData = new FormData(qnaEditForm);
+                
+                            fetch(`/board/qna/content/${qnaId}/edit`, {
+                                method: 'PUT',
+                                body: formData
+                            })
+                            .then(res => {
+                                if (!res.ok) {
+                                    throw new Error('수정 실패');
+                                }
+                                return res.json();
+                            })
+                            .then(data => {
+                                alert("수정이 완료되었습니다.");
+                                window.location.reload(); // 새로고침 or 목록 이동
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                alert("수정 중 오류가 발생했습니다.");
+                            });
+                        });
+                    }
+                
+                    // (3) 삭제 버튼 -> DELETE /board/qna/content/{id}/delete
+                    if (deleteQnaBtn) {
+                        deleteQnaBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const confirmed = confirm("정말로 삭제하시겠습니까?");
+                            if (!confirmed) return;
+                
+                            fetch(`/board/qna/content/${qnaId}/delete`, {
+                                method: 'DELETE'
+                            })
+                            .then(res => {
+                                if (!res.ok) throw new Error('삭제 실패');
+                                return res.text(); // 응답 바디 필요없다면 text()로
+                            })
+                            .then(data => {
+                                alert("삭제되었습니다.");
+                                window.location.href = "/qna"; // 목록 등 원하는 경로
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                alert("삭제 중 오류가 발생했습니다.");
+                            });
+                        });
+                    }
+                
+                    // ----------- 2) 관리자 답변하기/수정 -----------
+                    const replyBtn = document.getElementById('replyBtn'); // "답변하기" 버튼
+                    const replyModal = document.getElementById('replyModal');
+                    const closeReplyModal = document.getElementById('closeReplyModal');
+                    const replyForm = document.getElementById('replyForm');
+                
+                    if (replyBtn) {
+                        replyBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            replyModal.classList.add('active');
+                        });
+                    }
+                
+                    if (closeReplyModal) {
+                        closeReplyModal.addEventListener('click', () => {
+                            replyModal.classList.remove('active');
+                            replyForm.reset();
+                        });
+                    }
+                
+                    if (replyForm) {
+                        replyForm.addEventListener('submit', function(event) {
+                            event.preventDefault();
+                
+                            const qnaIdAttr = replyBtn ? replyBtn.getAttribute('data-qna-id') : null;
+                            if (!qnaIdAttr) {
+                                alert("게시글 ID를 찾을 수 없습니다.");
+                                return;
+                            }
+                
+                            const formData = new FormData(replyForm);
+                
+                            // 관리자 답변: PUT /board/qna/content/{id}/reply
+                            fetch(`/board/qna/content/${qnaIdAttr}/reply`, {
+                                method: 'PUT',
+                                body: formData
+                            })
+                            .then(res => {
+                                if (res.ok) {
+                                    return res.json();
+                                } else {
+                                    throw new Error("답변 등록에 실패했습니다.");
+                                }
+                            })
+                            .then(result => {
+                                alert("답변이 등록되었습니다.");
+                                window.location.reload();
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                alert("답변 처리 중 오류가 발생했습니다.");
+                            });
+                        });
+                    }
+                });
+                </script>
+        </div>
+    </div>
+
+</body>
+
+</html>
