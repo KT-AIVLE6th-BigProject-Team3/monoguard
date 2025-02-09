@@ -14,19 +14,19 @@ from app.database import engine
 from app.models import Base
 from app.routers import auth, board, user, admin, predict, chatbot, report
  
-STREAMLIT_LOG = "streamlit.log"
+#STREAMLIT_LOG = "streamlit.log"
 # ✅ Streamlit 실행 함수
 def run_streamlit():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     """Streamlit을 백그라운드에서 실행하고 로그를 저장"""
-    with open(STREAMLIT_LOG, "w") as log_file:
-        streamlit_process = subprocess.Popen(
+    #with open(STREAMLIT_LOG, "w") as log_file:
+    streamlit_process = subprocess.Popen(
             ["streamlit", "run", "app/predict/dashboard.py", "--server.port", "8501", "--server.headless", "true"],
-            stdout=log_file,
-            stderr=log_file,
-            text=True,  # 로그 파일을 텍스트로 저장
+            stdout=None,
+            stderr=None,
+            text=True,
             cwd=BASE_DIR  # 작업 디렉토리를 BASE_DIR로 지정
-        )
+    )
     return streamlit_process
  
 Base.metadata.create_all(bind=engine)
