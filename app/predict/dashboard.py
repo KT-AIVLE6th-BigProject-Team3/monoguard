@@ -5,7 +5,7 @@ import plotly.express as px
 import json
 import plotly.graph_objects as go
 import numpy as np
-
+import os
 
 # ✅ Streamlit 페이지 설정 (가장 먼저 실행해야 함)
 st.set_page_config(page_title="장비 모니터링 대시보드", layout="wide")
@@ -17,7 +17,9 @@ embed_mode = query_params.get("embed", "false").lower() == "true"  # embed=true�
 
 # ✅ 데이터베이스 연결 함수
 def get_db_connection():
-    return sqlite3.connect("sensor_data.db")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(BASE_DIR, "sensor_data.db")
+    return sqlite3.connect(db_path)
 
 # ✅ 모든 페이지에서 Streamlit UI 요소 제거 (상단 색깔 선, Deploy 버튼 등)
 st.markdown("""
@@ -460,7 +462,6 @@ def agv_temperature_change():
     max_temp = df["ex_temperature"].max()
     min_temp = df["ex_temperature"].min()
     temp_change = current_temp - df['ex_temperature'].iloc[-2] if len(df) > 1 else 0
-    
     with col1:
         st.metric("현재 온도", f"{current_temp:.1f}°C", f"{temp_change:.1f}°C", delta_color="inverse")
     with col2:
