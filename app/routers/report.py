@@ -124,7 +124,7 @@ async def startup_event():
         os.environ["OPENAI_API_KEY"] = openai_api_key
  
         # CSV 로드 및 텍스트 추출
-        file_path = "./report/example.csv"
+        file_path = "./reports/example.csv"
         df = load_csv(file_path)
         text_data = extract_text_data(df)
  

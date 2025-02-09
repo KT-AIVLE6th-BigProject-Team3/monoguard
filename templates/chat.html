@@ -51,7 +51,7 @@
  
       .user-message {
         background: #4e73df;
-        color: white;
+        color: rgb(255, 255, 255);
         align-self: flex-end;
       }
  
@@ -71,10 +71,6 @@
         flex-grow: 1;
         border: 1px solid #d1d3e2;
         padding: 10px;
-      }
- 
-      .btn {
-        padding: 10px 15px;
       }
  
       #user-input:focus,
@@ -106,33 +102,7 @@
         margin-bottom: 10px;
         display: inline-block;
         width: auto;
-      }
- 
-      .chat-messages {
-        height: 400px;
-        padding: 20px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        background-color: #f8f9fc;
-        border-radius: 8px;
-      }
- 
-      .user-message {
-        background: #4e73df;
-        color: white;
-        align-self: flex-end;
-        border-bottom-right-radius: 4px;
-      }
- 
-      .bot-message {
-        background: white;
-        color: #1a1a1a;
-        align-self: flex-start;
-        border-bottom-left-radius: 4px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-      }
+      } 
  
       .loading {
         padding: 10px;
@@ -164,9 +134,9 @@
         <div id="content">
           <div id="topbar"></div>
           <div class="container-fluid">
-            <h1 class="h3 mb-0 text-gray-800">MonoGuard 챗봇</h1>
+            <h1 class="h3 mb-0 mb-4 text-gray-800">MonoGuard 챗봇</h1>
  
-            <div class="card shadow mb-4">
+            <div class="card shadow-sm mb-4">
               <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary">대화 내용</h6>
               </div>
@@ -177,7 +147,7 @@
                   id="loading"
                   style="display: none; text-align: center; color: #666"
                 >
-                  AI가 응답을 생성하는 중...
+                  AI가 대답을 생성하는 중...
                 </div>
                 <div class="input-container">
                   <input
@@ -192,42 +162,7 @@
                 </div>
               </div>
             </div>
- 
-            <div class="card shadow mb-4">
-              <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">
-                  장비 정비 보고서 생성
-                </h6>
-              </div>
-              <div class="card-body">
-                <div class="input-container">
-                  <input
-                    type="text"
-                    id="device-id"
-                    class="form-control"
-                    placeholder="장비 ID (예: agv01)"
-                  />
-                  <input
-                    type="text"
-                    id="start-date"
-                    class="form-control"
-                    placeholder="시작 날짜 (MM-DD)"
-                  />
-                  <input
-                    type="text"
-                    id="end-date"
-                    class="form-control"
-                    placeholder="종료 날짜 (MM-DD)"
-                  />
-                  <button id="report-button" class="btn btn-success">
-                    보고서 생성
-                  </button>
-                </div>
- 
-                <div id="report-response"></div>
-                <div id="download-list"></div>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>

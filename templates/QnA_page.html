@@ -78,7 +78,7 @@
                         </div>
                         {% endif %}
                     </div>
-                    <div class="card shadow mb-4">
+                    <div class="card shadow-sm mb-4">
                         <div class="notice-card-header py-3">
                             <p class="notice-date">작성자 : {{ qna_content.user_id }} | {{ qna_content.created_at }} 작성
                                 {% if qna_content.updated_at %}
@@ -192,7 +192,7 @@
                     
                     {% endif %}
 
-                    <div class="card shadow mb-4">
+                    <div class="card shadow-sm mb-4">
                         {% if qna_content.reply_title %}
                         <div class="notice-card-header py-3">
                             <p class="notice-date">답변 관리자 : {{ qna_content.user_id }} | {{ qna_content.reply_at }} 답변 작성</p>

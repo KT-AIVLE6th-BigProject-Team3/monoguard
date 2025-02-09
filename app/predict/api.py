@@ -19,7 +19,7 @@ from typing import List
 
 router = APIRouter()
 db = Database()
-
+'''
 # 열화상 데이터용 데이터베이스 연결 함수
 def get_thermal_db_connection():
     return sqlite3.connect('./sensor_data.db')
@@ -49,7 +49,7 @@ async def get_thermal_data(device_id: str):
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"열화상 데이터 조회 중 오류 발생: {str(e)}")
-
+'''
 
 @router.get("/device_history/{device_id}")
 async def get_device_history(device_id: str):
