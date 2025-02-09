@@ -1,4 +1,10 @@
 
 Collecting usage statistics. To deactivate, set browser.gatherUsageStats to false.
 
-2025-02-09 21:06:44.802 Port 8501 is already in use
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://192.168.55.128:8501
+  External URL: http://175.117.175.201:8501
+

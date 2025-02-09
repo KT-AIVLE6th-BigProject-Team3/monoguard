@@ -27,3 +27,5 @@ joblib
 scipy
 aiocache
 plotly
+python-multipart
+streamlit
