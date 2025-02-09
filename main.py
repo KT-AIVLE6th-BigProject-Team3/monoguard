@@ -8,6 +8,30 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine
 from app.models import Base
 from app.routers import auth, board, user, admin, predict, chatbot, report
+import subprocess
+from starlette.responses import RedirectResponse
+import os
+ 
+ 
+STREAMLIT_LOG = "streamlit.log"
+# ✅ Streamlit 실행 함수
+def run_streamlit():
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    """Streamlit을 백그라운드에서 실행하고 로그를 저장"""
+    with open(STREAMLIT_LOG, "w") as log_file:
+        streamlit_process = subprocess.Popen(
+            ["streamlit", "run", "app/predict/dashboard.py", "--server.port", "8501", "--server.headless", "true"],
+            stdout=log_file,
+            stderr=log_file,
+            text=True,  # 로그 파일을 텍스트로 저장
+            cwd=BASE_DIR  # 작업 디렉토리를 BASE_DIR로 지정
+        )
+    return streamlit_process
+ 
+Base.metadata.create_all(bind=engine)
+templates = Jinja2Templates(directory="templates")
+app = FastAPI()
+streamlit_process = run_streamlit()
  
 Base.metadata.create_all(bind=engine)
 templates = Jinja2Templates(directory="templates")

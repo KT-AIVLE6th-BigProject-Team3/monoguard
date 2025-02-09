@@ -197,7 +197,7 @@ async def generate_equipment_report(request: EquipmentReportRequest):
         return {
             "message": "보고서 생성 완료",
             "pdf_filename": pdf_filename,
-            "download_url": f"http://localhost:8000/download-report/{pdf_filename}",
+            "download_url": f"/rep/download-report/{pdf_filename}",
         }
  
     except Exception as e:

@@ -22,3 +22,8 @@ matplotlib
 tiktoken
 Transformers
 pdfkit
+weasyprint
+joblib
+scipy
+aiocache
+plotly
