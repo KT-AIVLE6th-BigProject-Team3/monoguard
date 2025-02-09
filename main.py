@@ -8,13 +8,49 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine
 from app.models import Base
 from app.routers import auth, board, user, admin, predict, chatbot, report
- 
+import subprocess
+from starlette.responses import RedirectResponse
+import os
+
+# Base directory 설정
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STREAMLIT_LOG = os.path.join(BASE_DIR, "streamlit.log")
+
+# ✅ Streamlit 실행 함수
+def run_streamlit():
+    """Streamlit을 백그라운드에서 실행하고 로그를 저장"""
+    dashboard_path = os.path.join(BASE_DIR, "app", "predict", "dashboard.py")
+    with open(STREAMLIT_LOG, "w") as log_file:
+        streamlit_process = subprocess.Popen(
+            ["streamlit", "run", dashboard_path, "--server.port", "8501", "--server.headless", "true"],
+            stdout=log_file,
+            stderr=log_file,
+            text=True,
+            cwd=BASE_DIR
+        )
+    return streamlit_process
+
+# 데이터베이스 경로 설정
+DB_PATH = os.path.join(BASE_DIR, "app", "predict", "sensor_data.db")
+os.environ["SENSOR_DB_PATH"] = DB_PATH  # 환경 변수로 설정
+
 Base.metadata.create_all(bind=engine)
 templates = Jinja2Templates(directory="templates")
-app = FastAPI() 
+app = FastAPI()
+streamlit_process = run_streamlit()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# CORS 미들웨어 설정
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 라우터 포함
 app.include_router(user.router, prefix="/users", tags=["Users"])
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(board.router, prefix="/board", tags=["Board"])
