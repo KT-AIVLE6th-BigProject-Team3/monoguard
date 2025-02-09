@@ -142,7 +142,10 @@ def get_topbar(current_user: dict = Depends(auth.get_current_user_from_cookie)):
 def error_page(request: Request, code: str = None):
     return templates.TemplateResponse("error.html", {"request": request, "code": code})
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 773475b66763cdd7a44a06f76b67b31e44d37c43
 # Admin 페이지는 admin 라우터에서 관리하도록 하였습니다.
 
 @app.get("/auth/current_user", response_class=JSONResponse)
