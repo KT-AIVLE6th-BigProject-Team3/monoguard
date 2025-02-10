@@ -4,7 +4,10 @@
 *.csv
 *.zip
 *.bin
+*.log
 MultiModal_AI_1/
 chatbot/api_key.txt
 3.개방데이터/
+.fasiss
+index.pkl
 streamlit.log

@@ -22,3 +22,5 @@ matplotlib
 tiktoken
 Transformers
 pdfkit
+joblib
+weasyprint

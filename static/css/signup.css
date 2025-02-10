@@ -253,3 +253,69 @@ body {
         font-size: 12px;
     }
  }
+
+
+.input-with-button {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.input-with-button .input-field2 {
+    flex: 1;
+}
+
+.check-id-btn {
+    padding: 0 16px;
+    height: 45px;
+    background: #293A91;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+
+.check-id-btn:hover {
+    background-color: #1a2456;
+}
+
+@media (max-width: 600px) {
+    .check-id-btn {
+        height: 40px;
+        padding: 0 12px;
+        font-size: 12px;
+    }
+}
+
+.check-id-btn {
+   padding: 0 16px;
+   height: 45px;
+   background: #293A91;
+   color: white;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   font-size: 14px;
+   white-space: nowrap;
+   transition: all 0.2s ease;
+}
+
+.check-id-btn:disabled {
+   background: #aaaaaa;
+   cursor: not-allowed;
+}
+
+.check-id-btn:hover:not(:disabled) {
+   background-color: #1a2456;
+}
+
+@media (max-width: 600px) {
+   .check-id-btn {
+       height: 40px;
+       padding: 0 12px;
+       font-size: 12px;
+   }
+}

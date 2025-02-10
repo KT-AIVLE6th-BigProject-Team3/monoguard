@@ -12,7 +12,8 @@ class Database:
         self.base_path = './data'
 
     def get_connection(self):
-        return sqlite3.connect(self.db_path)
+        #return sqlite3.connect(self.db_path)
+        return sqlite3.connect("sensor_data.db") 
     
     def init_tables(self):
         """모든 테이블 초기화 및 초기 데이터 로드"""
@@ -115,9 +116,21 @@ class Database:
         for dataset in [agv_data, oht_data]:
             for key, df in dataset.items():
                 df.columns = [col.replace('.', '_') for col in df.columns]
-
+                if 'filenames' in df.columns:
+                    df['filenames'] = df['filenames'].str.replace('\\', '/', regex=False)
                 df.drop(columns=['device_id', 'collection_date', 'collection_time', 'cumulative_operating_day'], 
                         inplace=True, errors='ignore')
+                
+        '''
+        # 데이터 전처리
+        for dataset in [agv_data, oht_data]:
+            for key, df in dataset.items():
+                df.columns = [col.replace('.', '_') for col in df.columns]
+                if 'filenames' in df.columns:
+                    df['filenames'] = '/Users/hwangeunbi/monoguard/app/predict/' + df['filenames'].str.replace('\\', '/', regex=False)
+                df.drop(columns=['device_id', 'collection_date', 'collection_time', 'cumulative_operating_day'],
+                        inplace=True, errors='ignore')
+        '''
 
         # 데이터베이스에 저장
         conn = self.get_connection()

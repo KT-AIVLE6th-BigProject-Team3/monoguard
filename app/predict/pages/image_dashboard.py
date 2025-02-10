@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import requests
 from thermal_image_analysis import ThermalImageAnalysis
 import time
-
+import os
 st.set_page_config(
     page_title="열화상 모니터링",
     layout="wide",
@@ -99,7 +99,6 @@ st.markdown("""
         padding: 12px;
         background: white;
         border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     
     .current-state {
@@ -132,6 +131,8 @@ st.markdown("""
         background: rgba(0,0,0,0.02);
         padding: 8px;
         border-radius: 4px;
+        font-size: 0.8rem;
+        text-align: center;
     }
     
     .device-title {
@@ -140,39 +141,6 @@ st.markdown("""
         text-align: center;
         margin-bottom: 16px;
         color: #333;
-    }
-    
-    .stats-container {
-        padding: 12px;
-    }
-    
-    .current-state {
-        font-size: 1.1rem;
-        font-weight: bold;
-        text-align: center;
-        padding: 8px;
-        margin-bottom: 12px;
-    }
-    
-    .temp-stats {
-        margin-bottom: 12px;
-    }
-    
-    .temp-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 4px 0;
-        font-size: 0.85rem;
-    }
-    
-    .temp-value {
-        font-weight: 500;
-    }
-    
-    .state-probs {
-        font-size: 0.8rem;
-        text-align: center;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -197,18 +165,24 @@ def get_thermal_data(device_id):
         device_type = 'oht' if 'oht' in device_id.lower() else 'agv'
         number = ''.join(filter(str.isdigit, device_id))
         table = f"{device_type}{number}_table"
-        
+       
         conn = get_db_connection()
         if conn is None:
             return []
-            
+           
         query = f"SELECT filenames FROM {table}"
         df = pd.read_sql(query, conn)
         conn.close()
-        return df['filenames'].tolist()
+       
+        current_file_dir = os.path.dirname(os.path.abspath(__file__))
+        # 루트 상위폴더로 이동해야함
+        project_root = os.path.abspath(os.path.join(current_file_dir, "..", "..", ".."))
+        absolute_paths = [os.path.join(project_root, filename) for filename in df['filenames'].tolist()]
+        return absolute_paths
     except Exception as e:
         st.error(f"데이터 조회 중 오류 발생: {str(e)}")
         return []
+ 
 
 def aggregated_high_temperature_mean(window):
     try:
@@ -223,7 +197,7 @@ def aggregated_high_temperature_mean(window):
 
 def display_thermal_image(img, fig_placeholder):
     try:
-        fig, ax = plt.subplots(figsize=(8, 6))
+        fig, ax = plt.subplots(figsize=(4, 2.4))
         ax.axis(False)
         cax = ax.imshow(img, cmap="inferno")
         cbar = plt.colorbar(cax)
@@ -249,11 +223,15 @@ def display_statistics(img, window, thermal_analyze, stats_placeholder):
             '위험': '#F44336'
         }
         
-        device_type = thermal_analyze.device_id.upper()
+        device_type = thermal_analyze.device_type.upper()
+        thresholds = thermal_analyze.threshold_states[thermal_analyze.device_type]
         
         stats_placeholder.markdown(
             f"""
             <div class="stats-container">
+                <div class="device-type" style="text-align: center; font-size: 1.1rem; margin-bottom: 12px;">
+                    기기 유형: {device_type}
+                </div>
                 <div class="current-state" style="color: {state_colors[current_state]}">
                     현재 상태: {current_state}
                 </div>
@@ -280,6 +258,12 @@ def display_statistics(img, window, thermal_analyze, stats_placeholder):
                     <span style="color: #FF9800">관심: {state_prob['관심']*100:.1f}%</span> | 
                     <span style="color: #FF5722">주의: {state_prob['주의']*100:.1f}%</span> | 
                     <span style="color: #F44336">위험: {state_prob['위험']*100:.1f}%</span>
+                </div>
+                <div style="margin-top: 12px; font-size: 0.75rem; color: #666; text-align: center;">
+                    임계값: 정상({thresholds['정상']['mu']:.1f}°C) → 
+                    관심({thresholds['관심']['mu']:.1f}°C) → 
+                    주의({thresholds['주의']['mu']:.1f}°C) → 
+                    위험({thresholds['위험']['mu']:.1f}°C)
                 </div>
             </div>
             """, unsafe_allow_html=True)

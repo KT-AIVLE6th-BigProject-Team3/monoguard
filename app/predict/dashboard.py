@@ -4,7 +4,8 @@ import pandas as pd
 import plotly.express as px
 import json
 import plotly.graph_objects as go
-
+import numpy as np
+import os
 
 # ✅ Streamlit 페이지 설정 (가장 먼저 실행해야 함)
 st.set_page_config(page_title="장비 모니터링 대시보드", layout="wide")
@@ -16,7 +17,10 @@ embed_mode = query_params.get("embed", "false").lower() == "true"  # embed=true�
 
 # ✅ 데이터베이스 연결 함수
 def get_db_connection():
-    return sqlite3.connect("sensor_data.db")
+    #BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    #db_path = os.path.join(BASE_DIR, "sensor_data.db")
+    #return sqlite3.connect(db_path)
+    return sqlite3.connect("sensor_data.db") 
 
 # ✅ 모든 페이지에서 Streamlit UI 요소 제거 (상단 색깔 선, Deploy 버튼 등)
 st.markdown("""
@@ -104,10 +108,6 @@ def agv_status_distribution():
         
         st.plotly_chart(fig, use_container_width=True)
 
-        # 디버깅을 위한 데이터 출력 (선택사항)
-        with st.expander("🔍 상세 데이터 확인"):
-            st.dataframe(df)
-            st.write("상태별 장비 수:", status_counts.to_dict())
 
 
 # ✅ AGV 경고 및 위험 장비 (`aggregated_device_status` 기반)
@@ -166,242 +166,636 @@ def agv_warning_risk():
 
 # ✅ 시간에 따른 AGV 상태 변화 (`aggregated_device_status` 기반)
 def agv_status_time_series():
-    
-    conn = get_db_connection()
-    query = """
-        SELECT device_id, aggregation_start AS timestamp, normal_ratio, caution_ratio, warning_ratio, risk_ratio
-        FROM aggregated_device_status
-        WHERE device_id LIKE 'AGV%'
-        ORDER BY aggregation_start ASC
-    """
-    df = pd.read_sql_query(query, conn)
-    conn.close()
+   conn = get_db_connection()
+   query = """
+       SELECT device_id, aggregation_start AS timestamp, 
+              normal_ratio, caution_ratio, warning_ratio, risk_ratio,
+              status as current_status
+       FROM aggregated_device_status
+       WHERE device_id LIKE 'AGV%'
+       ORDER BY aggregation_start ASC
+   """
+   df = pd.read_sql_query(query, conn)
+   conn.close()
 
-    if df.empty:
-        st.error("⚠️ AGV 데이터가 없습니다! DB를 확인해주세요.")
-    else:
-        df["timestamp"] = pd.to_datetime(df["timestamp"])
+   if df.empty:
+       st.error("⚠️ AGV 데이터가 없습니다! DB를 확인해주세요.")
+   else:
+       df["timestamp"] = pd.to_datetime(df["timestamp"])
+       
+       # 상태 매핑
+       state_mapping = {"정상": 0, "관심": 1, "경고": 2, "위험": 3}
+       df["state_numeric"] = df["current_status"].map(state_mapping)
+       
+       # Hover 텍스트 생성
+       df["hover_text"] = df.apply(
+           lambda row: f"<b>{row['device_id']}</b><br>" +
+                      f"<b>시간:</b> {row['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}<br>" +
+                      f"<b>현재 상태:</b> {row['current_status']}<br>" +
+                      f"<br><b>상태별 비율</b><br>" +
+                      f"✅ 정상: {row['normal_ratio']:.1f}%<br>" +
+                      f"⚠️ 관심: {row['caution_ratio']:.1f}%<br>" +
+                      f"🚨 경고: {row['warning_ratio']:.1f}%<br>" +
+                      f"⛔ 위험: {row['risk_ratio']:.1f}%",
+           axis=1
+       )
 
-        # ✅ 상태 재분류 (가장 높은 비율을 기준으로 상태 결정)
-        def classify_state(row):
-            max_ratio = max(row["normal_ratio"], row["caution_ratio"], row["warning_ratio"], row["risk_ratio"])
-            if max_ratio == row["risk_ratio"]:  
-                return "위험"
-            elif max_ratio == row["warning_ratio"]:  
-                return "경고"
-            elif max_ratio == row["caution_ratio"]:  
-                return "관심"
-            return "정상"
+       # 각 장비별로 구분된 라인 차트 생성
+       fig = go.Figure()
+       
+       # 장비별 색상 매핑
+       colors = {
+           'AGV17': '#1f77b4',  # 파란색
+           'AGV18': '#2ca02c'   # 초록색
+       }
+       
+       for device_id in df['device_id'].unique():
+           device_data = df[df['device_id'] == device_id]
+           
+           fig.add_trace(go.Scatter(
+               x=device_data["timestamp"],
+               y=device_data["state_numeric"],
+               name=device_id,
+               mode='lines+markers',
+               line=dict(
+                   color=colors[device_id],
+                   width=2  # 선 두께 감소
+               ),
+               marker=dict(
+                   size=6,  # 마커 크기 감소
+                   symbol='circle',
+                   line=dict(
+                       color='white',
+                       width=1
+                   )
+               ),
+               customdata=device_data["hover_text"],
+               hovertemplate="%{customdata}<extra></extra>"
+           ))
 
-        df["current_state"] = df.apply(classify_state, axis=1)
+       # Y축 텍스트를 HTML로 색상 지정
+       colored_labels = [
+           f'<span style="color: #28a745">정상</span>',  # 초록색
+           f'<span style="color: #ffc107">관심</span>',  # 노란색
+           f'<span style="color: #fd7e14">경고</span>',  # 주황색
+           f'<span style="color: #dc3545">위험</span>'   # 빨간색
+       ]
 
-        # ✅ 상태를 숫자로 매핑 (정상=0, 관심=1, 경고=2, 위험=3)
-        state_mapping = {"정상": 0, "관심": 1, "경고": 2, "위험": 3}
-        df["state_numeric"] = df["current_state"].map(state_mapping)
+       # 레이아웃 설정
+       fig.update_layout(
+           plot_bgcolor='white',  # 배경색 흰색
+           paper_bgcolor='white',
+           height=300,  # 차트 높이 감소
+           yaxis=dict(
+               ticktext=colored_labels,  # 컬러 레이블 적용
+               tickvals=[0, 1, 2, 3],
+               title="장비 상태",
+               gridcolor='lightgray',
+               zeroline=False,
+               title_font=dict(size=14),
+               tickfont=dict(size=12),
+               range=[-0.2, 3.2]  # y축 범위 조정으로 간격 축소
+           ),
+           xaxis=dict(
+               title="시간",
+               gridcolor='lightgray',
+               zeroline=False,
+               title_font=dict(size=14),
+               tickfont=dict(size=12),
+               tickformat="%H:%M",
+               nticks=20
+           ),
+           hovermode="x unified",
+           legend=dict(
+               orientation="h",
+               yanchor="bottom",
+               y=1.02,
+               xanchor="right",
+               x=1,
+               bgcolor='rgba(255, 255, 255, 0.8)',
+               bordercolor='lightgray'
+           ),
+           margin=dict(l=50, r=50, t=80, b=50)
+       )
 
-        # ✅ 시간에 따른 상태 변화 라인 차트 생성
-        fig = px.line(
-            df, 
-            x="timestamp", 
-            y="state_numeric", 
-            color="device_id", 
-            markers=True,
-            labels={"state_numeric": "장비 상태 (0:정상, 1:관심, 2:경고, 3:위험)", "timestamp": "시간"}
-        )
+       # 상태별 색상의 구분선 추가
+       status_colors = {
+           0: "#28a745",  # 정상 - 초록색
+           1: "#ffc107",  # 관심 - 노란색
+           2: "#fd7e14",  # 경고 - 주황색
+           3: "#dc3545"   # 위험 - 빨간색
+       }
 
-        st.plotly_chart(fig, use_container_width=True, key="status_time_series")
+       # 상태 구분선 추가
+       for y_val in [0, 1, 2, 3]:
+           fig.add_hline(
+               y=y_val,
+               line_dash="solid",
+               line_color=status_colors[y_val],
+               line_width=2,
+               opacity=0.3
+           )
+
+       st.plotly_chart(fig, use_container_width=True, key="status_time_series")
 
 # ✅ 최근 AGV 작업 환경
 def recent_environment():
+    # 스타일 적용
     st.markdown("""
         <style>
-        [data-testid="stMetricValue"] > div { font-size: 1rem !important; }
-        [data-testid="stMetricLabel"] { font-size: 0.6rem !important; }
-        [data-testid="stMetricDelta"] > div { font-size: 0.6rem !important; }
-        .st-emotion-cache-1ibsh2c { padding: 0rem 0rem 0rem }
-        .st-emotion-cache-1104ytp h3 { 
-            font-size: 0.8rem; 
-            padding: 0.2rem 0px 0.4rem; 
-            margin-bottom: 0.4rem; 
+        [data-testid="metric-container"] {
+            width: fit-content;
+            margin: auto;
         }
-        div[data-testid="metric-container"] { gap: 0.2rem; }
+
+        [data-testid="metric-container"] > div {
+            width: fit-content;
+            margin: auto;
+        }
+
+        [data-testid="metric-container"] label {
+            font-size: 0.6rem !important;
+            color: rgba(0,0,0,0.6);
+        }
+
+        [data-testid="metric-container"] div[data-testid="metric-value"] {
+            font-size: 0.8rem !important;
+        }
+
+        [data-testid="metric-container"] div[data-testid="metric-delta"] {
+            font-size: 0.6rem !important;
+        }
+
+        [data-testid="stHorizontalBlock"] {
+            gap: 0.5rem !important;
+        }
+        
+        .timestamp {
+            text-align: right;
+            color: #666;
+            font-size: 0.8rem !important;
+            margin-top: 0.5rem;
+            padding-right: 1rem;
+        }
         </style>
     """, unsafe_allow_html=True)
-
+    
+    # 데이터베이스 연결 및 데이터 조회
     conn = get_db_connection()
     query = """
         SELECT 
             timestamp,
-            LAG(ex_temperature) OVER (ORDER BY timestamp) as prev_temp,
-            LAG(ex_humidity) OVER (ORDER BY timestamp) as prev_humid,
-            LAG(ex_illuminance) OVER (ORDER BY timestamp) as prev_illum,
             ex_temperature,
             ex_humidity,
             ex_illuminance
         FROM environment_measurements
         ORDER BY timestamp DESC
-        LIMIT 2
+        LIMIT 1
     """
     df = pd.read_sql_query(query, conn)
     conn.close()
-
+    
     if df.empty:
         st.warning("⚠️ 현재 환경 데이터가 없습니다.")
         return
-
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    
     latest_data = df.iloc[0]
     
-    def get_change(current, previous):
-        if previous is None or current == previous:
-            return None
-        change_pct = ((current - previous) / previous) * 100
-        return f"{'+' if change_pct > 0 else ''}{change_pct:.1f}%"
-
-    metrics = {
-        '온도': (latest_data['ex_temperature'], get_change(latest_data['ex_temperature'], latest_data['prev_temp']), '°C'),
-        '습도': (latest_data['ex_humidity'], get_change(latest_data['ex_humidity'], latest_data['prev_humid']), '%'),
-        '조도': (latest_data['ex_illuminance'], get_change(latest_data['ex_illuminance'], latest_data['prev_illum']), 'lux')
-    }
-
+    try:
+        timestamp = pd.to_datetime(latest_data['timestamp'])
+        timestamp_str = timestamp.strftime('%Y-%m-%d %H:%M:%S')
+    except:
+        timestamp_str = str(latest_data['timestamp'])
+    
+    # 메트릭 표시
     col1, col2, col3 = st.columns(3)
+    
     with col1:
         st.metric(
-            label="온도",
-            value=f"{metrics['온도'][0]:.1f}°C",
-            delta=metrics['온도'][1]
+            "온도",
+            f"{latest_data['ex_temperature']:.1f}°C"
         )
+    
     with col2:
         st.metric(
-            label="습도",
-            value=f"{metrics['습도'][0]:.1f}%",
-            delta=metrics['습도'][1]
+            "습도",
+            f"{latest_data['ex_humidity']:.1f}%"
         )
+    
     with col3:
         st.metric(
-            label="조도",
-            value=f"{metrics['조도'][0]:.0f}lx",
-            delta=metrics['조도'][1]
+            "조도",
+            f"{latest_data['ex_illuminance']:.0f}lx"
         )
-
-    # 타임스탬프를 아래에 배치
+    
+    # 타임스탬프 표시 (더 큰 폰트 사이즈로)
     st.markdown(
-        f"<div style='text-align: left; color: #666; font-size: 0.6rem; margin-top: -0.5rem;'>"
-        f"📅 {latest_data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}"
+        f"<div class='timestamp'>"
+        f"📅 {timestamp_str}"
         f"</div>",
         unsafe_allow_html=True
     )
         
-        
 # ✅ AGV 온도 변화 
 def agv_temperature_change():
-   
     conn = get_db_connection()
-    df = pd.read_sql("SELECT timestamp, ex_temperature FROM environment_measurements", conn)
+    df = pd.read_sql("SELECT timestamp, ex_temperature FROM environment_measurements", conn) 
+    
     if df.empty:
         st.warning("⚠️ 현재 AGV 온도 데이터가 없습니다.")
-    else:
-        df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
-        # 변환 실패한 값 제거
-        df = df.dropna(subset=["timestamp"])
-        # 분 단위로 그룹화하여 평균 계산
-        df["minute"] = df["timestamp"].dt.floor("min")
-        df = df.groupby("minute")[["ex_temperature"]].mean().reset_index()
-        conn.close()
-        # ✅ X축 시간 표시 간격 조정 (너무 많은 시간값을 표시하지 않도록)
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=df["minute"],
-            y=df["ex_temperature"],
-            mode="lines+markers",  # 선과 마커 동시 표시
-            marker=dict(size=4, opacity=0.7),
-            line=dict(width=2),
-            name="평균 온도 변화"
-        ))
-       
-        fig.update_layout(
-            title="AGV 외부 온도 변화 (분 단위)",
-            xaxis_title="시간",
-            yaxis_title="평균 온도 (°C)",
-            xaxis=dict(nticks=20, tickformat="%H:%M"),  # ✅ 초 단위로 표시
-            hovermode="x unified",
-            template="plotly_white"
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        return
+    
+    # 데이터 전처리 
+    df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
+    df = df.dropna(subset=["timestamp"])
+    df["minute"] = df["timestamp"].dt.floor("min")
+    df = df.groupby("minute")[["ex_temperature"]].mean().reset_index()
+    conn.close()
+
+    # 온도 임계값
+    NORMAL_TEMP = 25.066730
+    CAUTION_TEMP = 33.656681
+    WARNING_TEMP = 46.044304
+    DANGER_TEMP = 55.998341
+
+
+    # 메트릭스 스타일
+    st.markdown("""
+        <style>
+        [data-testid="metric-container"] {
+            width: fit-content;
+            margin: auto;
+        }
+
+        [data-testid="metric-container"] > div {
+            width: fit-content;
+            margin: auto;
+        }
+
+        [data-testid="metric-container"] label {
+            font-size: 0.6rem !important;
+            color: rgba(0,0,0,0.6);
+        }
+
+        [data-testid="metric-container"] div[data-testid="metric-value"] {
+            font-size: 0.8rem !important;
+        }
+
+        [data-testid="metric-container"] div[data-testid="metric-delta"] {
+            font-size: 0.6rem !important;
+        }
+
+        .st-emotion-cache-p38tq {
+            font-size: 1.6rem !important;
+            color: rgb(49, 51, 63) !important;
+        }
+
+        /* 메트릭스 간격 조정 */
+        [data-testid="stHorizontalBlock"] {
+            gap: 0.5rem !important;
+        }
+                
+        </style>
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns(3)
+    current_temp = df["ex_temperature"].iloc[-1]
+    max_temp = df["ex_temperature"].max()
+    min_temp = df["ex_temperature"].min()
+    temp_change = current_temp - df['ex_temperature'].iloc[-2] if len(df) > 1 else 0
+    with col1:
+        st.metric("현재 온도", f"{current_temp:.1f}°C", f"{temp_change:.1f}°C", delta_color="inverse")
+    with col2:
+        st.metric("최고 온도", f"{max_temp:.1f}°C")
+    with col3:
+        st.metric("최저 온도", f"{min_temp:.1f}°C")
+
+    # 그래프
+    fig = go.Figure()
+    
+    def get_temp_status_color(temp):
+        if abs(temp - DANGER_TEMP) <= 0.5:
+            return '#FF4444'
+        elif abs(temp - WARNING_TEMP) <= 0.5:
+            return '#FFA726'  
+        elif abs(temp - CAUTION_TEMP) <= 0.5:
+            return '#FFC107'
+        return '#4CAF50'
+
+    # 기준선
+    fig.add_hline(y=DANGER_TEMP, line_dash="dash", line_color="#FF4444", annotation_text="위험")
+    fig.add_hline(y=WARNING_TEMP, line_dash="dash", line_color="#FFA726", annotation_text="경고")
+    fig.add_hline(y=CAUTION_TEMP, line_dash="dash", line_color="#FFC107", annotation_text="주의")
+
+    # 온도 변화 그래프 
+    fig.add_trace(go.Scatter(
+        x=df["minute"],
+        y=df["ex_temperature"],
+        mode="lines+markers",
+        line=dict(color=get_temp_status_color(current_temp), width=2),
+        marker=dict(
+            size=4,
+            color=df["ex_temperature"].apply(get_temp_status_color)
+        ),
+        name="온도 변화",
+        hovertemplate="<b>시간</b>: %{x|%H:%M}<br>" +
+                      "<b>온도</b>: %{y:.1f}°C<br><extra></extra>"
+    ))
+
+    fig.update_layout(
+        title="AGV 작업현장 온도",
+        height=300,  # 높이 줄임
+        margin=dict(l=20, r=20, t=40, b=20),  # 여백 줄임
+        xaxis=dict(
+            title=None,  # 축 제목 제거
+            gridcolor='rgba(128,128,128,0.1)',
+            nticks=10,  # 눈금 수 줄임
+            tickformat="%H:%M"
+        ),
+        yaxis=dict(
+            title=None,  # 축 제목 제거
+            gridcolor='rgba(128,128,128,0.1)',
+            range=[min(NORMAL_TEMP - 0.5, df["ex_temperature"].min() - 0.2),
+                   max(DANGER_TEMP + 0.5, df["ex_temperature"].max() + 0.2)]
+        ),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        showlegend=False,
+        hovermode="x unified"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    # 상태 메시지
+    def get_temp_status_message(temp):
+        if abs(temp - DANGER_TEMP) <= 0.5:
+            st.error("⚠️ 온도가 매우 위험한 수준입니다")
+        elif abs(temp - WARNING_TEMP) <= 0.5:
+            st.warning("⚠️ 온도가 높습니다")
+        elif abs(temp - CAUTION_TEMP) <= 0.5:
+            st.warning("📢 온도가 약간 상승했습니다")
+        else:
+            st.success("✅ 온도 정상")
+
+    get_temp_status_message(current_temp)
        
 # ✅ AGV 습도 변화 
 def agv_humidity_change():
     conn = get_db_connection()
-    df = pd.read_sql("SELECT timestamp, ex_humidity FROM environment_measurements",conn)
+    df = pd.read_sql("SELECT timestamp, ex_humidity FROM environment_measurements", conn) 
+    
     if df.empty:
-        st.warning("⚠️ 현재 AGV 온도 데이터가 없습니다.")
-    else:
-        df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
-        # 변환 실패한 값 제거
-        df = df.dropna(subset=["timestamp"])
-        # 분 단위로 그룹화하여 평균 계산
-        df["minute"] = df["timestamp"].dt.floor("min")
-        df = df.groupby("minute")[["ex_humidity"]].mean().reset_index()
-        conn.close()
-       
-        # ✅ go.Scatter를 사용하여 평균값을 시각화
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=df["minute"],
-            y=df["ex_humidity"],
-            mode="lines+markers",  # 선과 마커 동시 표시
-            marker=dict(size=4, opacity=0.7),
-            line=dict(width=2),
-            name="평균 습도 변화"
-        ))
-       
-        fig.update_layout(
-            title="AGV 외부 습도 변화 (분 단위)",
-            xaxis_title="시간",
-            yaxis_title="평균 습도 (%)",
-            xaxis=dict(nticks=20, tickformat="%H:%M"),  # ✅ 초 단위로 표시
-            hovermode="x unified",
-            template="plotly_white"
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        st.warning("⚠️ 현재 AGV 습도 데이터가 없습니다.")
+        return
+    
+    # 임계값 설정 (sensor_distributions의 ex_humidity 기준)
+    NORMAL_HUMID = 30.484825
+    CAUTION_HUMID = 30.596287
+    WARNING_HUMID = 30.481356
+    DANGER_HUMID = 30.582888
+
+    # 데이터 전처리 
+    df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
+    df = df.dropna(subset=["timestamp"])
+    df["minute"] = df["timestamp"].dt.floor("min")
+    df = df.groupby("minute")[["ex_humidity"]].mean().reset_index()
+    conn.close()
+
+    # 메트릭스 스타일
+    st.markdown("""
+        <style>
+        .st-emotion-cache-p38tq {
+            font-size: 1.6rem !important;
+            color: rgb(49, 51, 63) !important;
+        }
+        [data-testid="metric-container"] {
+            width: fit-content;
+            margin: auto;
+        }
+        [data-testid="metric-container"] > div {
+            width: fit-content;
+            margin: auto;
+        }
+        [data-testid="metric-container"] label {
+            font-size: 0.6rem !important;
+            color: rgba(0,0,0,0.6);
+        }
+        [data-testid="metric-container"] div[data-testid="metric-value"] {
+            font-size: 0.8rem !important;
+        }
+        [data-testid="metric-container"] div[data-testid="metric-delta"] {
+            font-size: 0.6rem !important;
+        }
+        [data-testid="stHorizontalBlock"] {
+            gap: 0.5rem !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # 메트릭스
+    col1, col2, col3 = st.columns(3)
+    current_humid = df["ex_humidity"].iloc[-1]
+    max_humid = df["ex_humidity"].max()
+    min_humid = df["ex_humidity"].min()
+    humid_change = current_humid - df['ex_humidity'].iloc[-2] if len(df) > 1 else 0
+    
+    with col1:
+        st.metric("현재 습도", f"{current_humid:.1f}%", f"{humid_change:.1f}%", delta_color="inverse")
+    with col2:
+        st.metric("최고 습도", f"{max_humid:.1f}%")
+    with col3:
+        st.metric("최저 습도", f"{min_humid:.1f}%")
+
+    # 그래프
+    fig = go.Figure()
+    
+    def get_humid_status_color(humid):
+        if abs(humid - DANGER_HUMID) <= 0.5:
+            return '#FF4444'
+        elif abs(humid - WARNING_HUMID) <= 0.5:
+            return '#FFA726'  
+        elif abs(humid - CAUTION_HUMID) <= 0.5:
+            return '#FFC107'
+        return '#4CAF50'
+
+    # 기준선
+    fig.add_hline(y=DANGER_HUMID, line_dash="dash", line_color="#FF4444", annotation_text="위험")
+    fig.add_hline(y=WARNING_HUMID, line_dash="dash", line_color="#FFA726", annotation_text="경고")
+    fig.add_hline(y=CAUTION_HUMID, line_dash="dash", line_color="#FFC107", annotation_text="주의")
+    
+    # 습도 변화 그래프 
+    fig.add_trace(go.Scatter(
+        x=df["minute"],
+        y=df["ex_humidity"],
+        mode="lines+markers",
+        line=dict(color=get_humid_status_color(current_humid), width=2),
+        marker=dict(
+            size=4,
+            color=df["ex_humidity"].apply(get_humid_status_color)
+        ),
+        name="습도 변화",
+        hovertemplate="<b>시간</b>: %{x|%H:%M}<br>" +
+                      "<b>습도</b>: %{y:.1f}%<br><extra></extra>"
+    ))
+
+    fig.update_layout(
+        title="AGV 외부 습도",
+        height=300,
+        margin=dict(l=20, r=20, t=40, b=20),
+        xaxis=dict(
+            title=None,
+            gridcolor='rgba(128,128,128,0.1)',
+            nticks=10,
+            tickformat="%H:%M"
+        ),
+        yaxis=dict(
+            title=None,
+            gridcolor='rgba(128,128,128,0.1)',
+            range=[min(NORMAL_HUMID - 0.5, df["ex_humidity"].min() - 0.2),
+                   max(DANGER_HUMID + 0.5, df["ex_humidity"].max() + 0.2)]
+        ),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        showlegend=False,
+        hovermode="x unified"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
        
 # ✅ AGV 조도 변화 
 def agv_illuminance_change():
     conn = get_db_connection()
-    df = pd.read_sql("SELECT timestamp, ex_illuminance FROM environment_measurements",conn)
-    conn.close()
- 
+    df = pd.read_sql("SELECT timestamp, ex_illuminance FROM environment_measurements", conn) 
+    
     if df.empty:
         st.warning("⚠️ 현재 AGV 조도 데이터가 없습니다.")
-    else:
-        df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
-        # 변환 실패한 값 제거
-        df = df.dropna(subset=["timestamp"])
-        # 분 단위로 그룹화하여 평균 계산
-        df["minute"] = df["timestamp"].dt.floor("min")
-        df = df.groupby("minute")[["ex_illuminance"]].mean().reset_index()
-        conn.close()
- 
-        # ✅ X축 시간 표시 간격 조정
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=df["minute"],
-            y=df["ex_illuminance"],
-            mode="lines+markers",  # 선과 마커 동시 표시
-            marker=dict(size=4, opacity=0.7),
-            line=dict(width=2),
-            name="평균 조도 변화"
-        ))
-       
-        fig.update_layout(
-            title="AGV 외부 조도 변화 (분 단위)",
-            xaxis_title="시간",
-            yaxis_title="평균 조도 (lux)",
-            xaxis=dict(nticks=20, tickformat="%H:%M"),  # ✅ 초 단위로 표시
-            hovermode="x unified",
-            template="plotly_white"
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        return
+    
+    # 임계값 설정 (sensor_distributions의 ex_illuminance 기준)
+    NORMAL_ILLUM = 155.632019
+    CAUTION_ILLUM = 155.566132
+    WARNING_ILLUM = 155.376266
+    DANGER_ILLUM = 155.069519
+    
+    # 데이터 전처리 
+    df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
+    df = df.dropna(subset=["timestamp"])
+    df["minute"] = df["timestamp"].dt.floor("min")
+    df = df.groupby("minute")[["ex_illuminance"]].mean().reset_index()
+    conn.close()
+
+    # 메트릭스 스타일
+    st.markdown("""
+        <style>
+        .st-emotion-cache-p38tq {
+            font-size: 1.6rem !important;
+            color: rgb(49, 51, 63) !important;
+        }
+        [data-testid="metric-container"] {
+            width: fit-content;
+            margin: auto;
+        }
+        [data-testid="metric-container"] > div {
+            width: fit-content;
+            margin: auto;
+        }
+        [data-testid="metric-container"] label {
+            font-size: 0.6rem !important;
+            color: rgba(0,0,0,0.6);
+        }
+        [data-testid="metric-container"] div[data-testid="metric-value"] {
+            font-size: 0.8rem !important;
+        }
+        [data-testid="metric-container"] div[data-testid="metric-delta"] {
+            font-size: 0.6rem !important;
+        }
+        [data-testid="stHorizontalBlock"] {
+            gap: 0.5rem !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # 메트릭스
+    col1, col2, col3 = st.columns(3)
+    current_illum = df["ex_illuminance"].iloc[-1]
+    max_illum = df["ex_illuminance"].max()
+    min_illum = df["ex_illuminance"].min()
+    illum_change = current_illum - df['ex_illuminance'].iloc[-2] if len(df) > 1 else 0
+    
+    with col1:
+        st.metric("현재 조도", f"{current_illum:.1f} lux", f"{illum_change:.1f} lux", delta_color="inverse")
+    with col2:
+        st.metric("최고 조도", f"{max_illum:.1f} lux")
+    with col3:
+        st.metric("최저 조도", f"{min_illum:.1f} lux")
+
+    # 그래프
+    fig = go.Figure()
+    
+    def get_illum_status_color(illum):
+        if abs(illum - DANGER_ILLUM) <= 0.5:
+            return '#FF4444'
+        elif abs(illum - WARNING_ILLUM) <= 0.5:
+            return '#FFA726'  
+        elif abs(illum - CAUTION_ILLUM) <= 0.5:
+            return '#FFC107'
+        return '#4CAF50'
+
+    # 기준선
+    fig.add_hline(y=DANGER_ILLUM, line_dash="dash", line_color="#FF4444", annotation_text="위험")
+    fig.add_hline(y=WARNING_ILLUM, line_dash="dash", line_color="#FFA726", annotation_text="경고")
+    fig.add_hline(y=CAUTION_ILLUM, line_dash="dash", line_color="#FFC107", annotation_text="주의")
+    
+    # 조도 변화 그래프 
+    fig.add_trace(go.Scatter(
+        x=df["minute"],
+        y=df["ex_illuminance"],
+        mode="lines+markers",
+        line=dict(color=get_illum_status_color(current_illum), width=2),
+        marker=dict(
+            size=4,
+            color=df["ex_illuminance"].apply(get_illum_status_color)
+        ),
+        name="조도 변화",
+        hovertemplate="<b>시간</b>: %{x|%H:%M}<br>" +
+                      "<b>조도</b>: %{y:.1f} lux<br><extra></extra>"
+    ))
+
+    fig.update_layout(
+        title="AGV 외부 조도",
+        height=300,
+        margin=dict(l=20, r=20, t=40, b=20),
+        xaxis=dict(
+            title=None,
+            gridcolor='rgba(128,128,128,0.1)',
+            nticks=10,
+            tickformat="%H:%M"
+        ),
+        yaxis=dict(
+            title=None,
+            gridcolor='rgba(128,128,128,0.1)',
+            range=[min(NORMAL_ILLUM - 1, df["ex_illuminance"].min() - 0.5),
+                   max(DANGER_ILLUM + 1, df["ex_illuminance"].max() + 0.5)]
+        ),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        showlegend=False,
+        hovermode="x unified"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    def get_illum_status_message(illum):
+        if abs(illum - DANGER_ILLUM) <= 0.5:
+            st.error("⚠️ 조도가 매우 낮습니다. 즉시 확인이 필요합니다")
+        elif abs(illum - WARNING_ILLUM) <= 0.5:
+            st.warning("⚠️ 조도가 낮습니다. 점검이 필요합니다")
+        elif abs(illum - CAUTION_ILLUM) <= 0.5:
+            st.warning("📢 조도가 약간 낮아졌습니다. 모니터링이 필요합니다")
+        else:
+            st.success("✅ 조도 정상")
+
+    get_illum_status_message(current_illum)
 
 # ✅ AGV 상태 현황 (최근 aggregation_end 기준 가장 높은 비율을 반영, 장비별 최신 데이터 보장)
 def agv_device_status():
@@ -503,7 +897,159 @@ def agv_device_status():
         </div>
         """
         st.markdown(html_content, unsafe_allow_html=True)
-        
+
+def agv_thermal_monitoring():
+    st.markdown("""
+        <style>
+        .block-container {padding: 0;}
+        .status-card {
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        .status-badge {
+            text-align: center;
+            padding: 0.3rem 1rem;
+            border-radius: 4px;
+            font-weight: 500;
+            margin-bottom: 0.8rem;
+        }
+        .temp-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+        .temp-label {
+            color: #858796;
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
+        }
+        .temp-value {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    devices = ['AGV17', 'AGV18']
+    
+    with st.container():
+        cols = st.columns(len(devices))
+        for idx, device in enumerate(devices):
+            with cols[idx]:
+                timestamps = pd.date_range(end=pd.Timestamp.now(), periods=60, freq='S')
+                base_temp = 45 + np.sin(np.linspace(0, 2*np.pi, 60)) * 3  
+                temps = base_temp + np.random.randn(60) * 0.5
+                current_temp = temps[-1]
+                
+                if current_temp < 50.86:
+                    status = "정상"
+                    status_color = "#1cc88a"
+                    status_bg = "#e6fff0"
+                elif current_temp < 66.82:
+                    status = "주의" 
+                    status_color = "#f6c23e"
+                    status_bg = "#fff8e6"
+                elif current_temp < 91.78:
+                    status = "경고"
+                    status_color = "#fd7e14"
+                    status_bg = "#fff4e6"
+                else:
+                    status = "위험"
+                    status_color = "#e74a3b"
+                    status_bg = "#ffe6e6"
+
+                gauge_fig = go.Figure()
+                gauge_fig.add_trace(go.Indicator(
+                    mode="gauge+number",
+                    value=current_temp,
+                    number={'suffix': "°C"},
+                    domain={'x': [0, 1], 'y': [0, 1]},
+                    title={
+                        'text': f"<b>{device}</b><br><span style='font-size:12px;color:gray'>현재 온도</span>",
+                        'font': {'color': 'black', 'size': 18}
+                    },
+                    gauge={
+                        'axis': {'range': [20, 80], 'tickwidth': 1},
+                        'bar': {'color': "lightgray", 'thickness': 0.1},  # 바 색상을 연한 회색으로 변경하고 두께를 줄임
+                        'bgcolor': "white",
+                        'steps': [
+                            {'range': [20, 47], 'color': "#1cc88a"},
+                            {'range': [47, 60], 'color': "#f6c23e"},
+                            {'range': [60, 75], 'color': "#fd7e14"},
+                            {'range': [75, 80], 'color': "#e74a3b"}
+                        ],
+                        'threshold': {
+                            'line': {'color': status_color, 'width': 4},  # 선 두께를 증가
+                            'thickness': 1,  # threshold 두께를 증가
+                            'value': current_temp
+                        }
+                    }
+                ))
+
+                gauge_fig.update_layout(
+                    height=150,
+                    margin=dict(t=30, b=10, l=30, r=30),
+                    paper_bgcolor='rgba(0,0,0,0)'
+                )
+                
+                st.plotly_chart(gauge_fig, use_container_width=True, config={'displayModeBar': False})
+                
+                line_fig = go.Figure()
+                line_fig.add_trace(go.Scatter(
+                    x=timestamps,
+                    y=temps,
+                    mode='lines',
+                    line=dict(color=status_color, width=2)
+                ))
+                
+                line_fig.update_layout(
+                    title={
+                        'text': f"{device} 열화상 센서 온도", 
+                        'y':0.9,
+                        'x':0.5,
+                        'xanchor': 'center',
+                        'yanchor': 'top'
+                    },
+                    height=150,
+                    margin=dict(t=40, b=40, l=30, r=30),
+                    showlegend=False,
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    yaxis=dict(
+                        range=[20, 80],
+                        showgrid=True,
+                        gridcolor='lightgray'
+                    ),
+                    xaxis=dict(
+                        showgrid=True,
+                        gridcolor='lightgray'
+                    )
+                )
+                
+                st.plotly_chart(line_fig, use_container_width=True, config={'displayModeBar': False})
+                
+                st.markdown(f"""
+                    <div class="status-card">
+                        <div class="status-badge" style="background: {status_bg}; color: {status_color};">
+                            {status}
+                        </div>
+                        <div class="temp-grid">
+                            <div>
+                                <div class="temp-label">평균</div>
+                                <div class="temp-value">{np.mean(temps):.1f}°C</div>
+                            </div>
+                            <div>
+                                <div class="temp-label">최고</div>
+                                <div class="temp-value" style="color: {status_color}">{np.max(temps):.1f}°C</div>
+                            </div>
+                            <div>
+                                <div class="temp-label">최저</div>
+                                <div class="temp-value">{np.min(temps):.1f}°C</div>
+                            </div>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
         
 # OHT
 
@@ -678,10 +1224,11 @@ def oht_status_distribution():
 
 # ✅ 시간에 따른 OHT 상태 변화 (`aggregated_device_status` 기반)
 def oht_status_time_series():
-    
     conn = get_db_connection()
     query = """
-        SELECT device_id, aggregation_start AS timestamp, normal_ratio, caution_ratio, warning_ratio, risk_ratio
+        SELECT device_id, aggregation_start AS timestamp, 
+               normal_ratio, caution_ratio, warning_ratio, risk_ratio,
+               status as current_status
         FROM aggregated_device_status
         WHERE device_id LIKE 'OHT%'
         ORDER BY aggregation_start ASC
@@ -693,33 +1240,119 @@ def oht_status_time_series():
         st.error("⚠️ OHT 데이터가 없습니다! DB를 확인해주세요.")
     else:
         df["timestamp"] = pd.to_datetime(df["timestamp"])
-
-        # ✅ 상태 재분류 (가장 높은 비율을 기준으로 상태 결정)
-        def classify_state(row):
-            max_ratio = max(row["normal_ratio"], row["caution_ratio"], row["warning_ratio"], row["risk_ratio"])
-            if max_ratio == row["risk_ratio"]:  
-                return "위험"
-            elif max_ratio == row["warning_ratio"]:  
-                return "경고"
-            elif max_ratio == row["caution_ratio"]:  
-                return "관심"
-            return "정상"
-
-        df["current_state"] = df.apply(classify_state, axis=1)
-
-        # ✅ 상태를 숫자로 매핑 (정상=0, 관심=1, 경고=2, 위험=3)
+        
+        # 상태 매핑
         state_mapping = {"정상": 0, "관심": 1, "경고": 2, "위험": 3}
-        df["state_numeric"] = df["current_state"].map(state_mapping)
-
-        # ✅ 시간에 따른 상태 변화 라인 차트 생성
-        fig = px.line(
-            df, 
-            x="timestamp", 
-            y="state_numeric", 
-            color="device_id", 
-            markers=True,
-            labels={"state_numeric": "장비 상태 (0:정상, 1:관심, 2:경고, 3:위험)", "timestamp": "시간"}
+        df["state_numeric"] = df["current_status"].map(state_mapping)
+        
+        # Hover 텍스트 생성
+        df["hover_text"] = df.apply(
+            lambda row: f"<b>{row['device_id']}</b><br>" +
+                       f"<b>시간:</b> {row['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}<br>" +
+                       f"<b>현재 상태:</b> {row['current_status']}<br>" +
+                       f"<br><b>상태별 비율</b><br>" +
+                       f"✅ 정상: {row['normal_ratio']:.1f}%<br>" +
+                       f"⚠️ 관심: {row['caution_ratio']:.1f}%<br>" +
+                       f"🚨 경고: {row['warning_ratio']:.1f}%<br>" +
+                       f"⛔ 위험: {row['risk_ratio']:.1f}%",
+            axis=1
         )
+
+        # 각 장비별로 구분된 라인 차트 생성
+        fig = go.Figure()
+        
+        # 장비별 색상 매핑
+        colors = {
+            'OHT16': '#1f77b4',  # 파란색
+            'OHT17': '#2ca02c',  # 초록색
+        }
+        
+        for device_id in df['device_id'].unique():
+            device_data = df[df['device_id'] == device_id]
+            
+            fig.add_trace(go.Scatter(
+                x=device_data["timestamp"],
+                y=device_data["state_numeric"],
+                name=device_id,
+                mode='lines+markers',
+                line=dict(
+                    color=colors.get(device_id, '#000000'),
+                    width=2
+                ),
+                marker=dict(
+                    size=6,
+                    symbol='circle',
+                    line=dict(
+                        color='white',
+                        width=1
+                    )
+                ),
+                customdata=device_data["hover_text"],
+                hovertemplate="%{customdata}<extra></extra>"
+            ))
+
+        # Y축 텍스트를 HTML로 색상 지정
+        colored_labels = [
+            f'<span style="color: #28a745">정상</span>',  # 초록색
+            f'<span style="color: #ffc107">관심</span>',  # 노란색
+            f'<span style="color: #fd7e14">경고</span>',  # 주황색
+            f'<span style="color: #dc3545">위험</span>'   # 빨간색
+        ]
+
+        # 레이아웃 설정
+        fig.update_layout(
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            height=300,
+            yaxis=dict(
+                ticktext=colored_labels,
+                tickvals=[0, 1, 2, 3],
+                title="장비 상태",
+                gridcolor='lightgray',
+                zeroline=False,
+                title_font=dict(size=14),
+                tickfont=dict(size=12),
+                range=[-0.2, 3.2]
+            ),
+            xaxis=dict(
+                title="시간",
+                gridcolor='lightgray',
+                zeroline=False,
+                title_font=dict(size=14),
+                tickfont=dict(size=12),
+                tickformat="%H:%M",
+                nticks=20
+            ),
+            hovermode="x unified",
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1,
+                bgcolor='rgba(255, 255, 255, 0.8)',
+                bordercolor='lightgray'
+            ),
+            margin=dict(l=50, r=50, t=80, b=50)
+        )
+
+        # 상태별 색상의 구분선 추가
+        status_colors = {
+            0: "#28a745",  # 정상 - 초록색
+            1: "#ffc107",  # 관심 - 노란색
+            2: "#fd7e14",  # 경고 - 주황색
+            3: "#dc3545"   # 위험 - 빨간색
+        }
+
+        # 상태 구분선 추가
+        for y_val in [0, 1, 2, 3]:
+            fig.add_hline(
+                y=y_val,
+                line_dash="solid",
+                line_color=status_colors[y_val],
+                line_width=2,
+                opacity=0.3
+            )
 
         st.plotly_chart(fig, use_container_width=True, key="status_time_series")
         
@@ -778,84 +1411,96 @@ def oht_warning_risk():
             st.dataframe(df_filtered.style.applymap(color_state, subset=["상태"]))
 
 # ✅ 최근 OHT 작업 환경
+# ✅ 최근 OHT 작업 환경
 def oht_recent_environment():
-    # 페이지 스타일 설정
     st.markdown("""
         <style>
-        [data-testid="stMetricValue"] > div { font-size: 2rem !important; }
-        .st-emotion-cache-1ibsh2c { padding: 0rem 0rem 0rem }
-        .st-emotion-cache-1104ytp h3 { 
-            font-size: 1.2rem; 
-            padding: 0.5rem 0px 1rem; 
-            color: #2c3e50; 
-            border-bottom: 2px solid #eaeaea; 
-            margin-bottom: 1rem; 
+        [data-testid="metric-container"] {
+            width: fit-content;
+            margin: auto;
+        }
+
+        [data-testid="metric-container"] > div {
+            width: fit-content;
+            margin: auto;
+        }
+
+        [data-testid="metric-container"] label {
+            font-size: 0.6rem !important;
+            color: rgba(0,0,0,0.6);
+        }
+
+        [data-testid="metric-container"] div[data-testid="metric-value"] {
+            font-size: 0.8rem !important;
+        }
+
+        [data-testid="metric-container"] div[data-testid="metric-delta"] {
+            font-size: 0.6rem !important;
+        }
+
+        [data-testid="stHorizontalBlock"] {
+            gap: 0.5rem !important;
+        }
+        
+        .timestamp {
+            text-align: right;
+            color: #666;
+            font-size: 0.8rem !important;
+            margin-top: 0.5rem;
+            padding-right: 1rem;
         }
         </style>
     """, unsafe_allow_html=True)
-
+    
     conn = get_db_connection()
     query = """
         SELECT 
             timestamp,
-            LAG(ex_temperature) OVER (ORDER BY timestamp) as prev_temp,
-            LAG(ex_humidity) OVER (ORDER BY timestamp) as prev_humid,
-            LAG(ex_illuminance) OVER (ORDER BY timestamp) as prev_illum,
             ex_temperature,
             ex_humidity,
             ex_illuminance
         FROM environment_measurements
         ORDER BY timestamp DESC
-        LIMIT 2
+        LIMIT 1
     """
     df = pd.read_sql_query(query, conn)
     conn.close()
-
+    
     if df.empty:
         st.warning("⚠️ 현재 환경 데이터가 없습니다.")
         return
-
+    
     latest_data = df.iloc[0]
     
-    # 변화율 계산 함수
-    def get_change(current, previous):
-        if previous is None or current == previous:
-            return None
-        change_pct = ((current - previous) / previous) * 100
-        return f"{'+' if change_pct > 0 else ''}{change_pct:.1f}%"
-
-    # 메트릭 데이터 준비
-    metrics = {
-        '온도': (latest_data['ex_temperature'], get_change(latest_data['ex_temperature'], latest_data['prev_temp']), '°C'),
-        '습도': (latest_data['ex_humidity'], get_change(latest_data['ex_humidity'], latest_data['prev_humid']), '%'),
-        '조도': (latest_data['ex_illuminance'], get_change(latest_data['ex_illuminance'], latest_data['prev_illum']), 'lux')
-    }
-
-    # 메트릭 표시
+    try:
+        timestamp = pd.to_datetime(latest_data['timestamp'])
+        timestamp_str = timestamp.strftime('%Y-%m-%d %H:%M:%S')
+    except:
+        timestamp_str = str(latest_data['timestamp'])
+    
     col1, col2, col3 = st.columns(3)
+    
     with col1:
         st.metric(
-            label="온도",
-            value=f"{metrics['온도'][0]:.1f}°C",
-            delta=metrics['온도'][1]
+            "온도",
+            f"{latest_data['ex_temperature']:.1f}°C"
         )
+    
     with col2:
         st.metric(
-            label="습도",
-            value=f"{metrics['습도'][0]:.1f}%",
-            delta=metrics['습도'][1]
+            "습도",
+            f"{latest_data['ex_humidity']:.1f}%"
         )
+    
     with col3:
         st.metric(
-            label="조도",
-            value=f"{metrics['조도'][0]:.0f} lux",
-            delta=metrics['조도'][1]
+            "조도",
+            f"{latest_data['ex_illuminance']:.0f}lx"
         )
-
-    # 타임스탬프 표시
+    
     st.markdown(
-        f"<div style='text-align: right; color: #666; font-size: 0.8rem;'>"
-        f"📅 최종 업데이트: {latest_data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}"
+        f"<div class='timestamp'>"
+        f"📅 {timestamp_str}"
         f"</div>",
         unsafe_allow_html=True
     )
@@ -863,114 +1508,576 @@ def oht_recent_environment():
         
 # ✅ OHT 온도 변화 
 def oht_temperature_change():
+   conn = get_db_connection()
+   df = pd.read_sql("SELECT timestamp, ex_temperature FROM environment_measurements", conn) 
    
-    conn = get_db_connection()
-    df = pd.read_sql("SELECT timestamp, ex_temperature FROM environment_measurements", conn)
-    if df.empty:
-        st.warning("⚠️ 현재 OHT 온도 데이터가 없습니다.")
-    else:
-        df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
-        # 변환 실패한 값 제거
-        df = df.dropna(subset=["timestamp"])
-        # 분 단위로 그룹화하여 평균 계산
-        df["minute"] = df["timestamp"].dt.floor("min")
-        df = df.groupby("minute")[["ex_temperature"]].mean().reset_index()
-        conn.close()
-        # ✅ X축 시간 표시 간격 조정 (너무 많은 시간값을 표시하지 않도록)
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=df["minute"],
-            y=df["ex_temperature"],
-            mode="lines+markers",  # 선과 마커 동시 표시
-            marker=dict(size=4, opacity=0.7),
-            line=dict(width=2),
-            name="평균 온도 변화"
-        ))
-       
-        fig.update_layout(
-            title="OHT 외부 온도 변화 (분 단위)",
-            xaxis_title="시간",
-            yaxis_title="평균 온도 (°C)",
-            xaxis=dict(nticks=20, tickformat="%H:%M"),  # ✅ 초 단위로 표시
-            hovermode="x unified",
-            template="plotly_white"
-        )
-        st.plotly_chart(fig, use_container_width=True)
+   if df.empty:
+       st.warning("⚠️ 현재 OHT 온도 데이터가 없습니다.")
+       return
+   
+   df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
+   df = df.dropna(subset=["timestamp"])
+   df["minute"] = df["timestamp"].dt.floor("min")
+   df = df.groupby("minute")[["ex_temperature"]].mean().reset_index()
+   conn.close()
+
+   NORMAL_TEMP = 27.457478
+   CAUTION_TEMP = 29.167545 
+   WARNING_TEMP = 37.200157
+   DANGER_TEMP = 48.797676
+
+
+   st.markdown("""
+       <style>
+       [data-testid="metric-container"] {
+           width: fit-content;
+           margin: auto;
+       }
+
+       [data-testid="metric-container"] > div {
+           width: fit-content;
+           margin: auto;
+       }
+
+       [data-testid="metric-container"] label {
+           font-size: 0.6rem !important;
+           color: rgba(0,0,0,0.6);
+       }
+
+       [data-testid="metric-container"] div[data-testid="metric-value"] {
+           font-size: 0.8rem !important;
+       }
+
+       [data-testid="metric-container"] div[data-testid="metric-delta"] {
+           font-size: 0.6rem !important;
+       }
+
+       .st-emotion-cache-p38tq {
+           font-size: 1.6rem !important;
+           color: rgb(49, 51, 63) !important;
+       }
+
+       [data-testid="stHorizontalBlock"] {
+           gap: 0.5rem !important;
+       }
+               
+       </style>
+   """, unsafe_allow_html=True)
+   
+   col1, col2, col3 = st.columns(3)
+   current_temp = df["ex_temperature"].iloc[-1]
+   max_temp = df["ex_temperature"].max()
+   min_temp = df["ex_temperature"].min()
+   temp_change = current_temp - df['ex_temperature'].iloc[-2] if len(df) > 1 else 0
+   
+   with col1:
+       st.metric("현재 온도", f"{current_temp:.1f}°C", f"{temp_change:.1f}°C", delta_color="inverse")
+   with col2:
+       st.metric("최고 온도", f"{max_temp:.1f}°C")
+   with col3:
+       st.metric("최저 온도", f"{min_temp:.1f}°C")
+
+   fig = go.Figure()
+   
+   def get_temp_status_color(temp):
+       if abs(temp - DANGER_TEMP) <= 0.5:
+           return '#FF4444'
+       elif abs(temp - WARNING_TEMP) <= 0.5:
+           return '#FFA726'  
+       elif abs(temp - CAUTION_TEMP) <= 0.5:
+           return '#FFC107'
+       return '#4CAF50'
+
+   fig.add_hline(y=DANGER_TEMP, line_dash="dash", line_color="#FF4444", annotation_text="위험")
+   fig.add_hline(y=WARNING_TEMP, line_dash="dash", line_color="#FFA726", annotation_text="경고")
+   fig.add_hline(y=CAUTION_TEMP, line_dash="dash", line_color="#FFC107", annotation_text="주의")
+
+   fig.add_trace(go.Scatter(
+       x=df["minute"],
+       y=df["ex_temperature"],
+       mode="lines+markers",
+       line=dict(color=get_temp_status_color(current_temp), width=2),
+       marker=dict(
+           size=4,
+           color=df["ex_temperature"].apply(get_temp_status_color)
+       ),
+       name="온도 변화",
+       hovertemplate="<b>시간</b>: %{x|%H:%M}<br>" +
+                     "<b>온도</b>: %{y:.1f}°C<br><extra></extra>"
+   ))
+
+   fig.update_layout(
+       title="OHT 작업현장 온도",
+       height=300,
+       margin=dict(l=20, r=20, t=40, b=20),
+       xaxis=dict(
+           title=None,
+           gridcolor='rgba(128,128,128,0.1)',
+           nticks=10,
+           tickformat="%H:%M"
+       ),
+       yaxis=dict(
+           title=None,
+           gridcolor='rgba(128,128,128,0.1)',
+           range=[min(NORMAL_TEMP - 0.5, df["ex_temperature"].min() - 0.2),
+                  max(DANGER_TEMP + 0.5, df["ex_temperature"].max() + 0.2)]
+       ),
+       plot_bgcolor='white',
+       paper_bgcolor='white',
+       showlegend=False,
+       hovermode="x unified"
+   )
+
+   st.plotly_chart(fig, use_container_width=True)
+
+   def get_temp_status_message(temp):
+       if abs(temp - DANGER_TEMP) <= 0.5:
+           st.error("⚠️ 온도가 매우 위험한 수준입니다")
+       elif abs(temp - WARNING_TEMP) <= 0.5:
+           st.warning("⚠️ 온도가 높습니다")
+       elif abs(temp - CAUTION_TEMP) <= 0.5:
+           st.warning("📢 온도가 약간 상승했습니다")
+       else:
+           st.success("✅ 온도 정상")
+
+   get_temp_status_message(current_temp)
        
 # ✅ OHT 습도 변화
 def oht_humidity_change():
     conn = get_db_connection()
-    df = pd.read_sql("SELECT timestamp, ex_humidity FROM environment_measurements",conn)
+    df = pd.read_sql("SELECT timestamp, ex_humidity FROM environment_measurements", conn) 
+    
     if df.empty:
-        st.warning("⚠️ 현재 OHT 온도 데이터가 없습니다.")
-    else:
-        df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
-        # 변환 실패한 값 제거
-        df = df.dropna(subset=["timestamp"])
-        # 분 단위로 그룹화하여 평균 계산
-        df["minute"] = df["timestamp"].dt.floor("min")
-        df = df.groupby("minute")[["ex_humidity"]].mean().reset_index()
-        conn.close()
-       
-        # ✅ go.Scatter를 사용하여 평균값을 시각화
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=df["minute"],
-            y=df["ex_humidity"],
-            mode="lines+markers",  # 선과 마커 동시 표시
-            marker=dict(size=4, opacity=0.7),
-            line=dict(width=2),
-            name="평균 습도 변화"
-        ))
-       
-        fig.update_layout(
-            title="OHT 외부 습도 변화 (분 단위)",
-            xaxis_title="시간",
-            yaxis_title="평균 습도 (%)",
-            xaxis=dict(nticks=20, tickformat="%H:%M"),  # ✅ 초 단위로 표시
-            hovermode="x unified",
-            template="plotly_white"
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        st.warning("⚠️ 현재 OHT 습도 데이터가 없습니다.")
+        return
+    
+    # 임계값 설정 (sensor_distributions의 ex_humidity 기준)
+    NORMAL_HUMID = 35.482178
+    CAUTION_HUMID = 35.481819
+    WARNING_HUMID = 35.501583
+    DANGER_HUMID = 35.498600
+
+    # 데이터 전처리 
+    df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
+    df = df.dropna(subset=["timestamp"])
+    df["minute"] = df["timestamp"].dt.floor("min")
+    df = df.groupby("minute")[["ex_humidity"]].mean().reset_index()
+    conn.close()
+
+    # 메트릭스 스타일
+    st.markdown("""
+        <style>
+        .st-emotion-cache-p38tq {
+            font-size: 1.6rem !important;
+            color: rgb(49, 51, 63) !important;
+        }
+        [data-testid="metric-container"] {
+            width: fit-content;
+            margin: auto;
+        }
+        [data-testid="metric-container"] > div {
+            width: fit-content;
+            margin: auto;
+        }
+        [data-testid="metric-container"] label {
+            font-size: 0.6rem !important;
+            color: rgba(0,0,0,0.6);
+        }
+        [data-testid="metric-container"] div[data-testid="metric-value"] {
+            font-size: 0.8rem !important;
+        }
+        [data-testid="metric-container"] div[data-testid="metric-delta"] {
+            font-size: 0.6rem !important;
+        }
+        [data-testid="stHorizontalBlock"] {
+            gap: 0.5rem !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # 메트릭스
+    col1, col2, col3 = st.columns(3)
+    current_humid = df["ex_humidity"].iloc[-1]
+    max_humid = df["ex_humidity"].max()
+    min_humid = df["ex_humidity"].min()
+    humid_change = current_humid - df['ex_humidity'].iloc[-2] if len(df) > 1 else 0
+    
+    with col1:
+        st.metric("현재 습도", f"{current_humid:.1f}%", f"{humid_change:.1f}%", delta_color="inverse")
+    with col2:
+        st.metric("최고 습도", f"{max_humid:.1f}%")
+    with col3:
+        st.metric("최저 습도", f"{min_humid:.1f}%")
+
+    # 그래프
+    fig = go.Figure()
+    
+    def get_humid_status_color(humid):
+        if abs(humid - DANGER_HUMID) <= 0.5:
+            return '#FF4444'
+        elif abs(humid - WARNING_HUMID) <= 0.5:
+            return '#FFA726'  
+        elif abs(humid - CAUTION_HUMID) <= 0.5:
+            return '#FFC107'
+        return '#4CAF50'
+
+    # 기준선
+    fig.add_hline(y=DANGER_HUMID, line_dash="dash", line_color="#FF4444", annotation_text="위험")
+    fig.add_hline(y=WARNING_HUMID, line_dash="dash", line_color="#FFA726", annotation_text="경고")
+    fig.add_hline(y=CAUTION_HUMID, line_dash="dash", line_color="#FFC107", annotation_text="주의")
+    
+    # 습도 변화 그래프 
+    fig.add_trace(go.Scatter(
+        x=df["minute"],
+        y=df["ex_humidity"],
+        mode="lines+markers",
+        line=dict(color=get_humid_status_color(current_humid), width=2),
+        marker=dict(
+            size=4,
+            color=df["ex_humidity"].apply(get_humid_status_color)
+        ),
+        name="습도 변화",
+        hovertemplate="<b>시간</b>: %{x|%H:%M}<br>" +
+                      "<b>습도</b>: %{y:.1f}%<br><extra></extra>"
+    ))
+
+    fig.update_layout(
+        title="OHT 외부 습도",
+        height=300,
+        margin=dict(l=20, r=20, t=40, b=20),
+        xaxis=dict(
+            title=None,
+            gridcolor='rgba(128,128,128,0.1)',
+            nticks=10,
+            tickformat="%H:%M"
+        ),
+        yaxis=dict(
+            title=None,
+            gridcolor='rgba(128,128,128,0.1)',
+            range=[min(NORMAL_HUMID - 0.5, df["ex_humidity"].min() - 0.2),
+                   max(DANGER_HUMID + 0.5, df["ex_humidity"].max() + 0.2)]
+        ),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        showlegend=False,
+        hovermode="x unified"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    def get_humid_status_message(humid):
+        if abs(humid - DANGER_HUMID) <= 0.5:
+            st.error("⚠️ 습도가 매우 높습니다. 즉시 확인이 필요합니다")
+        elif abs(humid - WARNING_HUMID) <= 0.5:
+            st.warning("⚠️ 습도가 높습니다. 환기가 필요합니다")
+        elif abs(humid - CAUTION_HUMID) <= 0.5:
+            st.warning("📢 습도가 약간 상승했습니다. 모니터링이 필요합니다")
+        else:
+            st.success("✅ 습도 정상")
+
+    get_humid_status_message(current_humid)
        
 # ✅ OHT 조도 변화
 def oht_illuminance_change():
-    conn = get_db_connection()
-    df = pd.read_sql("SELECT timestamp, ex_illuminance FROM environment_measurements",conn)
-    conn.close()
- 
-    if df.empty:
-        st.warning("⚠️ 현재 OHT 조도 데이터가 없습니다.")
-    else:
-        df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
-        # 변환 실패한 값 제거
-        df = df.dropna(subset=["timestamp"])
-        # 분 단위로 그룹화하여 평균 계산
-        df["minute"] = df["timestamp"].dt.floor("min")
-        df = df.groupby("minute")[["ex_illuminance"]].mean().reset_index()
-        conn.close()
- 
-        # ✅ X축 시간 표시 간격 조정
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=df["minute"],
-            y=df["ex_illuminance"],
-            mode="lines+markers",  # 선과 마커 동시 표시
-            marker=dict(size=4, opacity=0.7),
-            line=dict(width=2),
-            name="평균 조도 변화"
-        ))
-       
-        fig.update_layout(
-            title="OHT 외부 조도 변화 (분 단위)",
-            xaxis_title="시간",
-            yaxis_title="평균 조도 (lux)",
-            xaxis=dict(nticks=20, tickformat="%H:%M"),  # ✅ 초 단위로 표시
-            hovermode="x unified",
-            template="plotly_white"
-        )
-        st.plotly_chart(fig, use_container_width=True)
+   conn = get_db_connection()
+   df = pd.read_sql("SELECT timestamp, ex_illuminance FROM environment_measurements", conn) 
+   
+   if df.empty:
+       st.warning("⚠️ 현재 OHT 조도 데이터가 없습니다.")
+       return
+   
+   NORMAL_ILLUM = 520.163391
+   CAUTION_ILLUM = 520.262512
+   WARNING_ILLUM = 520.438232
+   DANGER_ILLUM = 520.030823
+   
+   df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
+   df = df.dropna(subset=["timestamp"])
+   df["minute"] = df["timestamp"].dt.floor("min")
+   df = df.groupby("minute")[["ex_illuminance"]].mean().reset_index()
+   conn.close()
 
+   st.markdown("""
+       <style>
+       .st-emotion-cache-p38tq {
+           font-size: 1.6rem !important;
+           color: rgb(49, 51, 63) !important;
+       }
+       [data-testid="metric-container"] {
+           width: fit-content;
+           margin: auto;
+       }
+       [data-testid="metric-container"] > div {
+           width: fit-content;
+           margin: auto;
+       }
+       [data-testid="metric-container"] label {
+           font-size: 0.6rem !important;
+           color: rgba(0,0,0,0.6);
+       }
+       [data-testid="metric-container"] div[data-testid="metric-value"] {
+           font-size: 0.8rem !important;
+       }
+       [data-testid="metric-container"] div[data-testid="metric-delta"] {
+           font-size: 0.6rem !important;
+       }
+       [data-testid="stHorizontalBlock"] {
+           gap: 0.5rem !important;
+       }
+       </style>
+   """, unsafe_allow_html=True)
+   
+   col1, col2, col3 = st.columns(3)
+   current_illum = df["ex_illuminance"].iloc[-1]
+   max_illum = df["ex_illuminance"].max()
+   min_illum = df["ex_illuminance"].min()
+   illum_change = current_illum - df['ex_illuminance'].iloc[-2] if len(df) > 1 else 0
+   
+   with col1:
+       st.metric("현재 조도", f"{current_illum:.1f} lux", f"{illum_change:.1f} lux", delta_color="inverse")
+   with col2:
+       st.metric("최고 조도", f"{max_illum:.1f} lux")
+   with col3:
+       st.metric("최저 조도", f"{min_illum:.1f} lux")
+
+   fig = go.Figure()
+   
+   def get_illum_status_color(illum):
+       if abs(illum - DANGER_ILLUM) <= 0.5:
+           return '#FF4444'
+       elif abs(illum - WARNING_ILLUM) <= 0.5:
+           return '#FFA726'  
+       elif abs(illum - CAUTION_ILLUM) <= 0.5:
+           return '#FFC107'
+       return '#4CAF50'
+
+   fig.add_hline(y=DANGER_ILLUM, line_dash="dash", line_color="#FF4444", annotation_text="위험")
+   fig.add_hline(y=WARNING_ILLUM, line_dash="dash", line_color="#FFA726", annotation_text="경고")
+   fig.add_hline(y=CAUTION_ILLUM, line_dash="dash", line_color="#FFC107", annotation_text="주의")
+   
+   fig.add_trace(go.Scatter(
+       x=df["minute"],
+       y=df["ex_illuminance"],
+       mode="lines+markers",
+       line=dict(color=get_illum_status_color(current_illum), width=2),
+       marker=dict(
+           size=4,
+           color=df["ex_illuminance"].apply(get_illum_status_color)
+       ),
+       name="조도 변화",
+       hovertemplate="<b>시간</b>: %{x|%H:%M}<br>" +
+                     "<b>조도</b>: %{y:.1f} lux<br><extra></extra>"
+   ))
+
+   fig.update_layout(
+       title="OHT 외부 조도",
+       height=300,
+       margin=dict(l=20, r=20, t=40, b=20),
+       xaxis=dict(
+           title=None,
+           gridcolor='rgba(128,128,128,0.1)',
+           nticks=10,
+           tickformat="%H:%M"
+       ),
+       yaxis=dict(
+           title=None,
+           gridcolor='rgba(128,128,128,0.1)',
+           range=[min(NORMAL_ILLUM - 1, df["ex_illuminance"].min() - 0.5),
+                  max(DANGER_ILLUM + 1, df["ex_illuminance"].max() + 0.5)]
+       ),
+       plot_bgcolor='white',
+       paper_bgcolor='white',
+       showlegend=False,
+       hovermode="x unified"
+   )
+
+   st.plotly_chart(fig, use_container_width=True)
+
+   def get_illum_status_message(illum):
+       if abs(illum - DANGER_ILLUM) <= 0.5:
+           st.error("⚠️ 조도가 매우 낮습니다. 즉시 확인이 필요합니다")
+       elif abs(illum - WARNING_ILLUM) <= 0.5:
+           st.warning("⚠️ 조도가 낮습니다. 점검이 필요합니다")
+       elif abs(illum - CAUTION_ILLUM) <= 0.5:
+           st.warning("📢 조도가 약간 낮아졌습니다. 모니터링이 필요합니다")
+       else:
+           st.success("✅ 조도 정상")
+
+   get_illum_status_message(current_illum)
+
+
+def oht_thermal_monitoring():
+    st.markdown("""
+        <style>
+        .block-container {padding: 0;}
+        .status-card {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .status-badge {
+            text-align: center;
+            padding: 0.3rem 1rem;
+            border-radius: 4px;
+            font-weight: 500;
+            margin-bottom: 0.8rem;
+        }
+        .temp-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+        .temp-label {
+            color: #858796;
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
+        }
+        .temp-value {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        /* Add these new styles */
+        [data-testid="stHorizontalBlock"] {
+            gap: 1rem !important;
+            padding: 0 !important;
+        }
+        [data-testid="stVerticalBlock"] {
+            gap: 0 !important;
+            padding-top: 0 !important;
+        }
+        .element-container {
+            margin: 0 !important;
+        }
+        /* Adjust plotly chart container */
+        .js-plotly-plot {
+            max-height: 150px !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    devices = ['OHT17', 'OHT18']
+    
+    with st.container():
+        cols = st.columns(len(devices))
+        for idx, device in enumerate(devices):
+            with cols[idx]:
+                timestamps = pd.date_range(end=pd.Timestamp.now(), periods=60, freq='S')
+                base_temp = 45 + np.sin(np.linspace(0, 2*np.pi, 60)) * 3  
+                temps = base_temp + np.random.randn(60) * 0.5
+                current_temp = temps[-1]
+                
+                if current_temp < 46.98:
+                    status = "정상"
+                    status_color = "#1cc88a"
+                    status_bg = "#e6fff0"
+                elif current_temp < 59.23:
+                    status = "주의" 
+                    status_color = "#f6c23e"
+                    status_bg = "#fff8e6"
+                elif current_temp < 75.23:
+                    status = "경고"
+                    status_color = "#fd7e14"
+                    status_bg = "#fff4e6"
+                else:
+                    status = "위험"
+                    status_color = "#e74a3b"
+                    status_bg = "#ffe6e6"
+
+                gauge_fig = go.Figure()
+                gauge_fig.add_trace(go.Indicator(
+                    mode="gauge+number",
+                    value=current_temp,
+                    number={'suffix': "°C", 'font': {'size': 20}},
+                    domain={'x': [0, 1], 'y': [0, 1]},
+                    title={
+                        'text': f"<b>{device}</b><br><span style='font-size:12px;color:gray'>현재 온도</span>",
+                        'font': {'size': 16}
+                    },
+                    gauge={
+                        'axis': {'range': [20, 80], 'tickwidth': 1},
+                        'bar': {'color': "lightgray", 'thickness': 0.1},
+                        'bgcolor': "white",
+                        'steps': [
+                            {'range': [20, 47], 'color': "#1cc88a"},
+                            {'range': [47, 60], 'color': "#f6c23e"},
+                            {'range': [60, 75], 'color': "#fd7e14"},
+                            {'range': [75, 80], 'color': "#e74a3b"}
+                        ],
+                        'threshold': {
+                            'line': {'color': status_color, 'width': 4},
+                            'thickness': 1,
+                            'value': current_temp
+                        }
+                    }
+                ))
+
+                gauge_fig.update_layout(
+                    height=150,
+                    margin=dict(t=30, b=0, l=30, r=30),
+                    paper_bgcolor='rgba(0,0,0,0)'
+                )
+                
+                st.plotly_chart(gauge_fig, use_container_width=True, config={'displayModeBar': False})
+                
+                line_fig = go.Figure()
+                line_fig.add_trace(go.Scatter(
+                    x=timestamps,
+                    y=temps,
+                    mode='lines',
+                    line=dict(color=status_color, width=2)
+                ))
+                
+                line_fig.update_layout(
+                    title={
+                        'text': f"{device} 열화상 센서 온도", 
+                        'y':0.9,
+                        'x':0.5,
+                        'xanchor': 'center',
+                        'yanchor': 'top',
+                        'font': {'size': 14}
+                    },
+                    height=150,
+                    margin=dict(t=30, b=20, l=30, r=30),
+                    showlegend=False,
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    yaxis=dict(
+                        range=[20, 80],
+                        showgrid=True,
+                        gridcolor='lightgray',
+                        tickfont={'size': 10}
+                    ),
+                    xaxis=dict(
+                        showgrid=True,
+                        gridcolor='lightgray',
+                        tickfont={'size': 10}
+                    )
+                )
+                
+                st.plotly_chart(line_fig, use_container_width=True, config={'displayModeBar': False})
+                
+                st.markdown(f"""
+                    <div class="status-card">
+                        <div class="status-badge" style="background: {status_bg}; color: {status_color};">
+                            {status}
+                        </div>
+                        <div class="temp-grid">
+                            <div>
+                                <div class="temp-label">평균</div>
+                                <div class="temp-value">{np.mean(temps):.1f}°C</div>
+                            </div>
+                            <div>
+                                <div class="temp-label">최고</div>
+                                <div class="temp-value" style="color: {status_color}">{np.max(temps):.1f}°C</div>
+                            </div>
+                            <div>
+                                <div class="temp-label">최저</div>
+                                <div class="temp-value">{np.min(temps):.1f}°C</div>
+                            </div>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
 
 # ✅ 페이지 선택에 따라 실행
 if page == "AGV 상태 분포":
@@ -989,7 +2096,9 @@ elif page == "AGV 조도 변화":
     agv_illuminance_change()
 elif page == "AGV 상태 현황":
     agv_device_status()
-    
+elif page == "AGV 열화상 모니터링":
+    agv_thermal_monitoring()
+
 elif page == "OHT 상태 현황":
     oht_device_status()
 elif page == "OHT 상태 분포":
@@ -1006,3 +2115,5 @@ elif page == "OHT 습도 변화":
     oht_humidity_change()
 elif page == "OHT 조도 변화":
     oht_illuminance_change()
+elif page == "OHT 열화상 모니터링":
+    oht_thermal_monitoring()
