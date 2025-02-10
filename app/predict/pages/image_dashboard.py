@@ -189,17 +189,28 @@ def aggregated_high_temperature_mean(window):
         st.warning(f"온도 평균 계산 중 오류 발생: {str(e)}")
         return None
 
-def display_thermal_image(img, fig_placeholder):
+def get_thermal_data(device_id):
     try:
-        fig, ax = plt.subplots(figsize=(4, 2.4))
-        ax.axis(False)
-        cax = ax.imshow(img, cmap="inferno")
-        cbar = plt.colorbar(cax)
-        cbar.ax.tick_params(labelsize=8)
-        fig_placeholder.pyplot(fig)
-        plt.close()
+        device_type = 'oht' if 'oht' in device_id.lower() else 'agv'
+        number = ''.join(filter(str.isdigit, device_id))
+        table = f"{device_type}{number}_table"
+       
+        conn = get_db_connection()
+        if conn is None:
+            return []
+           
+        query = f"SELECT filenames FROM {table}"
+        df = pd.read_sql(query, conn)
+        conn.close()
+       
+        current_file_dir = os.path.dirname(os.path.abspath(__file__))
+        # 루트 상위폴더로 이동해야함
+        project_root = os.path.abspath(os.path.join(current_file_dir, "..", "..", ".."))
+        absolute_paths = [os.path.join(project_root, filename) for filename in df['filenames'].tolist()]
+        return absolute_paths
     except Exception as e:
-        st.error(f"이미지 표시 중 오류 발생: {str(e)}")
+        st.error(f"데이터 조회 중 오류 발생: {str(e)}")
+        return []
 
 def display_statistics(img, window, thermal_analyze, stats_placeholder):
     try:
