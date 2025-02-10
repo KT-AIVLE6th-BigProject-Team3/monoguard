@@ -786,7 +786,7 @@
                       <div class="streamlit-card-body">
                         <div id="sensorFrame">
                           <iframe
-                            src="http://localhost:8501"
+                            src="{{ streamlit_host }}"
                             frameborder="0"
                             style="width: 100%; height: 360px"
                           ></iframe>
@@ -831,7 +831,7 @@
                       <div class="card-body4">
                         <div id="sensorFrame">
                           <iframe
-                            src="http://localhost:8501"
+                            src="{{ streamlit_host }}"
                             frameborder="0"
                             style="width: 100%; height: 330px"
                           ></iframe>
@@ -868,7 +868,7 @@
                       <div class="streamlit-card-body2">
                         <div id="sensorFrame">
                           <iframe
-                            src="http://localhost:8501/image_dashboard?device=AGV17"
+                            src="{{ streamlit_host }}/image_dashboard?device=AGV17"
                             frameborder="0"
                             style="width: 100%; height: 640px"
                           ></iframe>
@@ -1105,7 +1105,7 @@
         const statusPromises = devices[currentType].map(async (deviceId) => {
           try {
             const response = await fetch(
-              `http://localhost:8000/pred/device_status/${deviceId}`
+              `/pred/device_status/${deviceId}`
             );
             const data = await response.json();
             return { deviceId, status: data.current_status };
@@ -1164,7 +1164,7 @@
 
           // 상태 데이터 가져오기
           const statusResponse = await fetch(
-            `http://localhost:8000/pred/device_status/${deviceId}`
+            `/pred/device_status/${deviceId}`
           );
           const statusData = await statusResponse.json();
 
@@ -1174,7 +1174,7 @@
 
           // 분석 데이터 가져오기
           const response = await fetch(
-            `http://localhost:8000/pred/analyze_device/${deviceId}`
+            `/pred/analyze_device/${deviceId}`
           );
           const data = await response.json();
 
@@ -1384,7 +1384,7 @@
         const container = document.getElementById("statusHistory");
         try {
           const response = await fetch(
-            `http://localhost:8000/pred/device_history/${deviceId}`
+            `/pred/device_history/${deviceId}`
           );
           const data = await response.json();
 
@@ -1630,7 +1630,7 @@
             .closest(".card")
             .querySelector("iframe");
           if (iframe) {
-            iframe.src = `http://localhost:8501/${page}?device=${deviceId}`;
+            iframe.src = `{{ streamlit_host }}/${page}?device=${deviceId}`;
             iframe.onload = () => handleIframeLoad("sensor");
           }
         }
@@ -1646,7 +1646,7 @@
             .closest(".card")
             .querySelector("iframe");
           if (iframe) {
-            iframe.src = `http://localhost:8501/${page}?device=${deviceId}`;
+            iframe.src = `{{ streamlit_host }}/${page}?device=${deviceId}`;
             iframe.onload = () => handleIframeLoad("sensor");
           }
         }
@@ -1656,7 +1656,7 @@
           ".streamlit-card-body2 iframe"
         );
         if (thermalIframe) {
-          thermalIframe.src = `http://localhost:8501/image_dashboard?device=${deviceId}`;
+          thermalIframe.src = `{{ streamlit_host }}/image_dashboard?device=${deviceId}`;
           thermalIframe.onload = () => handleIframeLoad("image");
         }
       }
@@ -1674,7 +1674,7 @@
 
           if (selectedDevice) {
             const response = await fetch(
-              `http://localhost:8000/pred/analyze_device/${selectedDevice}`
+              `/pred/analyze_device/${selectedDevice}`
             );
             const data = await response.json();
 
