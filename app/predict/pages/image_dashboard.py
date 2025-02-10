@@ -8,7 +8,6 @@ import requests
 from thermal_image_analysis import ThermalImageAnalysis
 import time
 import os
-
 st.set_page_config(
     page_title="열화상 모니터링",
     layout="wide",
@@ -174,7 +173,7 @@ def get_thermal_data(device_id):
         query = f"SELECT filenames FROM {table}"
         df = pd.read_sql(query, conn)
         conn.close()
-        
+       
         current_file_dir = os.path.dirname(os.path.abspath(__file__))
         # 루트 상위폴더로 이동해야함
         project_root = os.path.abspath(os.path.join(current_file_dir, "..", "..", ".."))
@@ -189,6 +188,7 @@ def get_thermal_data(device_id):
     except Exception as e:
         st.error(f"데이터 조회 중 오류 발생: {str(e)}")
         return []
+ 
 
 def aggregated_high_temperature_mean(window):
     try:
@@ -333,7 +333,6 @@ def main():
             try:
                 window = df[start:start + window_size]
                 bin_path = window['filenames'].iloc[-1]
-                print("bin path : " + bin_path)
                 img = load_thermal_image(bin_path)
                 
                 if img is not None:

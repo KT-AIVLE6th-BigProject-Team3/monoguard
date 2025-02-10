@@ -1,38 +1,4 @@
-2025-02-10 21:31:33.991 
-Warning: the config option 'server.enableCORS=false' is not compatible with 'server.enableXsrfProtection=true'.
-As a result, 'server.enableCORS' is being overridden to 'true'.
+Usage: streamlit run [OPTIONS] TARGET [ARGS]...
+Try 'streamlit run --help' for help.
 
-More information:
-In order to protect against CSRF attacks, we send a cookie with each request.
-To do so, we must specify allowable origins, which places a restriction on
-cross-origin resource sharing.
-
-If cross origin resource sharing is required, please disable server.enableXsrfProtection.
-            
-
-Collecting usage statistics. To deactivate, set browser.gatherUsageStats to false.
-
-2025-02-10 21:31:34.542 Port 8501 is already in use
-Exception ignored in: <function BaseEventLoop.__del__ at 0x000001EBD6825760>
-Traceback (most recent call last):
-  File "C:\Users\User\anaconda3\envs\bp\Lib\asyncio\base_events.py", line 727, in __del__
-    self.close()
-  File "C:\Users\User\anaconda3\envs\bp\Lib\asyncio\selector_events.py", line 104, in close
-    self._close_self_pipe()
-  File "C:\Users\User\anaconda3\envs\bp\Lib\asyncio\selector_events.py", line 111, in _close_self_pipe
-    self._remove_reader(self._ssock.fileno())
-  File "C:\Users\User\anaconda3\envs\bp\Lib\asyncio\selector_events.py", line 298, in _remove_reader
-    key = self._selector.get_key(fd)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\User\anaconda3\envs\bp\Lib\selectors.py", line 190, in get_key
-    return mapping[fileobj]
-           ~~~~~~~^^^^^^^^^
-  File "C:\Users\User\anaconda3\envs\bp\Lib\selectors.py", line 71, in __getitem__
-    fd = self._selector._fileobj_lookup(fileobj)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\User\anaconda3\envs\bp\Lib\selectors.py", line 225, in _fileobj_lookup
-    return _fileobj_to_fd(fileobj)
-           ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\User\anaconda3\envs\bp\Lib\selectors.py", line 42, in _fileobj_to_fd
-    raise ValueError("Invalid file descriptor: {}".format(fd))
-ValueError: Invalid file descriptor: -1
+Error: Invalid value for '--server.headless': 'true--server.enableCORS' is not a valid boolean.

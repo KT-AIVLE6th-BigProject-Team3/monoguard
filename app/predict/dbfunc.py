@@ -12,7 +12,8 @@ class Database:
         self.base_path = './data'
 
     def get_connection(self):
-        return sqlite3.connect(self.db_path)
+        #return sqlite3.connect(self.db_path)
+        return sqlite3.connect("sensor_data.db") 
     
     def init_tables(self):
         """모든 테이블 초기화 및 초기 데이터 로드"""
