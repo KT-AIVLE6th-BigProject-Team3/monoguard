@@ -17,9 +17,10 @@ embed_mode = query_params.get("embed", "false").lower() == "true"  # embed=true�
 
 # ✅ 데이터베이스 연결 함수
 def get_db_connection():
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(BASE_DIR, "sensor_data.db")
-    return sqlite3.connect(db_path)
+    #BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    #db_path = os.path.join(BASE_DIR, "sensor_data.db")
+    #return sqlite3.connect(db_path)
+    return sqlite3.connect("sensor_data.db") 
 
 # ✅ 모든 페이지에서 Streamlit UI 요소 제거 (상단 색깔 선, Deploy 버튼 등)
 st.markdown("""
