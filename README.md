@@ -48,7 +48,7 @@ B2B 반도체 공정 제조사 (예: 삼성전자, SK 하이닉스, 현대자동
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 
 # 🔹 클라우드 & 인프라
-![Azure](https://img.shields.io/badge/-Microsoft%20Azure-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)
+![Azure](https://img.shields.io/badge/-Azure-0078D4?style=flat-square&logo=azuredevops&logoColor=white)
 
 # 🔹 AI & 데이터
 ![AI Hub](https://img.shields.io/badge/-AI%20Hub-FF9900?style=flat-square)
