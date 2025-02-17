@@ -162,5 +162,51 @@ async def chat_endpoint(question: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
  
-
+# ✅ PDF 보고서 생성 (WeasyPrint 사용)
+def generate_pdf_report(html_content, filename):
+    pdf_path = os.path.join(REPORTS_DIR, filename)
+    HTML(string=html_content).write_pdf(pdf_path)
+    return pdf_path
+# ✅ EquipmentReportRequest 모델 정의 추가
+class EquipmentReportRequest(BaseModel):
+    장비_ID: str
+    시작_날짜: str  # MM-DD 형식
+    종료_날짜: str  # MM-DD 형식
+    
+@router.post("/generate-equipment-report")
+async def generate_equipment_report(request: EquipmentReportRequest):
+    try:
+        # ✅ HTML 보고서 생성
+        html_content = f"""
+        <html>
+        <head><meta charset="UTF-8"></head>
+        <body>
+            <h1>{request.장비_ID} 정비 보고서</h1>
+            <p>운영 기간: {request.시작_날짜} ~ {request.종료_날짜}</p>
+            <h2>AI 분석 보고</h2>
+            <p>장비의 상태에 대한 분석 결과가 여기에 포함됩니다.</p>
+        </body>
+        </html>
+        """
+ 
+        # ✅ PDF 파일 생성
+        pdf_filename = f"{request.장비_ID}_report.pdf"
+        pdf_path = generate_pdf_report(html_content, pdf_filename)
+ 
+        # ✅ 응답 반환
+        return {
+            "message": "보고서 생성 완료",
+            "pdf_filename": pdf_filename,
+            "download_url": f"/rep/download-report/{pdf_filename}",
+        }
+ 
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+ 
+@router.get("/download-report/{filename}")
+async def download_report(filename: str):
+    file_path = os.path.join(REPORTS_DIR, filename)
+    if not os.path.exists(file_path):
+        return {"error": "파일을 찾을 수 없습니다."}
+    return FileResponse(file_path, filename=filename, media_type="routerlication/pdf")
  
