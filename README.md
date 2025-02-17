@@ -36,17 +36,27 @@ B2B 반도체 공정 제조사 (예: 삼성전자, SK 하이닉스, 현대자동
 ---
 
 ## 🏗 시스템 아키텍처
-### 🔹 프론트엔드 (FE)
-- HTML, CSS, JavaScript, Streamlit
+## 🔹 프론트엔드 (FE)
+![HTML](https://img.shields.io/badge/-HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![CSS](https://img.shields.io/badge/-CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/-JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![Streamlit](https://img.shields.io/badge/-Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)
 
-### 🔹 백엔드 (BE)
-- Python, SQLite, Docker
+## 🔹 백엔드 (BE)
+![Python](https://img.shields.io/badge/-Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![SQLite](https://img.shields.io/badge/-SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)
+![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 
-### 🔹 AI & 데이터
-- AI Hub, PyTorch
+## 🔹 AI & 데이터
+![AI Hub](https://img.shields.io/badge/-AI%20Hub-FF9900?style=flat-square)
+![PyTorch](https://img.shields.io/badge/-PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)
 
-### 🔹 협업 툴
-- GitHub, Teams
+## 🔹 협업 툴
+![GitHub](https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github&logoColor=white)
+![Microsoft Teams](https://img.shields.io/badge/-Teams-6264A7?style=flat-square&logo=microsoftteams&logoColor=white)
+![Notion](https://img.shields.io/badge/-Notion-000000?style=flat-square&logo=notion&logoColor=white)
+![Figma](https://img.shields.io/badge/-Figma-F24E1E?style=flat-square&logo=figma&logoColor=white)
+
 
 ---
 
