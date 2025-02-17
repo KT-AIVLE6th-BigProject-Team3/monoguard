@@ -1,9 +1,11 @@
 # MONOGUARD
-![AI 3조 썸네일](https://github.com/user-attachments/assets/d24a424e-b3d9-4092-a9d7-716270be46c8)
-
 ## 🚀 AI 기반 스마트 운송장치 예지보전 솔루션
 
 MONOGUARD는 제조 멀티모달 데이터를 활용하여 이동식 장비(OHT, AGV)의 모니터링과 고장 예측 및 상태 분석을 제공하는 AI 기반의 산업 안전 솔루션입니다.
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/d24a424e-b3d9-4092-a9d7-716270be46c8" alt="AI 3조 썸네일"/>
+</p>
+
 
 ---
 
