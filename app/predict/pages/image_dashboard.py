@@ -179,12 +179,6 @@ def get_thermal_data(device_id):
         project_root = os.path.abspath(os.path.join(current_file_dir, "..", "..", ".."))
         absolute_paths = [os.path.join(project_root, filename) for filename in df['filenames'].tolist()]
         return absolute_paths
-       
-        current_file_dir = os.path.dirname(os.path.abspath(__file__))
-        # 루트 상위폴더로 이동해야함
-        project_root = os.path.abspath(os.path.join(current_file_dir, "..", "..", ".."))
-        absolute_paths = [os.path.join(project_root, filename) for filename in df['filenames'].tolist()]
-        return absolute_paths
     except Exception as e:
         st.error(f"데이터 조회 중 오류 발생: {str(e)}")
         return []

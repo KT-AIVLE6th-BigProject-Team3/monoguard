@@ -1,69 +1,41 @@
 from app.routers import predict
-from fastapi import FastAPI, Depends, Request
-from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, JSONResponse, Response
+from fastapi import FastAPI, Depends
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import engine
-from app.models import Base
-from app.routers import auth, board, user, admin, predict, chatbot, report
+
 import subprocess
 from starlette.responses import RedirectResponse
 import os
 
-# Base directory 설정
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STREAMLIT_LOG = os.path.join(BASE_DIR, "streamlit.log")
-
-import requests
+from app.database import engine
+from app.models import Base
+from app.routers import auth, board, user, admin, predict, chatbot, report
  
- 
-STREAMLIT_LOG = "streamlit.log"
-STREAMLIT_PORT = 8501
-# STREAMLIT_HOST = os.getenv("STREAMLIT_HOST", "http://localhost:8501")
-STREAMLIT_HOST = "http://localhost:8501"
-
-# # Azure 환경에서는 FastAPI 프록시 경로를 사용
-# if "WEBSITE_HOSTNAME" in os.environ:  # Azure 환경 감지
-#     STREAMLIT_HOST = "https://monoguard-cfe2hsede7aeeray.koreacentral-01.azurewebsites.net/streamlit-proxy"
-
+#STREAMLIT_LOG = "streamlit.log"
 # ✅ Streamlit 실행 함수
 def run_streamlit():
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     """Streamlit을 백그라운드에서 실행하고 로그를 저장"""
-    dashboard_path = os.path.join(BASE_DIR, "app", "predict", "dashboard.py")
-    with open(STREAMLIT_LOG, "w") as log_file:
-        streamlit_process = subprocess.Popen(
-            ["streamlit", "run", dashboard_path, "--server.port", "8501", "--server.headless", "true"
-             "--server.enableCORS", "false"],
-            stdout=log_file,
-            stderr=log_file,
+    #with open(STREAMLIT_LOG, "w") as log_file:
+    streamlit_process = subprocess.Popen(
+            ["streamlit", "run", "app/predict/dashboard.py", "--server.port", "8501", "--server.headless", "true"],
+            stdout=None,
+            stderr=None,
             text=True,
-            cwd=BASE_DIR
-        )
+            cwd=BASE_DIR  # 작업 디렉토리를 BASE_DIR로 지정
+    )
     return streamlit_process
-
-# 데이터베이스 경로 설정
-DB_PATH = os.path.join(BASE_DIR, "app", "predict", "sensor_data.db")
-os.environ["SENSOR_DB_PATH"] = DB_PATH  # 환경 변수로 설정
-
+ 
 Base.metadata.create_all(bind=engine)
 templates = Jinja2Templates(directory="templates")
-app = FastAPI()
+app = FastAPI() 
 streamlit_process = run_streamlit()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# CORS 미들웨어 설정
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# 라우터 포함
 app.include_router(user.router, prefix="/users", tags=["Users"])
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(board.router, prefix="/board", tags=["Board"])
@@ -85,19 +57,7 @@ def read_root(request: Request, current_user: dict = Depends(auth.get_current_us
     if current_user is not None:
         return templates.TemplateResponse("index.html", {"request": request, "user": current_user})
     return templates.TemplateResponse("login.html", {"request": request})
-
-# ✅ FastAPI가 Streamlit(8501)로 요청을 프록시 처리
-@app.get("/streamlit-proxy/{path:path}")
-async def streamlit_proxy(path: str, request: Request):
-    streamlit_url = f"http://localhost:{STREAMLIT_PORT}/{path}"  # 내부적으로 8501 포트로 요청
-    headers = {"accept": "text/html"}
-
-    # Streamlit에 요청 보내기
-    response = requests.get(streamlit_url, headers=headers)
-
-    # FastAPI가 Streamlit의 응답을 그대로 반환
-    return Response(content=response.content, media_type=response.headers["content-type"])
-
+ 
 @app.get("/signup", response_class=HTMLResponse)
 def act_register_page(request: Request):
     return templates.TemplateResponse("signup.html", {"request": request})
@@ -114,9 +74,7 @@ def act_register_page(request: Request):
 def act_main_page(request: Request, current_user: dict = Depends(auth.get_current_user_from_cookie)):
     if current_user is None:
         return RedirectResponse(url="/error?code=invalid_token", status_code=303)
-    # return templates.TemplateResponse("index.html", {"request": request, "user": current_user})
-    print(STREAMLIT_HOST)
-    return templates.TemplateResponse("index.html", {"request": request, "user": current_user, "streamlit_host": STREAMLIT_HOST})
+    return templates.TemplateResponse("index.html", {"request": request, "user": current_user})
 
 @app.get("/notice", response_class=HTMLResponse)
 def act_notice_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
@@ -158,8 +116,7 @@ def act_qna_detail_page(current_user: dict = Depends(auth.get_current_user_from_
 def act_predict_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):
     if current_user is None:
         return RedirectResponse(url="/error?code=invalid_token", status_code=303)
-    # return templates.TemplateResponse("predict.html", {"request": {}, "user": current_user}) 
-    return templates.TemplateResponse("predict.html", {"request": {}, "user": current_user, "streamlit_host": STREAMLIT_HOST}) 
+    return templates.TemplateResponse("predict.html", {"request": {}, "user": current_user}) 
 
 @app.get("/chat", response_class=HTMLResponse)
 def act_chat_page(current_user: dict = Depends(auth.get_current_user_from_cookie)):

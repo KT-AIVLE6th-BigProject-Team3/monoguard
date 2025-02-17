@@ -316,7 +316,7 @@
                         <!-- 오른쪽: 상태분포 차트 -->
                         <div class="col-md-6">
                           <iframe
-                            src="{{ streamlit_host }}/?page=AGV 상태 분포"
+                            src="http://localhost:8501/?page=AGV 상태 분포"
                             width="100%"
                             height="400"
                             frameborder="0"
@@ -335,7 +335,7 @@
                     </div>
                     <div class="agv-env-card-body">
                       <iframe
-                        src="{{ streamlit_host }}/?page=시간에 따른 AGV 상태 변화"
+                        src="http://localhost:8501/?page=시간에 따른 AGV 상태 변화"
                         width="100%"
                         height="315"
                         frameborder="0"
@@ -350,7 +350,7 @@
                     </div>
                     <div class="streamlit-card-body">
                       <iframe
-                        src="{{ streamlit_host }}/?page=AGV 열화상 모니터링&embed=true"
+                        src="http://localhost:8501/?page=AGV 열화상 모니터링&embed=true"
                         frameborder="0"
                         style="width: 100%; height: 500px"
                         scrolling="no"
@@ -384,7 +384,7 @@
                     </div>
                     <div class="agv-env-card-body">
                       <iframe
-                        src="{{ streamlit_host }}/?page=최근 작업 환경"
+                        src="http://localhost:8501/?page=최근 작업 환경"
                         width="100%"
                         height="150px"
                         frameborder="0"
@@ -400,7 +400,7 @@
                     </div>
                     <div class="agv-env-card-body">
                       <iframe
-                        src="{{ streamlit_host }}/?page=AGV 온도 변화"
+                        src="http://localhost:8501/?page=AGV 온도 변화"
                         width="100%"
                         height="500px"
                         frameborder="0"
@@ -416,7 +416,7 @@
                     </div>
                     <div class="agv-env-card-body">
                       <iframe
-                        src="{{ streamlit_host }}/?page=AGV 습도 변화"
+                        src="http://localhost:8501/?page=AGV 습도 변화"
                         width="100%"
                         height="510"
                         frameborder="0"
@@ -432,7 +432,7 @@
                     </div>
                     <div class="agv-env-card-body">
                       <iframe
-                        src="{{ streamlit_host }}/?page=AGV 조도 변화"
+                        src="http://localhost:8501/?page=AGV 조도 변화"
                         width="100%"
                         height="500"
                         frameborder="0"
@@ -585,7 +585,7 @@
                         <!-- 상태분포 차트 -->
                         <div class="col-md-6">
                           <iframe
-                            src="{{ streamlit_host }}/?page=OHT 상태 분포"
+                            src="http://localhost:8501/?page=OHT 상태 분포"
                             width="100%"
                             height="400"
                             frameborder="0"
@@ -604,7 +604,7 @@
                     </div>
                     <div class="oht-env-card-body">
                       <iframe
-                        src="{{ streamlit_host }}/?page=시간에 따른 OHT 상태 변화"
+                        src="http://localhost:8501/?page=시간에 따른 OHT 상태 변화"
                         width="100%"
                         height="315"
                         frameborder="0"
@@ -619,7 +619,7 @@
                     </div>
                     <div class="streamlit-card-body">
                       <iframe
-                        src="{{ streamlit_host }}/?page=OHT 열화상 모니터링&embed=true"
+                        src="http://localhost:8501/?page=OHT 열화상 모니터링&embed=true"
                         frameborder="0"
                         style="width: 100%; height: 500px"
                         scrolling="no"
@@ -653,7 +653,7 @@
                     </div>
                     <div class="oht-env-card-body">
                       <iframe
-                        src="{{ streamlit_host }}/?page=OHT 최근 작업 환경"
+                        src="http://localhost:8501/?page=OHT 최근 작업 환경"
                         width="100%"
                         height="150px"
                         frameborder="0"
@@ -669,7 +669,7 @@
                     </div>
                     <div class="oht-env-card-body">
                       <iframe
-                        src="{{ streamlit_host }}/?page=OHT 온도 변화"
+                        src="http://localhost:8501/?page=OHT 온도 변화"
                         width="100%"
                         height="500px"
                         frameborder="0"
@@ -685,7 +685,7 @@
                     </div>
                     <div class="oht-env-card-body">
                       <iframe
-                        src="{{ streamlit_host }}/?page=OHT 습도 변화"
+                        src="http://localhost:8501/?page=OHT 습도 변화"
                         width="100%"
                         height="510"
                         frameborder="0"
@@ -701,7 +701,7 @@
                     </div>
                     <div class="oht-env-card-body">
                       <iframe
-                        src="{{ streamlit_host }}/?page=OHT 조도 변화"
+                        src="http://localhost:8501/?page=OHT 조도 변화"
                         width="100%"
                         height="500"
                         frameborder="0"
@@ -775,7 +775,7 @@
         for (const deviceId of devices) {
           try {
             const response = await fetch(
-              `/pred/analyze_device/${deviceId}`
+              `http://localhost:8000/pred/analyze_device/${deviceId}`
             );
             const data = await response.json();
             updateAlertEquipment(deviceId, data.sensor_details, deviceType);
@@ -798,7 +798,7 @@
         for (const deviceId of devices) {
           try {
             const response = await fetch(
-              `/pred/device_status/${deviceId}`
+              `http://localhost:8000/pred/device_status/${deviceId}`
             );
             const data = await response.json();
 
@@ -844,7 +844,7 @@
 
           for (const deviceId of devices) {
             const response = await fetch(
-              `/pred/device_status/${deviceId}`
+              `http://localhost:8000/pred/device_status/${deviceId}`
             );
             const data = await response.json();
 
@@ -944,7 +944,7 @@
       function updateIframe(type) {
         const iframe = document.getElementById("mainIframe");
         if (iframe) {
-          iframe.src = `{{ streamlit_host }}/?page=${type}`;
+          iframe.src = `http://localhost:8501/?page=${type}`;
         }
       }
 
@@ -988,7 +988,7 @@
 
         Promise.all(
           devices.map((deviceId) =>
-            fetch(`/pred/analyze_device/${deviceId}`).then(
+            fetch(`http://localhost:8000/pred/analyze_device/${deviceId}`).then(
               (res) => res.json()
             )
           )
