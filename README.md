@@ -87,8 +87,7 @@ B2B 반도체 공정 제조사 (예: 삼성전자, SK 하이닉스, 현대자동
 
 ---
 ## 🎬 1분만에 알아보는 MonoGuard
-https://youtu.be/47dXqLPG-XE
-
+![MonoGuard 소개 영상](https://youtu.be/47dXqLPG-XE)
 
 ## 🚀 실행 방법
 ### 1️⃣ 프로젝트 클론
