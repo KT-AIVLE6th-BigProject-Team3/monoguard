@@ -35,7 +35,7 @@ B2B 반도체 공정 제조사 (예: 삼성전자, SK 하이닉스, 현대자동
 
 ---
 
-## 🏗 시스템 아키텍처
+# 사용 스택
 ## 🔹 프론트엔드 (FE)
 ![HTML](https://img.shields.io/badge/-HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
 ![CSS](https://img.shields.io/badge/-CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
@@ -47,10 +47,10 @@ B2B 반도체 공정 제조사 (예: 삼성전자, SK 하이닉스, 현대자동
 ![SQLite](https://img.shields.io/badge/-SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 
-## 🔹 클라우드 & 인프라
+# 🔹 클라우드 & 인프라
 ![Azure](https://img.shields.io/badge/-Microsoft%20Azure-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)
 
-## 🔹 AI & 데이터
+# 🔹 AI & 데이터
 ![AI Hub](https://img.shields.io/badge/-AI%20Hub-FF9900?style=flat-square)
 ![PyTorch](https://img.shields.io/badge/-PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)
 
