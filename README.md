@@ -78,7 +78,8 @@ B2B 반도체 공정 제조사 (예: 삼성전자, SK 하이닉스, 현대자동
 ---
 
 ## 📌 서비스 플로우
-![Uploading image.png…]()
+  <img src="![스크린샷 2025-02-18 오후 9 24 39](https://github.com/user-attachments/assets/ae178f96-cfad-4bd5-b9fd-ea1c493495dc)" alt="AI 3조 썸네일"/>
+
 
 1. **데이터 수집**: 열화상 이미지, 센서 데이터 수집
 2. **실시간 모니터링**: 장비 상태 및 이상 징후 감지
