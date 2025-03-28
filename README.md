@@ -251,23 +251,6 @@ streamlit run dashboard.py
 
 ---
 
-## 👥 팀원 소개
-
-<table>
-  <tr>
-    <td align="center"><img src="https://github.com/identicons/hweb.png" width="100px"/><br/><b>황은비 (조장)</b><br/>웹 프론트엔드<br/>대시보드 UI/UX</td>
-    <td align="center"><img src="https://github.com/identicons/kjh.png" width="100px"/><br/><b>구종한</b><br/>웹 백엔드<br/>CI/CD</td>
-    <td align="center"><img src="https://github.com/identicons/kye.png" width="100px"/><br/><b>김예은</b><br/>웹 프론트엔드<br/>챗봇/보고서 UI</td>
-  </tr>
-  <tr>
-    <td align="center"><img src="https://github.com/identicons/ldh.png" width="100px"/><br/><b>이대희</b><br/>AI 모델 개발<br/>챗봇/보고서 생성</td>
-    <td align="center"><img src="https://github.com/identicons/jjw.png" width="100px"/><br/><b>정재원</b><br/>웹 백엔드<br/>API 통합</td>
-    <td align="center"><img src="https://github.com/identicons/hys.png" width="100px"/><br/><b>황유성</b><br/>멀티모달 모델<br/>시각화/비즈니스 평가</td>
-  </tr>
-</table>
-
----
-
 ## 📽️ 시연 영상
 <div align="center">
   <a href="https://youtu.be/47dXqLPG-XE">
