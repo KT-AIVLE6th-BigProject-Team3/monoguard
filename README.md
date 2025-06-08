@@ -92,7 +92,7 @@
 <div style="border-left: 4px solid #FF3D00; padding-left: 20px; margin-bottom: 20px;">
   <h3>📄 자동 보고서 생성</h3>
   <ul>
-    <li><strong>Weasyprin 라이브러리</strong> 기반 PDF 생성</li>
+    <li><strong>Weasyprint 라이브러리</strong> 기반 PDF 생성</li>
     <li><strong>AI 프롬프트</strong> 기반 데이터 요약 및 분석</li>
     <li><strong>장비 상태, 이상 징후, 권장 조치</strong> 포함</li>
     <li><strong>관리자 업무 효율화</strong> 및 의사결정 지원</li>
