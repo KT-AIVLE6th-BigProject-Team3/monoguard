@@ -34,7 +34,7 @@
 
 <table>
 <tr>
-<td width="60%">
+<td width="100%">
 
 ### 🚨 제조업 장비 고장의 경제적 영향
 - **삼성전자 평택 사업장(2018)**: 30분 공정 중단으로 **500억 원 손실**
@@ -52,15 +52,13 @@
 - **정적 임계값** 사용으로 장비별 특성 반영 부족
 
 </td>
-<td width="40%">
-<img src="https://github.com/user-attachments/assets/d131502b-f3a2-4adc-ada5-2e8f4ab2f6fc" alt="서비스 플로우" width="100%"/>
-</td>
 </tr>
 </table>
 
 ---
 
 ## 🔥 주요 서비스
+<img src="https://github.com/user-attachments/assets/d131502b-f3a2-4adc-ada5-2e8f4ab2f6fc" alt="서비스 플로우" width="100%"/>
 
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
 
