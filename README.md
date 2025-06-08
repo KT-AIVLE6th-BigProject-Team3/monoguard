@@ -39,7 +39,7 @@
 - **AI 예지보전 효과**: 설비 보전 비용 10% 절감, 매출 74% 상승
 
 ### 🔄 제조 환경의 변화
-- 고정형 컨베이어 벨트에서 **이동식 장비(AGV, OHT)**로 전환
+- 고정형 컨베이어 벨트에서 이동식 장비(AGV, OHT)로 전환
 - 이동식 장비는 동적 경로 설정으로 **생산 유연성 증가**
 - 복잡한 운영 환경으로 인한 **새로운 모니터링 요구**
 
@@ -193,7 +193,7 @@
 ## 🧠 AI 기술 설명
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/d147dca8-d5ba-4e25-a2ea-e5de0d3cfe1f" alt="AI 아키텍처" width="80%"/>
+  <img width="1284" alt="image" src="https://github.com/user-attachments/assets/afdc8a7a-410d-4cc6-832c-5ed24d04f396" /,width="80%">
   <h4>멀티모달 Transformer 기반 예지보전 아키텍처</h4>
 </div>
 
